@@ -1,18 +1,11 @@
-import {
-  BeforeInsert,
-  BeforeUpdate,
-  Column,
-  Entity,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 
-@Entity()
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
+import { CoreEntity } from 'src/common/entities/core.entity';
 
+@Entity()
+export class User extends CoreEntity {
   @Column()
   username: string;
 
@@ -32,10 +25,6 @@ export class User {
       console.log(e);
       throw new InternalServerErrorException();
     }
-  }
-
-  async bcryptPassword(password): Promise<string> {
-    return await bcrypt.hash(password, 10);
   }
 
   // 받아오는 패스워드 비교

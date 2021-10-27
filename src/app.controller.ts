@@ -35,19 +35,6 @@ export class AppController {
   ): string {
     console.log(body, parms);
 
-    //@ts-ignore
-    const [type, token] = req.headers.authorization.split(' ');
-
-    if (type !== 'Bearer') return '타입이 다릅니다';
-
-    // 유저 찾기
-    const bol = Boolean(token);
-    console.log('token : ', token);
-
-    if (!bol) {
-      return '존재 하지 않는 유저입니다.';
-    }
-
     return this.appService.getHello();
   }
 }

@@ -6,35 +6,41 @@ import {
   Patch,
   Post,
   Request,
+  UseGuards,
 } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
+import { authUser } from 'src/auth/authUser.decorator';
+import { BasicAuth } from 'src/auth/basicAuth.decorator';
+import { basicAuth } from 'src/common/interface';
+import { UserUpdateDto } from './dtos/userUpdate.dto';
+import { User } from './entities/user.entity';
 import { UserService } from './user.service';
-
-export interface updateBody {
-  password: string;
-  dsc: string;
-}
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  login(@Request() req: Request) {
-    return this.userService.login(req);
+  login(@BasicAuth() auth: basicAuth) {
+    console.log(auth.username, auth.password);
+    return this.userService.login(auth);
   }
 
   @Post()
-  userCreate(@Request() req: Request) {
-    return this.userService.create(req);
+  userCreate(@BasicAuth() auth: basicAuth) {
+    return this.userService.create(auth);
   }
 
   @Patch()
-  userUpdate(@Request() req: Request, @Body() body: updateBody) {
-    return this.userService.update(req, body);
+  @UseGuards(AuthGuard)
+  userUpdate(@authUser() user: User, @Body() body: UserUpdateDto) {
+    // console.log(user);
+    return this.userService.update(user, body);
   }
 
   @Delete()
-  useDelete(@Request() req: Request) {
-    return this.userService.delete(req);
+  @UseGuards(AuthGuard)
+  useDelete(@authUser() user: User) {
+    return this.userService.delete(user);
   }
 }
