@@ -5,6 +5,7 @@ import { User } from './entities/user.entity';
 import * as jwt from 'jsonwebtoken';
 import { UserUpdateDto } from './dtos/userUpdate.dto';
 import { basicAuth } from 'src/common/interface';
+import { LoginOutPutDto } from './dtos/login.dto';
 
 @Injectable()
 export class UserService {
@@ -13,10 +14,7 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async login({
-    username,
-    password,
-  }: basicAuth): Promise<{ ok: boolean; err?: string; token?: string }> {
+  async login({ username, password }: basicAuth): Promise<LoginOutPutDto> {
     const user = await this.usersRepository.findOne({
       username,
     });
@@ -41,6 +39,11 @@ export class UserService {
     return {
       ok: true,
       token,
+
+      user: {
+        username: user.username,
+        dsc: user.dsc,
+      },
     };
   }
 

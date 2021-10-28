@@ -1,20 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { PartialType, PickType } from '@nestjs/swagger';
 
-export class UserUpdateDto {
-  @ApiProperty({
-    required: false,
-    description: 'user password 입력하는곳입니다.',
-    type: () => String,
-  })
-  @IsString()
-  @IsOptional()
-  password?: string;
+import { User } from '../entities/user.entity';
 
-  @ApiProperty({
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  dsc?: string;
-}
+export class UserUpdateDto extends PartialType(
+  PickType(User, ['password', 'dsc']),
+) {}
