@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { JwtMiddleware } from './JwtMiddleware/Jwt.middleware';
 
 import { UserModule } from './user/user.module';
+import { WsModule } from './ws/ws.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { UserModule } from './user/user.module';
       synchronize: true,
     }),
     UserModule,
+    WsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
