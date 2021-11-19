@@ -9,7 +9,6 @@ export class JwtMiddleware implements NestMiddleware {
   constructor(private readonly userService: UserService) {}
   async use(req: Request, res: Response, next: NextFunction) {
     try {
-      console.log('ws도호출 ㅎㅎ');
       if ('authorization' in req.headers) {
         const [type, token] = req.headers['authorization'].split(' ');
 
