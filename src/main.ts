@@ -13,6 +13,7 @@ async function bootstrap() {
     .setTitle('포토폴리오 백엔드 ')
     .setDescription('간단한 백엔드를 구현했습니다.')
     .setVersion('1.0')
+    .addBasicAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, swaggerConfig);

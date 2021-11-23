@@ -8,7 +8,12 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { authUser } from 'src/auth/authUser.decorator';
 import { BasicAuth } from 'src/auth/basicAuth.decorator';
@@ -18,10 +23,12 @@ import { UserUpdateDto } from './dtos/userUpdate.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
+@ApiTags('user')
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @ApiBasicAuth()
   @ApiOperation({ summary: '로그인' })
   @ApiResponse({
     type: LoginOutPutDto,
@@ -33,6 +40,7 @@ export class UserController {
     return this.userService.login(auth);
   }
 
+  @ApiBasicAuth()
   @ApiOperation({ summary: '회원가입' })
   @Post()
   userCreate(@BasicAuth() auth: basicAuth) {

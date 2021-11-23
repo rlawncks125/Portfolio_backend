@@ -2,7 +2,6 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Socket } from 'socket.io';
 
 import * as jwt from 'jsonwebtoken';
-import { WsException } from '@nestjs/websockets';
 
 export const wsUserId = createParamDecorator(
   async (data: unknown, context: ExecutionContext) => {
@@ -11,14 +10,14 @@ export const wsUserId = createParamDecorator(
       const accessToken = socket.handshake.auth['token'];
       const decoded = jwt.verify(accessToken, process.env.JWT_KEY);
 
-      //@ts-ignore
-      const userId: number = decoded.id;
+      if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+        const userId: number = decoded['id'];
+        return userId;
+      }
 
       // return user;
-      return userId;
     } catch (e) {
       return undefined;
-      //   throw new WsException('tokenError');
     }
   },
 );

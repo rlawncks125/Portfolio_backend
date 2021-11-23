@@ -17,6 +17,7 @@ interface callBody {
 
 @WebSocketGateway({
   transports: ['websocket'],
+  namespace: 'base',
 })
 export class WsGateway {
   constructor(private readonly userService: UserService) {}
@@ -48,7 +49,7 @@ export class WsGateway {
     @MessageBody() body: callBody,
   ): Promise<any> {
     if (!userId) {
-      client.emit('error', 'token값이 일치하지 않습니다.');
+      client.emit('error', 'token값이 일치하지 않습니다. 연결 해제 시킵니다.');
       client.disconnect();
       return new Error('unauthorized event');
     }
