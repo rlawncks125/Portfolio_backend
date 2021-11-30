@@ -6,6 +6,8 @@ import { JwtMiddleware } from './JwtMiddleware/Jwt.middleware';
 
 import { UserModule } from './user/user.module';
 import { WsModule } from './ws/ws.module';
+import { RoomModule } from './room/room.module';
+import { RestaurantModule } from './restaurant/restaurant.module';
 
 @Module({
   imports: [
@@ -21,6 +23,8 @@ import { WsModule } from './ws/ws.module';
     }),
     UserModule,
     WsModule,
+    RoomModule,
+    RestaurantModule,
   ],
   controllers: [AppController],
   providers: [AppService],

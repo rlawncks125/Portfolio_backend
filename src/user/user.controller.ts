@@ -29,7 +29,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @ApiBasicAuth()
-  @ApiOperation({ summary: '로그인' })
+  @ApiOperation({ summary: '로그인 ( login )' })
   @ApiResponse({
     type: LoginOutPutDto,
     status: 200,
@@ -47,7 +47,7 @@ export class UserController {
     return this.userService.create(auth);
   }
 
-  @ApiOperation({ summary: '정보 변경' })
+  @ApiOperation({ summary: '정보 변경 ( userUpdate )' })
   @Patch()
   @UseGuards(AuthGuard)
   userUpdate(@authUser() user: User, @Body() body: UserUpdateDto) {

@@ -113,4 +113,13 @@ export class UserService {
     const user = await this.usersRepository.findOne(id);
     return user;
   }
+
+  async myRooms(user: User) {
+    const myRooms = await this.usersRepository.findOne({
+      where: user,
+      relations: ['joinRooms'],
+    });
+
+    return myRooms.joinRooms;
+  }
 }

@@ -1,9 +1,20 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  Generated,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  Unique,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiOperation, ApiProperty } from '@nestjs/swagger';
+import { Room } from 'src/room/entities/room.entity';
 
 @Entity()
 export class User extends CoreEntity {
@@ -12,12 +23,19 @@ export class User extends CoreEntity {
   password: string;
 
   @ApiProperty({ description: '유저 이름입니다.', example: '유저 이름' })
-  @Column()
+  @Column({ unique: true })
   username: string;
 
   @ApiProperty({ description: '내용물', example: '내용' })
-  @Column({ default: ' ' })
+  @Column({ default: '' })
   dsc: string;
+
+  @ApiProperty({ description: '내가 만든 방들', example: '내가 만든 방들' })
+  @OneToMany(() => Room, (room) => room.makerUser)
+  makeRoom: Room[];
+
+  @ManyToMany(() => Room, (room) => room.joinUsers)
+  joinRooms: Room[];
 
   // save 되기 전 패스워드 해쉬 함수 를 이용하여 암호화
   @BeforeInsert()
