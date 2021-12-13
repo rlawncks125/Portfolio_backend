@@ -1,8 +1,44 @@
 import { Injectable } from '@nestjs/common';
+import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
+import { Readable } from 'stream';
 
 @Injectable()
 export class AppService {
+  constructor() {
+    v2.config({
+      cloud_name: process.env.CLOUDINARY_NAME,
+      api_key: process.env.CLOUDINARY_API,
+      api_secret: process.env.CLOUDINARY_SECRET,
+    });
+  }
+
   getHello(): string {
     return 'Hello World!aassddww';
+  }
+
+  async uploadClouldnary(
+    file: Express.Multer.File,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    const clouldUpload = new Promise((resolve, reject) => {
+      const upload = v2.uploader.upload_stream(
+        {
+          folder: 'back-Portfolio',
+        },
+        (err, result) => {
+          if (err) reject(err);
+          resolve(result);
+        },
+      );
+      Readable.from(file.buffer).pipe(upload);
+    }) as Promise<UploadApiResponse | UploadApiErrorResponse>;
+
+    return clouldUpload;
+  }
+
+  async getFiels() {
+    return v2.search
+      .expression('folder=back-Portfolio')
+      .max_results(5)
+      .execute();
   }
 }

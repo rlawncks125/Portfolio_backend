@@ -1,6 +1,7 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsOptional } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -10,13 +11,48 @@ import {
 } from 'typeorm';
 import { Restaurant } from './restaurant.entity';
 
-export class messageType {
-  @CreateDateColumn()
-  CreateTime?: Date;
+export enum MessageUserRole {
+  User = 'User',
+  Anonymous = 'Anonymous',
+}
 
+class UserCommentInfo {
+  @ApiProperty({
+    description: '닉네임',
+    example: '닉네임',
+  })
   @Column()
-  userName: string;
+  nickName: string;
 
+  @ApiProperty({
+    description: '유저 or 익명 확인',
+    example: '유저 or 익명 확인',
+    enum: MessageUserRole,
+  })
+  @Column({ type: 'enum', enum: MessageUserRole })
+  role: MessageUserRole;
+}
+
+export class messageType {
+  @ApiProperty({
+    description: '댓글 작성 시간',
+    example: '댓글 작성 시간',
+  })
+  @CreateDateColumn()
+  CreateTime: Date;
+
+  @ApiProperty({
+    description: 'user정보',
+    example: 'user정보',
+    type: () => UserCommentInfo,
+  })
+  @Column(() => UserCommentInfo)
+  userInfo: UserCommentInfo;
+
+  @ApiProperty({
+    description: '댓글 내용',
+    example: '댓글 내용',
+  })
   @Column()
   message: string;
 }

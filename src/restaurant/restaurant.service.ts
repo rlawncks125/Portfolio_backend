@@ -1,9 +1,15 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Room } from 'src/room/entities/room.entity';
+import { User } from 'src/user/entities/user.entity';
 import { Repository } from 'typeorm';
-import { Comment, messageType } from './entities/comment.entity';
+import {
+  Comment,
+  messageType,
+  MessageUserRole,
+} from './entities/comment.entity';
 import { Restaurant } from './entities/restaurant.entity';
+import * as jwt from 'jsonwebtoken';
 
 @Injectable()
 export class RestaurantService {
@@ -79,7 +85,13 @@ export class CommentService {
 
   async addMesaageByRestaurantId(id: number) {
     try {
+      // authUser로 체크되니깐 검사 패스해도될듯
+      // authUser.userName === nickName 체크하면될듯
       const data = {
+        user: {
+          nickName: 'ss',
+          role: MessageUserRole.User,
+        },
         message: {
           message: '추가 댓글이예용22',
           userName: 'userNa',
@@ -92,6 +104,7 @@ export class CommentService {
 
       if (!restaurant) {
         return {
+          ok: false,
           err: '레스토랑이 존재하지않음',
         };
       }
@@ -100,7 +113,10 @@ export class CommentService {
           parentRestaurant: restaurant,
           message: {
             message: data.message.message,
-            userName: data.message.userName,
+            userInfo: {
+              role: data.user.role,
+              nickName: data.user.nickName,
+            },
           },
           star: data.star,
         }),
@@ -116,6 +132,7 @@ export class CommentService {
       };
     } catch (e) {
       return {
+        ok: false,
         err: e,
       };
     }
@@ -123,15 +140,26 @@ export class CommentService {
 
   async addChildMessageByMessageId(id: number) {
     try {
+      // authUser로 체크되니깐 검사 패스해도될듯
+      // authUser.userName === nickName 체크하면될듯
+      const userMock = {
+        role: MessageUserRole.Anonymous,
+        nickName: 'ss',
+      };
+
       const data: messageType = {
         CreateTime: new Date(),
         message: '자식 댓글이예용',
-        userName: 'zzzz',
+        userInfo: {
+          role: userMock.role,
+          nickName: userMock.nickName,
+        },
       };
       const comment: Comment = await this.commentRepository.findOne(id);
 
       if (!comment) {
         return {
+          ok: false,
           err: '댓글을 찾을수 없습니다.',
         };
       }
@@ -147,6 +175,7 @@ export class CommentService {
       };
     } catch (e) {
       return {
+        ok: false,
         err: e,
       };
     }
@@ -157,6 +186,7 @@ export class CommentService {
 
     if (!comment) {
       return {
+        ok: false,
         err: '댓글이 존재하지않습니다.',
       };
     }
