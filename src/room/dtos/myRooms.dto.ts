@@ -2,12 +2,17 @@ import { ApiProperty, PickType } from '@nestjs/swagger';
 import { CoreOutPut } from 'src/common/dtos/output.dto';
 import { Room } from '../entities/room.entity';
 
-class MyRooms extends PickType(Room, ['id', 'uuid', 'roomName', 'lating']) {}
+class MyRoomsinfoDto extends PickType(Room, [
+  'id',
+  'uuid',
+  'roomName',
+  'lating',
+]) {}
 
-export class MyRoomsOutPut extends CoreOutPut {
+export class MyRoomsOutPutDto extends CoreOutPut {
   @ApiProperty({
     description: '방 정보들',
-    type: () => [MyRooms],
+    type: () => [MyRoomsinfoDto],
   })
-  myRooms?: MyRooms[];
+  myRooms?: MyRoomsinfoDto[];
 }

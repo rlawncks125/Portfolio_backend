@@ -3,9 +3,12 @@ import { IsOptional } from 'class-validator';
 import { CoreOutPut } from 'src/common/dtos/output.dto';
 import { Room } from '../entities/room.entity';
 
-export class CreateRoomInput extends PickType(Room, ['roomName', 'lating']) {}
+export class CreateRoomInputDto extends PickType(Room, [
+  'roomName',
+  'lating',
+]) {}
 
-class RoomOutPut extends PickType(Room, [
+class RoomOutPutDto extends PickType(Room, [
   'id',
   'roomName',
   'uuid',
@@ -13,12 +16,12 @@ class RoomOutPut extends PickType(Room, [
   'makerUser',
 ]) {}
 
-export class CreateRoomOutPut extends CoreOutPut {
+export class CreateRoomOutPutDto extends CoreOutPut {
   @ApiProperty({
     description: '방정보입니다.',
     required: false,
-    type: RoomOutPut,
+    type: RoomOutPutDto,
   })
   @IsOptional()
-  room?: RoomOutPut;
+  room?: RoomOutPutDto;
 }

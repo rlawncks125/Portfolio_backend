@@ -16,7 +16,7 @@ export class AppService {
     return 'Hello World!aassddww';
   }
 
-  async uploadClouldnary(
+  async uploadClouldnaryByfile(
     file: Express.Multer.File,
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     const clouldUpload = new Promise((resolve, reject) => {

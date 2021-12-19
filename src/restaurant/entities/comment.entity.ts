@@ -64,7 +64,9 @@ export class Comment extends CoreEntity {
     example: '부모 테이블',
     type: () => Restaurant,
   })
-  @ManyToOne(() => Restaurant, (restaurant) => restaurant.comments)
+  @ManyToOne(() => Restaurant, (restaurant) => restaurant.comments, {
+    onDelete: 'CASCADE',
+  })
   parentRestaurant: Restaurant;
 
   @ApiProperty({

@@ -42,7 +42,7 @@ export class AppController {
   async uploadFile(
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
-    return this.appService.uploadClouldnary(file);
+    return this.appService.uploadClouldnaryByfile(file);
   }
 
   @Get('file')

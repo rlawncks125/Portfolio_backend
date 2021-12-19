@@ -4,26 +4,26 @@ import { Restaurant } from 'src/restaurant/entities/restaurant.entity';
 import { User } from 'src/user/entities/user.entity';
 import { Room } from '../entities/room.entity';
 
-export class RoomInfoInput extends PickType(Room, ['uuid']) {}
+export class RoomInfoInputDto extends PickType(Room, ['uuid']) {}
 
-class RoomUsers extends PickType(User, ['id', 'username']) {}
-class RestaurantInfo extends OmitType(Restaurant, [
+class RoomUsersDto extends PickType(User, ['id', 'username']) {}
+class RestaurantInfoDto extends OmitType(Restaurant, [
   'createAt',
   'updateAt',
   'parentRoom',
   'avgStarUpdate',
 ]) {}
 
-export class RoomInfoOutPut extends CoreOutPut {
+export class RoomInfoOutPutDto extends CoreOutPut {
   @ApiProperty({
     description: '방안에 유저들',
-    type: () => [RoomUsers],
+    type: () => [RoomUsersDto],
   })
-  users?: RoomUsers[];
+  users?: RoomUsersDto[];
 
   @ApiProperty({
     description: '레스토랑 정보들',
-    type: () => [RestaurantInfo],
+    type: () => [RestaurantInfoDto],
   })
-  RestaurantInfo?: RestaurantInfo[];
+  RestaurantInfo?: RestaurantInfoDto[];
 }

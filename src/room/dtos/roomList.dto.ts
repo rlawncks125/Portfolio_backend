@@ -3,19 +3,19 @@ import { CoreOutPut } from 'src/common/dtos/output.dto';
 import { User } from 'src/user/entities/user.entity';
 import { Room } from '../entities/room.entity';
 
-class makerUserInfo extends PickType(User, ['username']) {}
-class roomInfo extends PickType(Room, ['uuid', 'roomName']) {
+class makerUserInfoDto extends PickType(User, ['username']) {}
+class roomInfoDto extends PickType(Room, ['uuid', 'roomName']) {
   @ApiProperty({
     description: '방장 유저 정보',
-    type: () => makerUserInfo,
+    type: () => makerUserInfoDto,
   })
-  makerUserinfo?: makerUserInfo;
+  makerUserinfo?: makerUserInfoDto;
 }
 
-export class roomListOutPut extends CoreOutPut {
+export class roomListOutPutDto extends CoreOutPut {
   @ApiProperty({
     description: '방장 정보들',
-    type: () => [roomInfo],
+    type: () => [roomInfoDto],
   })
-  roomList?: roomInfo[];
+  roomList?: roomInfoDto[];
 }

@@ -64,7 +64,6 @@ export class Restaurant extends CoreEntity {
   // 좌표 ( Postion )
   @ApiProperty({
     description: '좌표입니다.',
-    example: '좌표',
     type: () => Lating,
   })
   @Column(() => Lating)
@@ -76,7 +75,7 @@ export class Restaurant extends CoreEntity {
     example: '소속한 방',
     type: () => Room,
   })
-  @ManyToOne(() => Room, (room) => room.restaurants)
+  @ManyToOne(() => Room, (room) => room.restaurants, { onDelete: 'CASCADE' })
   parentRoom: Room;
 
   //   별점 평균 계산

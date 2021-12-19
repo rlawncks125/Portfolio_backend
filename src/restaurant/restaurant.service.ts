@@ -9,7 +9,23 @@ import {
   MessageUserRole,
 } from './entities/comment.entity';
 import { Restaurant } from './entities/restaurant.entity';
-import * as jwt from 'jsonwebtoken';
+import {
+  CreateRestaurantInputDto,
+  CreateRestaurantOutPutDto,
+} from './dtos/CreateRestaurant.dto';
+import { GetRestaurantByIdOutPutDto } from './dtos/GetRestaurantById.dto';
+import {
+  AddRestaurantCommentByIdIdInputDto,
+  AddRestaurantCommentByIdIdOutPutDto,
+} from './dtos/AddRestaurantCommentById.dto';
+import {
+  AddMessageByCommentIdInPutDto,
+  AddMessageByCommentIdOutPutDto,
+} from './dtos/AddMessageByCommentId.dto';
+
+import { RemoveMessageByIdOutPutDto } from './dtos/RemoveMessageById.dto';
+import { RemoveRestaurantOutPutDto } from './dtos/RemoveRestaurant.dto';
+import { RoomService } from 'src/room/room.service';
 
 @Injectable()
 export class RestaurantService {
@@ -20,57 +36,104 @@ export class RestaurantService {
     private readonly commentRepository: Repository<Comment>,
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
+    private readonly roomService: RoomService,
   ) {}
 
-  async createRestaurant() {
+  async createRestaurant({
+    uuid,
+    restaurantName,
+    lating,
+    location,
+    restaurantImageUrl,
+  }: CreateRestaurantInputDto): Promise<CreateRestaurantOutPutDto> {
     try {
-      const data = {
-        uuid: 'da8fc101-5189-45a9-ab89-be4a22797305',
-        name: '처음만든 레스토랑2',
-        location: '지역명2',
-        imageUrl: 'imageUrl2',
-        lating: {
-          x: 13.2,
-          y: 34.2,
-        },
-      };
-      // uuid로 room 찾기
-      const room = await this.roomRepository.findOne({ uuid: data.uuid });
+      const room = await this.roomRepository.findOne({ uuid });
 
       if (!room) {
         return {
           ok: false,
         };
       }
-
-      return this.restaurantRespository.save(
+      const restaurant = await this.restaurantRespository.save(
         this.restaurantRespository.create({
           parentRoom: room,
-          restaurantName: data.name,
-          location: data.location,
-          restaurantImageUrl: data.imageUrl,
-          lating: {
-            X: data.lating.x,
-            Y: data.lating.y,
-          },
+          restaurantName,
+          location,
+          restaurantImageUrl,
+          lating,
         }),
       );
+
+      return {
+        ok: true,
+        restaurant,
+      };
     } catch (e) {
       return e;
     }
   }
 
-  async getRestaurantById(id: number) {
+  async getRestaurantById(id: number): Promise<GetRestaurantByIdOutPutDto> {
     const restaurant: Restaurant = await this.restaurantRespository.findOne(
       id,
-      { relations: ['parentRoom'] },
+      // { relations: ['parentRoom'] },
     );
     if (!restaurant)
       return {
+        ok: false,
         err: '레스토랑을 찾을수 없습니다.',
       };
 
-    return restaurant;
+    return {
+      ok: true,
+      restaurant,
+    };
+  }
+
+  async removeRestaurant(
+    user: User,
+    id: number,
+  ): Promise<RemoveRestaurantOutPutDto> {
+    try {
+      const restuanrt = await this.restaurantRespository.findOne(+id, {
+        relations: ['parentRoom'],
+      });
+      if (!restuanrt) {
+        return {
+          ok: false,
+          err: '레스토랑이 존재하지않습니다.',
+        };
+      }
+      const roomParentId = restuanrt.parentRoom.id;
+
+      const myRooms = await (
+        await this.roomService.myCreateRooms(user)
+      ).myRooms;
+
+      if (myRooms.filter((v) => v.id === roomParentId).length > 0) {
+        const result = await this.restaurantRespository.delete({ id: +id });
+
+        if (result) {
+          return {
+            ok: true,
+          };
+        }
+        return {
+          ok: false,
+          err: '레스토랑을 삭제하는중에 예기치 못한 에러가 발생했습니다.',
+        };
+      }
+
+      return {
+        ok: false,
+        err: '권한이 없는 유저입니다.',
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
   }
 }
 
@@ -83,23 +146,20 @@ export class CommentService {
     private readonly commentRepository: Repository<Comment>,
   ) {}
 
-  async addMesaageByRestaurantId(id: number) {
+  async addRestaurantCommentById(
+    user: User,
+    { restaurantId, message, role, star }: AddRestaurantCommentByIdIdInputDto,
+  ): Promise<AddRestaurantCommentByIdIdOutPutDto> {
     try {
-      // authUser로 체크되니깐 검사 패스해도될듯
-      // authUser.userName === nickName 체크하면될듯
-      const data = {
-        user: {
-          nickName: 'ss',
-          role: MessageUserRole.User,
-        },
-        message: {
-          message: '추가 댓글이예용22',
-          userName: 'userNa',
-        },
-        star: 5,
-      };
+      if (!(role in MessageUserRole)) {
+        return {
+          ok: false,
+          err: '유저 유형이 다릅니다.',
+        };
+      }
+
       const restaurant: Restaurant = await this.restaurantRespository.findOne(
-        id,
+        restaurantId,
       );
 
       if (!restaurant) {
@@ -108,27 +168,35 @@ export class CommentService {
           err: '레스토랑이 존재하지않음',
         };
       }
+
       const comment = await this.commentRepository.save(
         this.commentRepository.create({
           parentRestaurant: restaurant,
           message: {
-            message: data.message.message,
+            CreateTime: new Date(),
+            message,
             userInfo: {
-              role: data.user.role,
-              nickName: data.user.nickName,
+              nickName: user.username,
+              role,
             },
           },
-          star: data.star,
+          star: star,
         }),
       );
 
       restaurant.comments = [...restaurant.comments, comment];
       restaurant.avgStar = restaurant.avgStarUpdate();
 
-      this.restaurantRespository.save(restaurant);
+      const result = await this.restaurantRespository.save(restaurant);
+
+      if (!result) {
+        return {
+          ok: false,
+          err: '레스토랑에 반영하지 못하였습니다.',
+        };
+      }
       return {
         ok: true,
-        message: '추가 댓글을 달았습니다.',
       };
     } catch (e) {
       return {
@@ -138,24 +206,19 @@ export class CommentService {
     }
   }
 
-  async addChildMessageByMessageId(id: number) {
+  async addMessageByCommentId(
+    user: User,
+    { commentId, message, role }: AddMessageByCommentIdInPutDto,
+  ): Promise<AddMessageByCommentIdOutPutDto> {
     try {
-      // authUser로 체크되니깐 검사 패스해도될듯
-      // authUser.userName === nickName 체크하면될듯
-      const userMock = {
-        role: MessageUserRole.Anonymous,
-        nickName: 'ss',
-      };
+      if (!(role in MessageUserRole)) {
+        return {
+          ok: false,
+          err: '유저 유형이 다릅니다.',
+        };
+      }
 
-      const data: messageType = {
-        CreateTime: new Date(),
-        message: '자식 댓글이예용',
-        userInfo: {
-          role: userMock.role,
-          nickName: userMock.nickName,
-        },
-      };
-      const comment: Comment = await this.commentRepository.findOne(id);
+      const comment: Comment = await this.commentRepository.findOne(commentId);
 
       if (!comment) {
         return {
@@ -164,11 +227,27 @@ export class CommentService {
         };
       }
 
-      comment.childMessages
-        ? (comment.childMessages = [...comment.childMessages, data])
-        : (comment.childMessages = [data]);
+      const addMessage = {
+        CreateTime: new Date(),
+        message,
+        userInfo: {
+          nickName: user.username,
+          role,
+        },
+      } as messageType;
 
-      this.commentRepository.save(comment);
+      comment.childMessages
+        ? (comment.childMessages = [...comment.childMessages, addMessage])
+        : (comment.childMessages = [addMessage]);
+
+      const result = await this.commentRepository.save(comment);
+
+      if (!result) {
+        return {
+          ok: false,
+          err: '댓글을 저장하는데 오류가 발생하였습니다.',
+        };
+      }
 
       return {
         ok: true,
@@ -192,5 +271,38 @@ export class CommentService {
     }
 
     return comment;
+  }
+
+  async removeMessageById(
+    user: User,
+    id: number,
+  ): Promise<RemoveMessageByIdOutPutDto> {
+    try {
+      const comment: Comment = await this.commentRepository.findOne(id);
+
+      if (comment.message.userInfo.nickName === user.username) {
+        const result = await this.commentRepository.delete({ id });
+
+        if (result) {
+          return {
+            ok: true,
+          };
+        }
+        return {
+          ok: false,
+          err: '삭제하는 도중에 예기치 못한 오류가 발생했습니다.',
+        };
+      }
+
+      return {
+        ok: false,
+        err: '유저 정보가 다릅니다.',
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
   }
 }

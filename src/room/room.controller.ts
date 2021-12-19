@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -12,14 +13,15 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import { authUser } from 'src/auth/authUser.decorator';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { CreateRoomInput, CreateRoomOutPut } from './dtos/createRoom.dto';
-import { JoinRoomInput, JoinRoomOutPut } from './dtos/joinRooms.dto';
-import { MyCreateRoomsOutPut } from './dtos/myCreateRooms.dto';
-import { MyRoomsOutPut } from './dtos/myRooms.dto';
-import { roomListOutPut } from './dtos/roomList.dto';
-import { RoomInfoInput, RoomInfoOutPut } from './dtos/roomInfo.dto';
+import { CreateRoomInputDto, CreateRoomOutPutDto } from './dtos/createRoom.dto';
+import { JoinRoomInputDto, JoinRoomOutPutDto } from './dtos/joinRooms.dto';
+import { MyCreateRoomsOutPutDto } from './dtos/myCreateRooms.dto';
+import { MyRoomsOutPutDto } from './dtos/myRooms.dto';
+import { roomListOutPutDto } from './dtos/roomList.dto';
+import { RoomInfoInputDto, RoomInfoOutPutDto } from './dtos/roomInfo.dto';
+import { LeaveRoomInputDto, LeaveRoomOutPutDto } from './dtos/leaveRoom.dto';
 import { RoomService } from './room.service';
-import { LeaveRoomInput, LeaveRoomOutPut } from './dtos/leaveRoom.dto';
+import { RemoveRoomInPutDto, RemoveRoomOutPutDto } from './dtos/RemoveRoom.dto';
 
 @ApiTags('room')
 @Controller('room')
@@ -28,86 +30,98 @@ export class RoomController {
 
   @ApiOperation({ summary: '내방 목록 ( myRooms )' })
   @ApiResponse({
-    type: MyRoomsOutPut,
+    type: MyRoomsOutPutDto,
     status: 200,
   })
   @Get()
   @UseGuards(AuthGuard)
-  async myRooms(@authUser() user: User): Promise<MyRoomsOutPut> {
+  async myRooms(@authUser() user: User): Promise<MyRoomsOutPutDto> {
     return this.roomService.myRooms(user);
   }
 
   @Get('list')
   @ApiOperation({ summary: '방 목록 ( myRooms )' })
   @ApiResponse({
-    type: roomListOutPut,
+    type: roomListOutPutDto,
     status: 200,
   })
-  async roomList(): Promise<roomListOutPut> {
+  async roomList(): Promise<roomListOutPutDto> {
     return this.roomService.roomList();
   }
 
   @ApiOperation({ summary: '방 만들기 ( createRoom )' })
   @ApiResponse({
-    type: CreateRoomOutPut,
+    type: CreateRoomOutPutDto,
     status: 200,
   })
   @Post()
   @UseGuards(AuthGuard)
   async createRoom(
     @authUser() user: User,
-    @Body() body: CreateRoomInput,
-  ): Promise<CreateRoomOutPut> {
+    @Body() body: CreateRoomInputDto,
+  ): Promise<CreateRoomOutPutDto> {
     return this.roomService.createRoom(user, body);
+  }
+
+  @ApiOperation({ summary: '방 삭제하기 ( createRoom )' })
+  @Delete()
+  @UseGuards(AuthGuard)
+  async removeRoom(
+    @authUser() user: User,
+    @Body() { uuid }: RemoveRoomInPutDto,
+  ): Promise<RemoveRoomOutPutDto> {
+    return this.roomService.removeRoom(user, uuid);
   }
 
   @ApiOperation({ summary: '내가 만든 방들 조회 ( myCreateRooms )' })
   @ApiResponse({
-    type: MyCreateRoomsOutPut,
+    type: MyCreateRoomsOutPutDto,
     status: 200,
   })
   @Get('myCreateRooms')
   @UseGuards(AuthGuard)
-  async myCreateRooms(@authUser() user: User): Promise<MyCreateRoomsOutPut> {
+  async myCreateRooms(@authUser() user: User): Promise<MyCreateRoomsOutPutDto> {
     return this.roomService.myCreateRooms(user);
   }
 
   @ApiOperation({ summary: '방 참여하기 ( joinRoom )' })
   @ApiResponse({
-    type: JoinRoomOutPut,
+    type: JoinRoomOutPutDto,
     status: 200,
   })
   @Post('join')
   @UseGuards(AuthGuard)
   async joinRoom(
     @authUser() user: User,
-    @Body() joinRoomInput: JoinRoomInput,
-  ): Promise<JoinRoomOutPut> {
+    @Body() joinRoomInput: JoinRoomInputDto,
+  ): Promise<JoinRoomOutPutDto> {
     return this.roomService.joinRoom(user, joinRoomInput);
   }
 
   @ApiOperation({ summary: '방 내의 정보들( roomInfo )' })
   @ApiResponse({
-    type: RoomInfoOutPut,
+    type: RoomInfoOutPutDto,
     status: 200,
   })
   @Get('info')
   @UseGuards(AuthGuard)
-  async roomInfo(@Body() { uuid }: RoomInfoInput): Promise<RoomInfoOutPut> {
+  async roomInfo(
+    @Body() { uuid }: RoomInfoInputDto,
+  ): Promise<RoomInfoOutPutDto> {
     return this.roomService.RoomInfo(uuid);
   }
 
   @ApiOperation({ summary: '방나가기 ( leaveRoom )' })
   @ApiResponse({
-    type: LeaveRoomOutPut,
     status: 200,
+    type: LeaveRoomOutPutDto,
   })
   @Post('leave')
   @UseGuards(AuthGuard)
   async leaveRoom(
     @authUser() user: User,
-    @Body() { uuid }: LeaveRoomInput,
-  ): Promise<LeaveRoomOutPut> {
-    return this.roomService.leaveRoom(user, uuid);
+    @Body() LeaveRoomInputDto: LeaveRoomInputDto,
+  ): Promise<LeaveRoomOutPutDto> {
+    return this.roomService.leaveRoom(user, LeaveRoomInputDto);
   }
 }
