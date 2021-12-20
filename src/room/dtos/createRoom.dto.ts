@@ -13,7 +13,7 @@ class RoomOutPutDto extends PickType(Room, [
   'roomName',
   'uuid',
   'lating',
-  'makerUser',
+  'superUser',
 ]) {}
 
 export class CreateRoomOutPutDto extends CoreOutPut {

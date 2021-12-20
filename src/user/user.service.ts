@@ -115,11 +115,9 @@ export class UserService {
   }
 
   async myRooms(user: User) {
-    const myRooms = await this.usersRepository.findOne({
-      where: user,
+    const myRooms = await this.usersRepository.findOne(user.id, {
       relations: ['joinRooms'],
     });
-
     return myRooms.joinRooms;
   }
 }

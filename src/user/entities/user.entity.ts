@@ -30,9 +30,9 @@ export class User extends CoreEntity {
   @Column({ default: '' })
   dsc: string;
 
-  @ApiProperty({ description: '내가 만든 방들', example: '내가 만든 방들' })
-  @OneToMany(() => Room, (room) => room.makerUser)
-  makeRoom: Room[];
+  @ApiProperty({ description: '권한 있는 방들', example: '권한 있는 방들' })
+  @OneToMany(() => Room, (room) => room.superUser)
+  superRooms: Room[];
 
   @ManyToMany(() => Room, (room) => room.joinUsers)
   joinRooms: Room[];

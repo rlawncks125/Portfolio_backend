@@ -28,7 +28,7 @@ import { RemoveRoomInPutDto, RemoveRoomOutPutDto } from './dtos/RemoveRoom.dto';
 export class RoomController {
   constructor(private readonly roomService: RoomService) {}
 
-  @ApiOperation({ summary: '내방 목록 ( myRooms )' })
+  @ApiOperation({ summary: '내가 들어간방들 정보 ( myRooms )' })
   @ApiResponse({
     type: MyRoomsOutPutDto,
     status: 200,
@@ -73,15 +73,15 @@ export class RoomController {
     return this.roomService.removeRoom(user, uuid);
   }
 
-  @ApiOperation({ summary: '내가 만든 방들 조회 ( myCreateRooms )' })
+  @ApiOperation({ summary: '내가 방장인 방들 조회 ( mySuperRooms )' })
   @ApiResponse({
     type: MyCreateRoomsOutPutDto,
     status: 200,
   })
-  @Get('myCreateRooms')
+  @Get('mySuperRooms')
   @UseGuards(AuthGuard)
-  async myCreateRooms(@authUser() user: User): Promise<MyCreateRoomsOutPutDto> {
-    return this.roomService.myCreateRooms(user);
+  async mySuperRooms(@authUser() user: User): Promise<MyCreateRoomsOutPutDto> {
+    return this.roomService.mySuperRooms(user);
   }
 
   @ApiOperation({ summary: '방 참여하기 ( joinRoom )' })

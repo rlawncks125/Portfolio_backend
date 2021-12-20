@@ -26,6 +26,14 @@ import {
 import { RemoveMessageByIdOutPutDto } from './dtos/RemoveMessageById.dto';
 import { RemoveRestaurantOutPutDto } from './dtos/RemoveRestaurant.dto';
 import { RoomService } from 'src/room/room.service';
+import {
+  EditCommentMessageInPutDto,
+  EditCommentMessageOutPutDto,
+} from './dtos/EditCommentMessage.dto';
+import {
+  EditCommentChildMessageInPutDto,
+  EditCommentChildMessageOutPutDto,
+} from './dtos/EditCommentChildMessage.dto';
 
 @Injectable()
 export class RestaurantService {
@@ -39,13 +47,16 @@ export class RestaurantService {
     private readonly roomService: RoomService,
   ) {}
 
-  async createRestaurant({
-    uuid,
-    restaurantName,
-    lating,
-    location,
-    restaurantImageUrl,
-  }: CreateRestaurantInputDto): Promise<CreateRestaurantOutPutDto> {
+  async createRestaurant(
+    user: User,
+    {
+      uuid,
+      restaurantName,
+      lating,
+      location,
+      restaurantImageUrl,
+    }: CreateRestaurantInputDto,
+  ): Promise<CreateRestaurantOutPutDto> {
     try {
       const room = await this.roomRepository.findOne({ uuid });
 
@@ -56,6 +67,10 @@ export class RestaurantService {
       }
       const restaurant = await this.restaurantRespository.save(
         this.restaurantRespository.create({
+          resturantSuperUser: {
+            nickName: user.username,
+            id: user.id,
+          },
           parentRoom: room,
           restaurantName,
           location,
@@ -106,9 +121,7 @@ export class RestaurantService {
       }
       const roomParentId = restuanrt.parentRoom.id;
 
-      const myRooms = await (
-        await this.roomService.myCreateRooms(user)
-      ).myRooms;
+      const myRooms = await (await this.roomService.mySuperRooms(user)).myRooms;
 
       if (myRooms.filter((v) => v.id === roomParentId).length > 0) {
         const result = await this.restaurantRespository.delete({ id: +id });
@@ -202,6 +215,118 @@ export class CommentService {
       return {
         ok: false,
         err: e,
+      };
+    }
+  }
+
+  async editCommentMessage(
+    user: User,
+    { id, message }: EditCommentMessageInPutDto,
+  ): Promise<EditCommentMessageOutPutDto> {
+    try {
+      const comment: Comment = await this.commentRepository.findOne(id);
+
+      if (!comment) {
+        return {
+          ok: false,
+          err: '댓글을 찾을수 없습니다.',
+        };
+      }
+
+      const isCheck = comment.message.userInfo.nickName === user.username;
+
+      if (!isCheck) {
+        return {
+          ok: false,
+          err: '권한이 없는 유저입니다.',
+        };
+      }
+
+      comment.message.message = message;
+
+      const result = await this.commentRepository.save(comment);
+
+      if (!result) {
+        return {
+          ok: false,
+          err: '댓글은 반영하는도중에 예기치 못한 에러가 발생하였습니다.',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async editCommentChildMessage(
+    user: User,
+    { createTime, id, message }: EditCommentChildMessageInPutDto,
+  ): Promise<EditCommentChildMessageOutPutDto> {
+    try {
+      const comment: Comment = await this.commentRepository.findOne(id);
+
+      if (!comment) {
+        return {
+          ok: false,
+          err: '댓글을 찾을수 없습니다.',
+        };
+      }
+
+      // 대댓글 체크
+      const findIndex = comment.childMessages.findIndex(
+        (v) => v.CreateTime === createTime,
+      );
+
+      if (findIndex < 0) {
+        return {
+          ok: false,
+          err: '대댓글을 찾을수 없습니다.',
+        };
+      }
+
+      const childComment = comment.childMessages[findIndex];
+      const isCheck = childComment.userInfo.nickName === user.username;
+
+      if (!isCheck) {
+        return {
+          ok: false,
+          err: '권한이 없는 유저입니다.',
+        };
+      }
+
+      comment.childMessages = comment.childMessages.map((v, index) => {
+        if (index === findIndex) {
+          return {
+            ...v,
+            message,
+          };
+        }
+
+        return v;
+      });
+
+      const result = await this.commentRepository.save(comment);
+
+      if (!result) {
+        return {
+          ok: false,
+          err: '댓글을 갱신하는데 예기치 못한 사황이 발생하였습니다.',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
       };
     }
   }

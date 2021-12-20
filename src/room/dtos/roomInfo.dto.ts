@@ -12,9 +12,22 @@ class RestaurantInfoDto extends OmitType(Restaurant, [
   'updateAt',
   'parentRoom',
   'avgStarUpdate',
-]) {}
+] as const) {}
+class RoominfoDto extends PickType(Room, ['roomName', 'lating' as const]) {
+  @ApiProperty({
+    description: '방장 정보',
+    type: () => RoomUsersDto,
+  })
+  superUserInfo: RoomUsersDto;
+}
 
 export class RoomInfoOutPutDto extends CoreOutPut {
+  @ApiProperty({
+    description: '방 정보',
+    type: () => [RoominfoDto],
+  })
+  roomInfo?: RoominfoDto;
+
   @ApiProperty({
     description: '방안에 유저들',
     type: () => [RoomUsersDto],

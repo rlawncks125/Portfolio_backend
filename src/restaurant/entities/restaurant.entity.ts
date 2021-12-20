@@ -1,8 +1,9 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
 import { IsOptional, isString, IsString } from 'class-validator';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Lating } from 'src/common/entities/Lating.entity';
 import { Room } from 'src/room/entities/room.entity';
+import { User } from 'src/user/entities/user.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
@@ -13,8 +14,26 @@ import {
 } from 'typeorm';
 import { Comment } from './comment.entity';
 
+class SuperUserDto {
+  @ApiProperty({ description: '유저 아이디' })
+  @Column()
+  id: number;
+
+  @ApiProperty({ description: '유저 닉네임' })
+  @Column()
+  nickName: string;
+}
+
 @Entity()
 export class Restaurant extends CoreEntity {
+  // 소유자
+  @ApiProperty({
+    description: '소유자',
+    example: '소유자',
+  })
+  @Column(() => SuperUserDto)
+  resturantSuperUser?: SuperUserDto | null;
+
   // 상호명
   @ApiProperty({
     description: '음식점 이름입니다.',
@@ -28,9 +47,9 @@ export class Restaurant extends CoreEntity {
     description: '음식점 이미지 url 입니다',
     example: 'imageUrl',
   })
-  @Column()
+  @Column({ nullable: true })
   @IsOptional()
-  restaurantImageUrl?: string;
+  restaurantImageUrl?: string | null;
 
   // 지역명
   @ApiProperty({

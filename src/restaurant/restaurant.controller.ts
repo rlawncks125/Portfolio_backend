@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -25,6 +26,14 @@ import {
   CreateRestaurantInputDto,
   CreateRestaurantOutPutDto,
 } from './dtos/CreateRestaurant.dto';
+import {
+  EditCommentChildMessageInPutDto,
+  EditCommentChildMessageOutPutDto,
+} from './dtos/EditCommentChildMessage.dto';
+import {
+  EditCommentMessageInPutDto,
+  EditCommentMessageOutPutDto,
+} from './dtos/EditCommentMessage.dto';
 import { GetRestaurantByIdOutPutDto } from './dtos/GetRestaurantById.dto';
 import { RemoveMessageByIdOutPutDto } from './dtos/RemoveMessageById.dto';
 import { CommentService, RestaurantService } from './restaurant.service';
@@ -57,9 +66,10 @@ export class RestaurantController {
   })
   @Post()
   createRestaurant(
+    @authUser() user: User,
     @Body() createRestaurantInput: CreateRestaurantInputDto,
   ): Promise<CreateRestaurantOutPutDto> {
-    return this.restaurantService.createRestaurant(createRestaurantInput);
+    return this.restaurantService.createRestaurant(user, createRestaurantInput);
   }
 
   @ApiOperation({ summary: '레스토랑 삭제 ( removeRestaurant )' })
@@ -84,6 +94,19 @@ export class RestaurantController {
     return this.commentService.addRestaurantCommentById(user, inputData);
   }
 
+  @ApiOperation({ summary: '레스토랑 댓글 변경 ( editCommentMessage )' })
+  @ApiResponse({
+    status: 200,
+    type: EditCommentMessageOutPutDto,
+  })
+  @Patch('comment')
+  editCommentMessage(
+    @authUser() user: User,
+    @Body() bodyData: EditCommentMessageInPutDto,
+  ): Promise<EditCommentMessageOutPutDto> {
+    return this.commentService.editCommentMessage(user, bodyData);
+  }
+
   @ApiOperation({
     summary: '레스토랑 댓글에 추가댓글 추가 ( addMessageByCommentId )',
   })
@@ -97,6 +120,20 @@ export class RestaurantController {
     @Body() inputData: AddMessageByCommentIdInPutDto,
   ): Promise<AddMessageByCommentIdOutPutDto> {
     return this.commentService.addMessageByCommentId(user, inputData);
+  }
+
+  @ApiOperation({ summary: '레스토랑 대댓글 변경 ( editCommentMessage )' })
+  @ApiResponse({
+    type: EditCommentChildMessageOutPutDto,
+    status: 200,
+  })
+  @Patch('comment/addMessage')
+  editCommentChildMessage(
+    @authUser() user: User,
+    @Body()
+    bodyData: EditCommentChildMessageInPutDto,
+  ): Promise<EditCommentChildMessageOutPutDto> {
+    return this.commentService.editCommentChildMessage(user, bodyData);
   }
 
   @ApiOperation({ summary: '댓글 정보 얻기 ( addMessageById 없어도 될듯? )' })

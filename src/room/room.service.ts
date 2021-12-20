@@ -6,7 +6,11 @@ import { Repository } from 'typeorm';
 import { CreateRoomInputDto, CreateRoomOutPutDto } from './dtos/createRoom.dto';
 import { JoinRoomInputDto, JoinRoomOutPutDto } from './dtos/joinRooms.dto';
 import { MyCreateRoomsOutPutDto } from './dtos/myCreateRooms.dto';
-import { MyRoomsOutPutDto } from './dtos/myRooms.dto';
+import {
+  MyRoomsJoinUserInfoDto,
+  MyRoomsOutPutDto,
+  MyRoomsRestaurantInfoDto,
+} from './dtos/myRooms.dto';
 import { roomListOutPutDto } from './dtos/roomList.dto';
 import { RoomInfoOutPutDto } from './dtos/roomInfo.dto';
 import { Room } from './entities/room.entity';
@@ -17,23 +21,46 @@ import { RemoveRoomOutPutDto } from './dtos/RemoveRoom.dto';
 export class RoomService {
   constructor(
     @InjectRepository(Room)
-    private roomRepository: Repository<Room>,
-    private userService: UserService,
+    private readonly roomRepository: Repository<Room>,
+    private readonly userService: UserService,
   ) {}
 
   async myRooms(user: User): Promise<MyRoomsOutPutDto> {
     try {
       const rooms = await this.userService.myRooms(user);
 
+      const roomIds = rooms.map((v) => ({
+        id: v.id,
+      }));
+
+      const roomsInfo = await this.roomRepository.findByIds(roomIds, {
+        relations: ['joinUsers', 'restaurants', 'superUser'],
+      });
+
       return {
         ok: true,
-        myRooms: rooms.map((room) => {
-          const { id, roomName, uuid, lating } = room;
+        myRooms: roomsInfo.map((v) => {
           return {
-            id,
-            roomName,
-            uuid,
-            lating,
+            id: v.id,
+            uuid: v.uuid,
+            roomName: v.roomName,
+            lating: v.lating,
+            joinUsersInfo: v.joinUsers.map((v) => {
+              return {
+                id: v.id,
+                username: v.username,
+              } as MyRoomsJoinUserInfoDto;
+            }),
+            restaurantInfo: v.restaurants.map((r) => {
+              return {
+                id: r.id,
+                restaurantName: r.restaurantName,
+                restaurantImageUrl: r.restaurantImageUrl,
+                resturantSuperUser: r.resturantSuperUser,
+                location: r.location,
+                lating: r.lating,
+              } as MyRoomsRestaurantInfoDto;
+            }),
           };
         }),
       };
@@ -49,11 +76,19 @@ export class RoomService {
     try {
       const room = await this.roomRepository.findOne({
         where: { uuid },
-        relations: ['joinUsers', 'restaurants'],
+        relations: ['joinUsers', 'restaurants', 'superUser'],
       });
 
       return {
         ok: true,
+        roomInfo: {
+          roomName: room.roomName,
+          lating: room.lating,
+          superUserInfo: {
+            id: room.superUser.id,
+            username: room.superUser.username,
+          },
+        },
         users: room.joinUsers.map((user) => {
           return {
             id: user.id,
@@ -63,6 +98,7 @@ export class RoomService {
         RestaurantInfo: room.restaurants.map((v) => {
           return {
             id: v.id,
+            resturantSuperUser: v.resturantSuperUser,
             restaurantName: v.restaurantName,
             restaurantImageUrl: v.restaurantImageUrl,
             location: v.location,
@@ -89,7 +125,7 @@ export class RoomService {
         this.roomRepository.create({
           lating,
           roomName,
-          makerUser: user,
+          superUser: user,
           joinUsers: [user],
         }),
       );
@@ -101,7 +137,7 @@ export class RoomService {
           roomName: room.roomName,
           uuid: room.uuid,
           lating: room.lating,
-          makerUser: room.makerUser,
+          superUser: room.superUser,
         },
       };
     } catch (e) {
@@ -116,7 +152,7 @@ export class RoomService {
     try {
       const room: Room = await this.roomRepository.findOne(
         { uuid },
-        { relations: ['makerUser'] },
+        { relations: ['superUser'] },
       );
 
       if (!room) {
@@ -126,7 +162,7 @@ export class RoomService {
         };
       }
 
-      if (room.makerUser.id === user.id) {
+      if (room.superUser.id === user.id) {
         const result = await this.roomRepository.delete({ uuid });
 
         if (result) {
@@ -152,10 +188,10 @@ export class RoomService {
     }
   }
 
-  async myCreateRooms(user: User): Promise<MyCreateRoomsOutPutDto> {
+  async mySuperRooms(user: User): Promise<MyCreateRoomsOutPutDto> {
     try {
       const rooms = await this.roomRepository.find({
-        where: { makerUser: user },
+        where: { superUser: user },
         // relations: ['joinUsers'],
       });
 
@@ -251,21 +287,22 @@ export class RoomService {
   async roomList(): Promise<roomListOutPutDto> {
     try {
       const roomList = await this.roomRepository.find({
-        relations: ['makerUser'],
+        relations: ['superUser'],
       });
 
       return {
         ok: true,
         roomList: roomList.map((v) => {
-          const { uuid, roomName, makerUser } = v;
+          const { uuid, roomName, superUser } = v;
           return {
             uuid,
             roomName,
-            makerUserinfo: {
-              username: makerUser.username,
+            superUserinfo: {
+              username: superUser.username,
             },
           };
         }),
+        // roomList,
       };
     } catch (err) {
       return {

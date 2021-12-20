@@ -28,12 +28,12 @@ export class Room extends CoreEntity {
   lating: Lating;
 
   @ApiProperty({
-    description: '만든 유저입니다.',
-    example: '만든 유저입니다.',
+    description: '방장 입니다.',
+    example: '방장 입니다.',
     type: () => User,
   })
-  @ManyToOne(() => User, (user) => user.makeRoom)
-  makerUser: User;
+  @ManyToOne(() => User, (user) => user.superRooms)
+  superUser: User;
 
   @ApiProperty({
     description: '참가한 유저들입니다.',
