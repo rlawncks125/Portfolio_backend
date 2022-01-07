@@ -13,5 +13,6 @@ import { CommentService, RestaurantService } from './restaurant.service';
   imports: [TypeOrmModule.forFeature([Restaurant, Comment, Room]), RoomModule],
   controllers: [RestaurantController],
   providers: [RestaurantService, CommentService],
+  exports: [RestaurantService],
 })
 export class RestaurantModule {}

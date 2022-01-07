@@ -36,6 +36,7 @@ import {
 } from './dtos/EditCommentMessage.dto';
 import { GetRestaurantByIdOutPutDto } from './dtos/GetRestaurantById.dto';
 import { RemoveMessageByIdOutPutDto } from './dtos/RemoveMessageById.dto';
+import { RemoveRestaurantOutPutDto } from './dtos/RemoveRestaurant.dto';
 import { CommentService, RestaurantService } from './restaurant.service';
 
 @ApiTags('restaurant')
@@ -77,7 +78,7 @@ export class RestaurantController {
   removeRestaurant(
     @authUser() user: User,
     @Param() { id }: { id: number },
-  ): Promise<CreateRestaurantOutPutDto> {
+  ): Promise<RemoveRestaurantOutPutDto> {
     return this.restaurantService.removeRestaurant(user, id);
   }
 

@@ -3,9 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as jwt from 'jsonwebtoken';
-import { UserUpdateDto } from './dtos/userUpdate.dto';
+import { UserUpdateInputDto } from './dtos/userUpdate.dto';
 import { basicAuth } from 'src/common/interface';
 import { LoginOutPutDto } from './dtos/login.dto';
+import { userCreateOutPutDto } from './dtos/userCreate.dto';
 
 @Injectable()
 export class UserService {
@@ -47,12 +48,24 @@ export class UserService {
     };
   }
 
-  async create({ username, password }: basicAuth) {
+  async create({
+    username,
+    password,
+  }: basicAuth): Promise<userCreateOutPutDto> {
     try {
+      if (username === '' || password === '')
+        return {
+          ok: false,
+          err: '빈값이 있습니다.',
+        };
+
       const user = await this.usersRepository.findOne({ username });
 
       if (user) {
-        return '이미 존재함';
+        return {
+          ok: false,
+          err: '이미 존재함',
+        };
       }
 
       const ok = await this.usersRepository.save(
@@ -63,14 +76,19 @@ export class UserService {
       );
 
       if (ok) {
-        return 'create';
+        return {
+          ok: true,
+        };
       }
-    } catch (e) {
-      return e;
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
     }
   }
 
-  async update(user: User, { password, dsc }: UserUpdateDto) {
+  async update(user: User, { password, dsc }: UserUpdateInputDto) {
     try {
       if (!user) {
         return '유저를 찾을수없습니다.';

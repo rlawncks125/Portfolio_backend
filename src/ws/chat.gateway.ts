@@ -8,7 +8,10 @@ import {
 import { Socket, Server } from 'socket.io';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { CreateRoomDtoInput, CreateRoomDtoOutPut } from './dtos/CreateRoom.dto';
+import {
+  WSCreateRoomDtoInput,
+  CreateRoomDtoOutPut,
+} from './dtos/WSCreateRoom.dto';
 import { wsUserId } from './ws.decorator';
 
 enum ChatTypes {
@@ -41,7 +44,7 @@ export class ChatGateway {
   async createRoom(
     @wsUserId() userId: Number,
     @ConnectedSocket() client: Socket,
-    @MessageBody() data: CreateRoomDtoInput,
+    @MessageBody() data: WSCreateRoomDtoInput,
   ) {
     if (!userId) {
       client.emit('error', '존재하지 않는 유저입니다.');

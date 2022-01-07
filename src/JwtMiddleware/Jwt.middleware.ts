@@ -16,7 +16,7 @@ export class JwtMiddleware implements NestMiddleware {
           const data = basic64Auth(token);
           // console.log('middleware', data);
           req['authoriztion'] = data;
-        } else if (type === 'acces_token') {
+        } else if (type === 'acces-token') {
           // insomnia auth 보낼시 authorization 에 담김
           const decoded = jwt.verify(token, process.env.JWT_KEY);
 
@@ -28,9 +28,9 @@ export class JwtMiddleware implements NestMiddleware {
         }
       }
 
-      if ('acces_token' in req.headers) {
+      if ('acces-token' in req.headers) {
         const decoded = jwt.verify(
-          req.headers['acces_token'],
+          req.headers['acces-token'],
           process.env.JWT_KEY,
         );
 

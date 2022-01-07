@@ -24,7 +24,7 @@ class RoominfoDto extends PickType(Room, ['roomName', 'lating' as const]) {
 export class RoomInfoOutPutDto extends CoreOutPut {
   @ApiProperty({
     description: '방 정보',
-    type: () => [RoominfoDto],
+    type: () => RoominfoDto,
   })
   roomInfo?: RoominfoDto;
 

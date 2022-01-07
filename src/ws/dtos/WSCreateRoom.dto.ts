@@ -12,7 +12,7 @@ class Postion {
   y: number;
 }
 
-export class CreateRoomDtoInput {
+export class WSCreateRoomDtoInput {
   @ApiProperty({
     description: '방 제목 입니다.',
     required: true,

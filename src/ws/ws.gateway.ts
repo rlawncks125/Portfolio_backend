@@ -6,6 +6,8 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { RestaurantService } from 'src/restaurant/restaurant.service';
+import { RoomService } from 'src/room/room.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { wsUserId } from './ws.decorator';
@@ -20,7 +22,11 @@ interface callBody {
   namespace: 'base',
 })
 export class WsGateway {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly roomService: RoomService,
+    private readonly restaurantService: RestaurantService,
+  ) {}
   @WebSocketServer()
   server: Server;
 

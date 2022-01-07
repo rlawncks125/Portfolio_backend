@@ -19,7 +19,8 @@ import { authUser } from 'src/auth/authUser.decorator';
 import { BasicAuth } from 'src/auth/basicAuth.decorator';
 import { basicAuth } from 'src/common/interface';
 import { LoginOutPutDto } from './dtos/login.dto';
-import { UserUpdateDto } from './dtos/userUpdate.dto';
+import { userCreateOutPutDto } from './dtos/userCreate.dto';
+import { UserUpdateInputDto } from './dtos/userUpdate.dto';
 import { User } from './entities/user.entity';
 import { UserService } from './user.service';
 
@@ -42,15 +43,19 @@ export class UserController {
 
   @ApiBasicAuth()
   @ApiOperation({ summary: '회원가입' })
+  @ApiResponse({
+    type: userCreateOutPutDto,
+    status: 200,
+  })
   @Post()
-  userCreate(@BasicAuth() auth: basicAuth) {
+  userCreate(@BasicAuth() auth: basicAuth): Promise<userCreateOutPutDto> {
     return this.userService.create(auth);
   }
 
   @ApiOperation({ summary: '정보 변경 ( userUpdate )' })
   @Patch()
   @UseGuards(AuthGuard)
-  userUpdate(@authUser() user: User, @Body() body: UserUpdateDto) {
+  userUpdate(@authUser() user: User, @Body() body: UserUpdateInputDto) {
     // console.log(user);
     return this.userService.update(user, body);
   }

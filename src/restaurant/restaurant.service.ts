@@ -119,6 +119,24 @@ export class RestaurantService {
           err: '레스토랑이 존재하지않습니다.',
         };
       }
+      // console.log(restuanrt.resturantSuperUser.id, user.id);
+
+      if (restuanrt.resturantSuperUser.id === user.id) {
+        const result = await await this.restaurantRespository.delete({
+          id: +id,
+        });
+        if (result) {
+          return {
+            ok: true,
+          };
+        } else {
+          return {
+            ok: false,
+            err: '레스토랑 만든 주인이지만 오류가 발생함',
+          };
+        }
+      }
+
       const roomParentId = restuanrt.parentRoom.id;
 
       const myRooms = await (await this.roomService.mySuperRooms(user)).myRooms;

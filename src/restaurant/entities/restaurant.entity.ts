@@ -46,6 +46,7 @@ export class Restaurant extends CoreEntity {
   @ApiProperty({
     description: '음식점 이미지 url 입니다',
     example: 'imageUrl',
+    type: () => String || null,
   })
   @Column({ nullable: true })
   @IsOptional()

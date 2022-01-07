@@ -25,9 +25,16 @@ export class RoomService {
     private readonly userService: UserService,
   ) {}
 
-  async myRooms(user: User): Promise<MyRoomsOutPutDto> {
+  async myRoomsInfo(user: User): Promise<MyRoomsOutPutDto> {
     try {
       const rooms = await this.userService.myRooms(user);
+
+      if (rooms.length === 0) {
+        return {
+          ok: true,
+          myRooms: [],
+        };
+      }
 
       const roomIds = rooms.map((v) => ({
         id: v.id,
@@ -79,6 +86,13 @@ export class RoomService {
         relations: ['joinUsers', 'restaurants', 'superUser'],
       });
 
+      if (!room) {
+        return {
+          ok: false,
+          err: '방을 찾지 못했습니다.',
+        };
+      }
+
       return {
         ok: true,
         roomInfo: {
@@ -129,6 +143,13 @@ export class RoomService {
           joinUsers: [user],
         }),
       );
+
+      if (!room) {
+        return {
+          ok: false,
+          err: '예기치 못한 에러가 발생했습니다.',
+        };
+      }
 
       return {
         ok: true,
@@ -194,6 +215,13 @@ export class RoomService {
         where: { superUser: user },
         // relations: ['joinUsers'],
       });
+
+      if (rooms.length === 0) {
+        return {
+          ok: true,
+          myRooms: [],
+        };
+      }
 
       return {
         ok: true,
@@ -289,6 +317,13 @@ export class RoomService {
       const roomList = await this.roomRepository.find({
         relations: ['superUser'],
       });
+
+      if (roomList.length === 0) {
+        return {
+          ok: true,
+          roomList: [],
+        };
+      }
 
       return {
         ok: true,
