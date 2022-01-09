@@ -40,7 +40,7 @@ export class RoomController {
   }
 
   @Get('list')
-  @ApiOperation({ summary: '방 목록 ( myRooms )' })
+  @ApiOperation({ summary: '방 목록 ( roomList )' })
   @ApiResponse({
     type: roomListOutPutDto,
     status: 200,
@@ -64,11 +64,11 @@ export class RoomController {
   }
 
   @ApiOperation({ summary: '방 삭제하기 ( removeRoom )' })
-  @Delete()
+  @Delete(':uuid')
   @UseGuards(AuthGuard)
   async removeRoom(
     @authUser() user: User,
-    @Body() { uuid }: RemoveRoomInPutDto,
+    @Param() { uuid }: RemoveRoomInPutDto,
   ): Promise<RemoveRoomOutPutDto> {
     return this.roomService.removeRoom(user, uuid);
   }

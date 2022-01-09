@@ -283,7 +283,7 @@ export class RoomService {
     try {
       const room = await this.roomRepository.findOne({
         where: { uuid },
-        relations: ['joinUsers'],
+        relations: ['joinUsers', 'superUser'],
       });
 
       if (!room) {
@@ -298,6 +298,14 @@ export class RoomService {
           ok: false,
           err: '포함돼지않은 유저입니다.',
         };
+      }
+
+      // 방장일시
+      if (room.superUser.id === user.id) {
+        const remainUser = room.joinUsers.filter((v) => v.id !== user.id);
+        const randomIndex = Math.floor(Math.random() * remainUser.length);
+
+        room.superUser = remainUser[randomIndex];
       }
 
       room.joinUsers = room.joinUsers.filter((v) => v.id !== user.id);
