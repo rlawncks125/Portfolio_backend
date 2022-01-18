@@ -48,7 +48,7 @@ export class Restaurant extends CoreEntity {
     example: 'imageUrl',
     nullable: true,
   })
-  @Column({ nullable: true })
+  @Column('json', { nullable: true })
   @IsOptional()
   restaurantImageUrl?: string | null;
 

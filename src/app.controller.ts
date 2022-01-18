@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -43,6 +44,11 @@ export class AppController {
     @UploadedFile() file: Express.Multer.File,
   ): Promise<UploadApiResponse | UploadApiErrorResponse> {
     return this.appService.uploadClouldnaryByfile(file);
+  }
+
+  @Delete('file/:fileName')
+  async deleteFile(@Param() { fileName }: { fileName: string }) {
+    return this.appService.deleteClouldnaryByFileName(fileName);
   }
 
   @Get('file')

@@ -35,6 +35,16 @@ export class AppService {
     return clouldUpload;
   }
 
+  async deleteClouldnaryByFileName(fileName: string) {
+    const deleteImageUrl = `back-Portfolio/${fileName}`;
+
+    const ds = await v2.api.delete_resources_by_prefix(
+      deleteImageUrl,
+      (err, result) => {},
+    );
+    return ds;
+  }
+
   async getFiels() {
     return v2.search
       .expression('folder=back-Portfolio')

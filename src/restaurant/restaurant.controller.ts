@@ -123,7 +123,7 @@ export class RestaurantController {
     return this.commentService.addMessageByCommentId(user, inputData);
   }
 
-  @ApiOperation({ summary: '레스토랑 대댓글 변경 ( editCommentMessage )' })
+  @ApiOperation({ summary: '레스토랑 대댓글 변경 ( editCommentChildMessage )' })
   @ApiResponse({
     type: EditCommentChildMessageOutPutDto,
     status: 200,
