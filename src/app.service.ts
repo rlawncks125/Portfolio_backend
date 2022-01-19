@@ -36,7 +36,8 @@ export class AppService {
   }
 
   async deleteClouldnaryByFileName(fileName: string) {
-    const deleteImageUrl = `back-Portfolio/${fileName}`;
+    const deleteFoloder = 'back-Portfolio';
+    const deleteImageUrl = `${deleteFoloder}/${fileName}`;
 
     const ds = await v2.api.delete_resources_by_prefix(
       deleteImageUrl,

@@ -24,6 +24,8 @@ export class CreateRestaurantInputDto extends IntersectionType(
     'location',
     'restaurantImageUrl',
     'lating',
+    'hashTags',
+    'specialization',
   ] as const),
 ) {}
 

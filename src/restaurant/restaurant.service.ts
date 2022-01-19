@@ -55,6 +55,8 @@ export class RestaurantService {
       lating,
       location,
       restaurantImageUrl,
+      hashTags,
+      specialization,
     }: CreateRestaurantInputDto,
   ): Promise<CreateRestaurantOutPutDto> {
     try {
@@ -76,6 +78,8 @@ export class RestaurantService {
           location,
           restaurantImageUrl,
           lating,
+          hashTags,
+          specialization,
         }),
       );
 

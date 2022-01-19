@@ -98,6 +98,22 @@ export class Restaurant extends CoreEntity {
   @ManyToOne(() => Room, (room) => room.restaurants, { onDelete: 'CASCADE' })
   parentRoom: Room;
 
+  // 해시태그
+  @ApiProperty({
+    description: '해시태그들',
+    type: () => [String],
+  })
+  @Column('json', { default: '[]', nullable: true })
+  hashTags?: string[] | null;
+
+  // 전문분야
+  @ApiProperty({
+    description: '전문분야',
+    type: () => [String],
+  })
+  @Column('json', { default: '[]', nullable: true })
+  specialization?: string[] | null;
+
   //   별점 평균 계산
   avgStarUpdate(): number {
     const star = this.comments.map((v) => v.star).reduce((a, b) => a + b, 0.0);

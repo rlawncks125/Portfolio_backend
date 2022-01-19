@@ -119,6 +119,8 @@ export class RoomService {
             lating: v.lating,
             avgStar: v.avgStar,
             comments: v.comments,
+            hashTags: v.hashTags,
+            specialization: v.specialization,
           };
         }),
       };
