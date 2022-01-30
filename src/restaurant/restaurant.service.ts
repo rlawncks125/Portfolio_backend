@@ -425,14 +425,28 @@ export class CommentService {
     id: number,
   ): Promise<RemoveMessageByIdOutPutDto> {
     try {
-      const comment: Comment = await this.commentRepository.findOne(id);
+      const comment: Comment = await this.commentRepository.findOne(id, {
+        relations: ['parentRestaurant'],
+      });
 
       if (comment.message.userInfo.nickName === user.username) {
-        const result = await this.commentRepository.delete({ id });
+        const deleted = await this.commentRepository.delete({ id });
 
-        if (result) {
+        if (deleted) {
+          const restaurant = comment.parentRestaurant;
+          restaurant.avgStar = restaurant.removeCommentUpdateAvgStarById(id);
+
+          const updated = await this.restaurantRespository.save(restaurant);
+
+          if (updated) {
+            return {
+              ok: true,
+            };
+          }
+
           return {
-            ok: true,
+            ok: false,
+            err: '레스토랑에 반영이 되지 않았습니다.',
           };
         }
         return {

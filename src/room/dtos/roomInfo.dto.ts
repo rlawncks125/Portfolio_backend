@@ -12,6 +12,7 @@ class RestaurantInfoDto extends OmitType(Restaurant, [
   'updateAt',
   'parentRoom',
   'avgStarUpdate',
+  'removeCommentUpdateAvgStarById',
 ] as const) {}
 class RoominfoDto extends PickType(Room, ['roomName', 'lating' as const]) {
   @ApiProperty({

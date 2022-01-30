@@ -4,14 +4,7 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { Lating } from 'src/common/entities/Lating.entity';
 import { Room } from 'src/room/entities/room.entity';
 import { User } from 'src/user/entities/user.entity';
-import {
-  BeforeInsert,
-  BeforeUpdate,
-  Column,
-  Entity,
-  ManyToOne,
-  OneToMany,
-} from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { Comment } from './comment.entity';
 
 class SuperUserDto {
@@ -118,5 +111,15 @@ export class Restaurant extends CoreEntity {
   avgStarUpdate(): number {
     const star = this.comments.map((v) => v.star).reduce((a, b) => a + b, 0.0);
     return star / this.comments.length;
+  }
+
+  // 삭제시 평점 갱신
+  removeCommentUpdateAvgStarById(deleteIndex: number): number {
+    const remainComments = this.comments
+      .filter((v) => v.id != deleteIndex)
+      .map((v) => v.star);
+
+    const star = remainComments.reduce((a, b) => a + b, 0.0);
+    return star / remainComments.length;
   }
 }
