@@ -151,9 +151,9 @@ export class RestaurantController {
   @Delete('comment/:id')
   removeMessageById(
     @authUser() user: User,
-    @Param() { id }: { id: number },
+    @Param() { id }: { id: string },
   ): Promise<RemoveMessageByIdOutPutDto> {
-    return this.commentService.removeMessageById(user, id);
+    return this.commentService.removeMessageById(user, +id);
   }
 }
 

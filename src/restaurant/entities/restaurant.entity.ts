@@ -116,7 +116,7 @@ export class Restaurant extends CoreEntity {
   // 삭제시 평점 갱신
   removeCommentUpdateAvgStarById(deleteIndex: number): number {
     const remainComments = this.comments
-      .filter((v) => v.id != deleteIndex)
+      .filter((v) => v.id !== deleteIndex)
       .map((v) => v.star);
 
     const star = remainComments.reduce((a, b) => a + b, 0.0);
