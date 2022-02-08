@@ -6,6 +6,7 @@ import { Room } from '../entities/room.entity';
 export class CreateRoomInputDto extends PickType(Room, [
   'roomName',
   'lating',
+  'markeImageUrl',
 ]) {}
 
 class RoomOutPutDto extends PickType(Room, [
@@ -14,6 +15,7 @@ class RoomOutPutDto extends PickType(Room, [
   'uuid',
   'lating',
   'superUser',
+  'markeImageUrl',
 ]) {}
 
 export class CreateRoomOutPutDto extends CoreOutPut {

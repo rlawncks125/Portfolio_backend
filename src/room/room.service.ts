@@ -2,7 +2,13 @@ import { Injectable, UseInterceptors } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
-import { Repository } from 'typeorm';
+import {
+  Equal,
+  FindConditions,
+  FindOneOptions,
+  Like,
+  Repository,
+} from 'typeorm';
 import { CreateRoomInputDto, CreateRoomOutPutDto } from './dtos/createRoom.dto';
 import { JoinRoomInputDto, JoinRoomOutPutDto } from './dtos/joinRooms.dto';
 import { MyCreateRoomsOutPutDto } from './dtos/myCreateRooms.dto';
@@ -11,7 +17,11 @@ import {
   MyRoomsOutPutDto,
   MyRoomsRestaurantInfoDto,
 } from './dtos/myRooms.dto';
-import { roomListOutPutDto } from './dtos/roomList.dto';
+import {
+  RoomListInputDto,
+  RoomListOutPutDto,
+  searchTypeEnum,
+} from './dtos/roomList.dto';
 import { RoomInfoOutPutDto } from './dtos/roomInfo.dto';
 import { Room } from './entities/room.entity';
 import { LeaveRoomInputDto, LeaveRoomOutPutDto } from './dtos/leaveRoom.dto';
@@ -52,6 +62,8 @@ export class RoomService {
             uuid: v.uuid,
             roomName: v.roomName,
             lating: v.lating,
+            markeImageUrl: v.markeImageUrl,
+            superUser: v.superUser,
             joinUsersInfo: v.joinUsers.map((v) => {
               return {
                 id: v.id,
@@ -134,7 +146,7 @@ export class RoomService {
 
   async createRoom(
     user: User,
-    { lating, roomName }: CreateRoomInputDto,
+    { lating, roomName, markeImageUrl }: CreateRoomInputDto,
   ): Promise<CreateRoomOutPutDto> {
     try {
       const room = await this.roomRepository.save(
@@ -143,6 +155,7 @@ export class RoomService {
           roomName,
           superUser: user,
           joinUsers: [user],
+          markeImageUrl,
         }),
       );
 
@@ -161,6 +174,7 @@ export class RoomService {
           uuid: room.uuid,
           lating: room.lating,
           superUser: room.superUser,
+          markeImageUrl: room.markeImageUrl,
         },
       };
     } catch (e) {
@@ -322,10 +336,40 @@ export class RoomService {
     }
   }
 
-  async roomList(): Promise<roomListOutPutDto> {
+  async roomList({
+    searchType,
+    value,
+  }: RoomListInputDto): Promise<RoomListOutPutDto> {
     try {
+      let where: FindConditions<Room> = {};
+
+      switch (searchType) {
+        case searchTypeEnum.All:
+          where = {};
+          break;
+
+        case searchTypeEnum.RoomName:
+          where = {
+            roomName: Like(`%${value}%`),
+          };
+          break;
+
+        case searchTypeEnum.SuperUser:
+          where = {
+            superUser: {
+              username: Equal(value),
+            },
+          };
+          break;
+
+        default:
+          where = {};
+          break;
+      }
+
       const roomList = await this.roomRepository.find({
         relations: ['superUser'],
+        where,
       });
 
       if (roomList.length === 0) {
@@ -338,13 +382,14 @@ export class RoomService {
       return {
         ok: true,
         roomList: roomList.map((v) => {
-          const { uuid, roomName, superUser } = v;
+          const { uuid, roomName, superUser, markeImageUrl } = v;
           return {
             uuid,
             roomName,
             superUserinfo: {
               username: superUser.username,
             },
+            markeImageUrl,
           };
         }),
         // roomList,

@@ -17,7 +17,7 @@ import { CreateRoomInputDto, CreateRoomOutPutDto } from './dtos/createRoom.dto';
 import { JoinRoomInputDto, JoinRoomOutPutDto } from './dtos/joinRooms.dto';
 import { MyCreateRoomsOutPutDto } from './dtos/myCreateRooms.dto';
 import { MyRoomsOutPutDto } from './dtos/myRooms.dto';
-import { roomListOutPutDto } from './dtos/roomList.dto';
+import { RoomListInputDto, RoomListOutPutDto } from './dtos/roomList.dto';
 import { RoomInfoInputDto, RoomInfoOutPutDto } from './dtos/roomInfo.dto';
 import { LeaveRoomInputDto, LeaveRoomOutPutDto } from './dtos/leaveRoom.dto';
 import { RoomService } from './room.service';
@@ -39,14 +39,14 @@ export class RoomController {
     return this.roomService.myRoomsInfo(user);
   }
 
-  @Get('list')
+  @Post('list')
   @ApiOperation({ summary: '방 목록 ( roomList )' })
   @ApiResponse({
-    type: roomListOutPutDto,
+    type: RoomListOutPutDto,
     status: 200,
   })
-  async roomList(): Promise<roomListOutPutDto> {
-    return this.roomService.roomList();
+  async roomList(@Body() input: RoomListInputDto): Promise<RoomListOutPutDto> {
+    return this.roomService.roomList(input);
   }
 
   @ApiOperation({ summary: '방 만들기 ( createRoom )' })

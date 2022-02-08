@@ -23,6 +23,8 @@ class MyRoomsinfoDto extends PickType(Room, [
   'uuid',
   'roomName',
   'lating',
+  'markeImageUrl',
+  'superUser',
 ] as const) {
   @ApiProperty({
     description: '레스토랑 정보',

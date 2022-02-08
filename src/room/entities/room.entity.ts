@@ -23,6 +23,10 @@ export class Room extends CoreEntity {
   @Column()
   roomName: string;
 
+  @ApiProperty({ description: '방마크 입니다.', example: 'roomMarke' })
+  @Column({ nullable: true, default: null })
+  markeImageUrl?: string | null;
+
   @ApiProperty({ description: '방 시작 좌표입니다.', type: () => Lating })
   @Column(() => Lating)
   lating: Lating;
