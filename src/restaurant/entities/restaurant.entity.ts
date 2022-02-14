@@ -110,6 +110,9 @@ export class Restaurant extends CoreEntity {
   //   별점 평균 계산
   avgStarUpdate(): number {
     const star = this.comments.map((v) => v.star).reduce((a, b) => a + b, 0.0);
+
+    if (this.comments.length <= 0) return 0;
+
     return star / this.comments.length;
   }
 
@@ -120,6 +123,9 @@ export class Restaurant extends CoreEntity {
       .map((v) => v.star);
 
     const star = remainComments.reduce((a, b) => a + b, 0.0);
+    console.log(star, remainComments.length);
+    if (remainComments.length <= 0) return 0;
+
     return star / remainComments.length;
   }
 }

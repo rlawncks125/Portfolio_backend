@@ -425,6 +425,7 @@ export class CommentService {
     id: number,
   ): Promise<RemoveMessageByIdOutPutDto> {
     try {
+      console.log(id);
       const comment: Comment = await this.commentRepository.findOne(id, {
         relations: ['parentRestaurant'],
       });
@@ -435,6 +436,7 @@ export class CommentService {
         if (deleted) {
           const restaurant = comment.parentRestaurant;
           restaurant.avgStar = restaurant.removeCommentUpdateAvgStarById(id);
+          console.log(restaurant);
 
           const updated = await this.restaurantRespository.save(restaurant);
 
