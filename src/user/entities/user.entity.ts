@@ -6,6 +6,7 @@ import {
   Generated,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
   Unique,
 } from 'typeorm';
@@ -36,6 +37,9 @@ export class User extends CoreEntity {
 
   @ManyToMany(() => Room, (room) => room.joinUsers)
   joinRooms: Room[];
+
+  @ManyToMany(() => Room, (room) => room.approvalWaitUsers)
+  approvalWaitRooms: Room[];
 
   // save 되기 전 패스워드 해쉬 함수 를 이용하여 암호화
   @BeforeInsert()

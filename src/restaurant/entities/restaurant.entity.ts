@@ -123,7 +123,7 @@ export class Restaurant extends CoreEntity {
       .map((v) => v.star);
 
     const star = remainComments.reduce((a, b) => a + b, 0.0);
-    console.log(star, remainComments.length);
+
     if (remainComments.length <= 0) return 0;
 
     return star / remainComments.length;

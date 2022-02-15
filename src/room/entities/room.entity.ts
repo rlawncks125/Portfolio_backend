@@ -41,7 +41,7 @@ export class Room extends CoreEntity {
 
   @ApiProperty({
     description: '참가한 유저들입니다.',
-    example: '[참가한 유저들입니다.]',
+    example: '참가한 유저들입니다.',
     type: () => [User],
   })
   @ManyToMany(() => User, (user) => user.joinRooms)
@@ -55,4 +55,14 @@ export class Room extends CoreEntity {
   })
   @OneToMany(() => Restaurant, (restaurant) => restaurant.parentRoom)
   restaurants: Restaurant[];
+
+  // 신청 대기 중인 유저들
+  @ApiProperty({
+    description: '승인대기 유저들',
+    example: '승인대기 유저들',
+    type: () => [User],
+  })
+  @ManyToMany(() => User, (user) => user.approvalWaitRooms)
+  @JoinTable()
+  approvalWaitUsers: User[];
 }

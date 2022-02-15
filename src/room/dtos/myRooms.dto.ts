@@ -18,6 +18,11 @@ export class MyRoomsJoinUserInfoDto extends PickType(User, [
   'username',
 ] as const) {}
 
+export class ApprovalWaitUsersInfoDto extends PickType(User, [
+  'id',
+  'username',
+] as const) {}
+
 class MyRoomsinfoDto extends PickType(Room, [
   'id',
   'uuid',
@@ -37,6 +42,12 @@ class MyRoomsinfoDto extends PickType(Room, [
     type: () => [MyRoomsJoinUserInfoDto],
   })
   joinUsersInfo: MyRoomsJoinUserInfoDto[];
+
+  @ApiProperty({
+    description: '승인 대기중인 유저들',
+    type: () => [ApprovalWaitUsersInfoDto],
+  })
+  approvalWaitUsers: ApprovalWaitUsersInfoDto[];
 }
 
 export class MyRoomsOutPutDto extends CoreOutPut {

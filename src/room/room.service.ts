@@ -1,4 +1,4 @@
-import { Injectable, UseInterceptors } from '@nestjs/common';
+import { Catch, Injectable, UseInterceptors } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -13,6 +13,7 @@ import { CreateRoomInputDto, CreateRoomOutPutDto } from './dtos/createRoom.dto';
 import { JoinRoomInputDto, JoinRoomOutPutDto } from './dtos/joinRooms.dto';
 import { MyCreateRoomsOutPutDto } from './dtos/myCreateRooms.dto';
 import {
+  ApprovalWaitUsersInfoDto,
   MyRoomsJoinUserInfoDto,
   MyRoomsOutPutDto,
   MyRoomsRestaurantInfoDto,
@@ -26,6 +27,9 @@ import { RoomInfoOutPutDto } from './dtos/roomInfo.dto';
 import { Room } from './entities/room.entity';
 import { LeaveRoomInputDto, LeaveRoomOutPutDto } from './dtos/leaveRoom.dto';
 import { RemoveRoomOutPutDto } from './dtos/RemoveRoom.dto';
+import { EditRoomInPutDto, EdtiRoomOutPutDto } from './dtos/editRoom.dto';
+import { myApprovalWaitRoomsOutPutDto } from './dtos/myApprovalWaitRooms.dto';
+import { AcceptUserInPutDto, AcceptUserOutPutDto } from './dtos/AcceptUser.dto';
 
 @Injectable()
 export class RoomService {
@@ -51,7 +55,12 @@ export class RoomService {
       }));
 
       const roomsInfo = await this.roomRepository.findByIds(roomIds, {
-        relations: ['joinUsers', 'restaurants', 'superUser'],
+        relations: [
+          'joinUsers',
+          'restaurants',
+          'superUser',
+          'approvalWaitUsers',
+        ],
       });
 
       return {
@@ -80,6 +89,12 @@ export class RoomService {
                 lating: r.lating,
               } as MyRoomsRestaurantInfoDto;
             }),
+            approvalWaitUsers: v.approvalWaitUsers.map((v) => {
+              return {
+                id: v.id,
+                username: v.username,
+              } as ApprovalWaitUsersInfoDto;
+            }),
           };
         }),
       };
@@ -95,7 +110,12 @@ export class RoomService {
     try {
       const room = await this.roomRepository.findOne({
         where: { uuid },
-        relations: ['joinUsers', 'restaurants', 'superUser'],
+        relations: [
+          'joinUsers',
+          'restaurants',
+          'superUser',
+          'approvalWaitUsers',
+        ],
       });
 
       if (!room) {
@@ -116,6 +136,12 @@ export class RoomService {
           },
         },
         users: room.joinUsers.map((user) => {
+          return {
+            id: user.id,
+            username: user.username,
+          };
+        }),
+        ApprovalWaitUsers: room.approvalWaitUsers.map((user) => {
           return {
             id: user.id,
             username: user.username,
@@ -266,7 +292,7 @@ export class RoomService {
     try {
       const room = await this.roomRepository.findOne({
         where: { uuid },
-        relations: ['joinUsers'],
+        relations: ['joinUsers', 'approvalWaitUsers'],
       });
 
       if (!room) {
@@ -282,9 +308,13 @@ export class RoomService {
           err: '이미 있는 유저입니다.',
         };
       }
-      room.joinUsers = [...room.joinUsers, user];
+      // 대기 유저
+      room.approvalWaitUsers = [...room.approvalWaitUsers, user];
+      await this.roomRepository.save(room);
 
-      this.roomRepository.save(room);
+      // 승인 확인
+      // room.joinUsers = [...room.joinUsers, user];
+      // this.roomRepository.save(room);
 
       return { ok: true };
     } catch (err) {
@@ -382,8 +412,9 @@ export class RoomService {
       return {
         ok: true,
         roomList: roomList.map((v) => {
-          const { uuid, roomName, superUser, markeImageUrl } = v;
+          const { uuid, roomName, superUser, markeImageUrl, id } = v;
           return {
+            id,
             uuid,
             roomName,
             superUserinfo: {
@@ -393,6 +424,139 @@ export class RoomService {
           };
         }),
         // roomList,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async editRoom(
+    user: User,
+    editRoomInput: EditRoomInPutDto,
+  ): Promise<EdtiRoomOutPutDto> {
+    try {
+      const { markeImageUrl, roomName, superUser, uuid } = editRoomInput;
+      if (!uuid) {
+        return {
+          ok: false,
+          err: '지정된 방이 없습니다.',
+        };
+      }
+      const room = await this.roomRepository.findOne(
+        { uuid },
+        {
+          relations: ['superUser'],
+        },
+      );
+
+      if (!room) {
+        return {
+          ok: false,
+          err: '방이 존재하지않습니다.',
+        };
+      }
+
+      if (room.superUser.id !== user.id) {
+        return {
+          ok: false,
+          err: '권한이 있는 유저가 아닙니다.',
+        };
+      }
+
+      roomName && (room.roomName = roomName);
+      markeImageUrl && (room.markeImageUrl = markeImageUrl);
+      superUser && (room.superUser = superUser);
+
+      const result = await this.roomRepository.save(room);
+
+      if (!result) {
+        return {
+          ok: false,
+          err: '갱신에 오류가 생겼습니다.',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async myApprovalWait(user: User): Promise<myApprovalWaitRoomsOutPutDto> {
+    try {
+      const userInfo = await this.userService.myApprovalWaitRooms(user);
+
+      if (!userInfo) {
+        return {
+          ok: false,
+        };
+      }
+      return {
+        ok: true,
+        rooms: userInfo.approvalWaitRooms,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async AcceptUser(
+    user: User,
+    { uuid, id: acceptUserId }: AcceptUserInPutDto,
+  ): Promise<AcceptUserOutPutDto> {
+    try {
+      const room = await this.roomRepository.findOne(
+        { uuid },
+        {
+          relations: ['approvalWaitUsers', 'joinUsers', 'superUser'],
+        },
+      );
+
+      if (!room) {
+        return {
+          ok: false,
+          err: '방이 존재하지않습니다.',
+        };
+      }
+
+      if (room.superUser.id !== user.id) {
+        return {
+          ok: false,
+          err: '권한이 없는 유저입니다.',
+        };
+      }
+
+      const isFind = room.approvalWaitUsers.find((v) => v.id === +acceptUserId);
+      if (!isFind) {
+        return {
+          ok: false,
+          err: '대기 목록에 없는 유저입니다.',
+        };
+      }
+
+      const userInfo = await this.userService.findById(acceptUserId);
+
+      room.approvalWaitUsers = room.approvalWaitUsers.filter(
+        (v) => v.id !== userInfo.id,
+      );
+
+      // 승인 확인
+      room.joinUsers = [...room.joinUsers, userInfo];
+      await this.roomRepository.save(room);
+
+      return {
+        ok: true,
       };
     } catch (err) {
       return {

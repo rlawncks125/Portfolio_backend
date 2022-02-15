@@ -14,6 +14,7 @@ class roomInfoDto extends PickType(Room, [
   'uuid',
   'roomName',
   'markeImageUrl',
+  'id',
 ]) {
   @ApiProperty({
     description: '방장 유저 정보',

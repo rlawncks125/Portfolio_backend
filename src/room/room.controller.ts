@@ -22,6 +22,9 @@ import { RoomInfoInputDto, RoomInfoOutPutDto } from './dtos/roomInfo.dto';
 import { LeaveRoomInputDto, LeaveRoomOutPutDto } from './dtos/leaveRoom.dto';
 import { RoomService } from './room.service';
 import { RemoveRoomInPutDto, RemoveRoomOutPutDto } from './dtos/RemoveRoom.dto';
+import { EditRoomInPutDto, EdtiRoomOutPutDto } from './dtos/editRoom.dto';
+import { myApprovalWaitRoomsOutPutDto } from './dtos/myApprovalWaitRooms.dto';
+import { AcceptUserInPutDto, AcceptUserOutPutDto } from './dtos/AcceptUser.dto';
 
 @ApiTags('room')
 @Controller('room')
@@ -37,6 +40,19 @@ export class RoomController {
   @UseGuards(AuthGuard)
   async myRoomsInfo(@authUser() user: User): Promise<MyRoomsOutPutDto> {
     return this.roomService.myRoomsInfo(user);
+  }
+
+  @ApiOperation({ summary: '참여 신청한 방목록 ( myApprovalWait )' })
+  @ApiResponse({
+    type: myApprovalWaitRoomsOutPutDto,
+    status: 200,
+  })
+  @Get('myApprovalWait')
+  @UseGuards(AuthGuard)
+  async myApprovalWait(
+    @authUser() user: User,
+  ): Promise<myApprovalWaitRoomsOutPutDto> {
+    return this.roomService.myApprovalWait(user);
   }
 
   @Post('list')
@@ -84,7 +100,34 @@ export class RoomController {
     return this.roomService.mySuperRooms(user);
   }
 
-  @ApiOperation({ summary: '방 참여하기 ( joinRoom )' })
+  @ApiOperation({ summary: '방 내의 정보들( roomInfo )' })
+  @ApiResponse({
+    type: RoomInfoOutPutDto,
+    status: 200,
+  })
+  @Post('info')
+  @UseGuards(AuthGuard)
+  async roomInfo(
+    @Body() { uuid }: RoomInfoInputDto,
+  ): Promise<RoomInfoOutPutDto> {
+    return this.roomService.RoomInfo(uuid);
+  }
+
+  @ApiOperation({ summary: '방 정보 수정 ( edtiRoom )' })
+  @ApiResponse({
+    type: EditRoomInPutDto,
+    status: 200,
+  })
+  @Patch('edit')
+  @UseGuards(AuthGuard)
+  async editRoom(
+    @authUser() user: User,
+    @Body() editRoomInput: EditRoomInPutDto,
+  ): Promise<EdtiRoomOutPutDto> {
+    return this.roomService.editRoom(user, editRoomInput);
+  }
+
+  @ApiOperation({ summary: '방 참여 요청 보내기 ( joinRoom )' })
   @ApiResponse({
     type: JoinRoomOutPutDto,
     status: 200,
@@ -98,17 +141,13 @@ export class RoomController {
     return this.roomService.joinRoom(user, joinRoomInput);
   }
 
-  @ApiOperation({ summary: '방 내의 정보들( roomInfo )' })
-  @ApiResponse({
-    type: RoomInfoOutPutDto,
-    status: 200,
-  })
-  @Post('info')
+  @Post('accept')
   @UseGuards(AuthGuard)
-  async roomInfo(
-    @Body() { uuid }: RoomInfoInputDto,
-  ): Promise<RoomInfoOutPutDto> {
-    return this.roomService.RoomInfo(uuid);
+  async AcceptUser(
+    @authUser() user: User,
+    @Body() acceptInput: AcceptUserInPutDto,
+  ): Promise<AcceptUserOutPutDto> {
+    return this.roomService.AcceptUser(user, acceptInput);
   }
 
   @ApiOperation({ summary: '방나가기 ( leaveRoom )' })

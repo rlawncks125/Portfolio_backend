@@ -138,4 +138,10 @@ export class UserService {
     });
     return myRooms.joinRooms;
   }
+
+  async myApprovalWaitRooms(user: User) {
+    return await this.usersRepository.findOne(user.id, {
+      relations: ['approvalWaitRooms'],
+    });
+  }
 }

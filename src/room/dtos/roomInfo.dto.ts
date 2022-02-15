@@ -7,6 +7,7 @@ import { Room } from '../entities/room.entity';
 export class RoomInfoInputDto extends PickType(Room, ['uuid']) {}
 
 class RoomUsersDto extends PickType(User, ['id', 'username']) {}
+class ApprovalWaitUsersDto extends PickType(User, ['id', 'username']) {}
 class RestaurantInfoDto extends OmitType(Restaurant, [
   'createAt',
   'updateAt',
@@ -34,6 +35,12 @@ export class RoomInfoOutPutDto extends CoreOutPut {
     type: () => [RoomUsersDto],
   })
   users?: RoomUsersDto[];
+
+  @ApiProperty({
+    description: '승인 대기 중인 유저들',
+    type: () => [ApprovalWaitUsersDto],
+  })
+  ApprovalWaitUsers?: ApprovalWaitUsersDto[];
 
   @ApiProperty({
     description: '레스토랑 정보들',
