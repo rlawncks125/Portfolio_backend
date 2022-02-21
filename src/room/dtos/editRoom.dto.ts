@@ -5,7 +5,12 @@ import { Room } from '../entities/room.entity';
 export class EditRoomInPutDto extends IntersectionType(
   PickType(Room, ['uuid'] as const),
   PartialType(
-    PickType(Room, ['markeImageUrl', 'roomName', 'superUser'] as const),
+    PickType(Room, [
+      'markeImageUrl',
+      'roomName',
+      'superUser',
+      'lating',
+    ] as const),
   ),
 ) {}
 

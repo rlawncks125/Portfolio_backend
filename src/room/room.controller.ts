@@ -115,7 +115,7 @@ export class RoomController {
 
   @ApiOperation({ summary: '방 정보 수정 ( edtiRoom )' })
   @ApiResponse({
-    type: EditRoomInPutDto,
+    type: EdtiRoomOutPutDto,
     status: 200,
   })
   @Patch('edit')
@@ -141,6 +141,11 @@ export class RoomController {
     return this.roomService.joinRoom(user, joinRoomInput);
   }
 
+  @ApiOperation({ summary: '유저 승인 ( AcceptUser )' })
+  @ApiResponse({
+    status: 200,
+    type: AcceptUserOutPutDto,
+  })
   @Post('accept')
   @UseGuards(AuthGuard)
   async AcceptUser(

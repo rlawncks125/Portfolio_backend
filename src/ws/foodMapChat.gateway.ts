@@ -10,31 +10,13 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
+import { emit } from 'process';
 import { Server, Socket } from 'socket.io';
 import { RestaurantService } from 'src/restaurant/restaurant.service';
 import { RoomService } from 'src/room/room.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
 import { wsUserId } from './ws.decorator';
-
-export enum EventTriggerTypes {
-  CREATEROOM = 'CREATEROOM',
-  JOINUSER = 'JOINUSER',
-  LEAVEROOM = 'LEAVEROOM',
-}
-
-// event인터페이스 필요없을거같음
-type TEventTypes = keyof typeof EventTriggerTypes;
-
-interface callBody {
-  event: TEventTypes;
-  data: any;
-}
-
-interface responeData {
-  event: TEventTypes;
-  data: any;
-}
 
 @WebSocketGateway({
   transports: ['websocket'],
@@ -49,28 +31,138 @@ export class FoodMapChatGateway {
   @WebSocketServer()
   server: Server;
 
+  userMeataData: Array<{ client: Socket; user: User }> = [];
+
   handleConnection(client: Socket) {
-    console.log('연결', client.id);
+    console.log('foodchat 연결', client.id);
   }
 
   handleDisconnect(client: Socket) {
-    console.log(`연결 해제  : ${client.id}`);
+    this.userMeataData = this.userMeataData.filter(
+      (v) => v.client.id !== client.id,
+    );
+    this.leavRoomAll(client);
+    console.log(`foodchat 연결 해제  : ${client.id}`);
   }
 
-  @SubscribeMessage(EventTriggerTypes.CREATEROOM)
-  async createRoom(
-    @ConnectedSocket() client: Socket,
-    @MessageBody() { event, data }: callBody,
-  ): Promise<void> {
-    // 굳이 서비스에서 또 찾아야하나?
-    // 룸 정보를 데이터로 보내면 될듯
-    if (typeof data === 'object' && data.hasOwnProperty('uuid')) {
-      const room = await this.roomService.RoomInfo(data.uuid);
+  leavRoomAll(client: Socket) {
+    console.log(client.rooms);
+    client.rooms.forEach((room) => {
+      client.leave(room);
+    });
 
-      client.broadcast.emit(EventTriggerTypes.CREATEROOM, {
-        event,
-        data: room.roomInfo,
-      } as responeData);
+    this.serverRoomCheck();
+  }
+
+  serverRoomCheck = () => {
+    // @ts-ignore
+    console.log('방 체크', this.server.adapter.rooms);
+  };
+
+  @SubscribeMessage('registration')
+  async registration(
+    @ConnectedSocket() client: Socket,
+    @wsUserId() userid: number,
+  ) {
+    const user: User = await this.userService.findById(userid);
+
+    this.userMeataData.push({
+      client,
+      user,
+    });
+    // console.log(this.userMeataData);
+  }
+
+  @SubscribeMessage('joinRoom')
+  async joinRooms(
+    @ConnectedSocket() client: Socket,
+    @wsUserId() userid: number,
+    @MessageBody() uuid: string,
+  ) {
+    console.log(`방 입장 : ${uuid}`);
+
+    client.join(uuid);
+
+    this.serverRoomCheck();
+  }
+
+  @SubscribeMessage('leaveRoom')
+  async leaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() uuid: string,
+  ) {
+    console.log('방 나가기', uuid);
+
+    client.leave(uuid);
+
+    this.serverRoomCheck();
+  }
+
+  @SubscribeMessage('updateRoom')
+  async updateRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() uuid: string,
+  ) {
+    console.log('업데이트 룸', uuid);
+
+    // 방에 모든유저 emit
+    // this.server.to(uuid).emit('updateRoom', 'test');
+    // 자신을 제외한 유저 emit
+    client.broadcast.to(uuid).emit('updateRoom');
+  }
+
+  @SubscribeMessage('updateRestaurant')
+  async updateRestaurant(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    { uuid, restaurantId }: { uuid: string; restaurantId: number },
+  ) {
+    console.log('업데이트 레스토랑', uuid, '/', restaurantId);
+    client.broadcast.to(uuid).emit('updateRestaurant', {
+      uuid,
+      restaurantId,
+    });
+  }
+
+  @SubscribeMessage('ApprovaWait')
+  async ApprovaWait(@MessageBody() userId: number) {
+    console.log('승인 :', userId);
+
+    const userMeta = this.userMeataData.find((v) => v.user.id === userId);
+
+    userMeta.client.emit('updateApprovaWait');
+  }
+
+  @SubscribeMessage('reqApprovaWait')
+  async reqApprovaWait(@MessageBody() uuid: string) {
+    const room = await this.roomService.RoomInfo(uuid);
+    const superUser = this.userMeataData.find(
+      (v) => v.user.id === room.roomInfo.superUserInfo.id,
+    );
+    if (superUser) {
+      superUser.client.emit('updateReqApprovaWait');
     }
+  }
+
+  @SubscribeMessage('createMaker')
+  async createMaker(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    { uuid, restaurantId }: { uuid: string; restaurantId: string },
+  ) {
+    console.log('업데이트 마커', uuid, restaurantId);
+
+    client.broadcast.to(uuid).emit('createMaker', restaurantId);
+  }
+
+  @SubscribeMessage('removeMaker')
+  async removeMaker(
+    @ConnectedSocket() client: Socket,
+    @MessageBody()
+    { uuid, restaurantId }: { uuid: string; restaurantId: string },
+  ) {
+    console.log('removeMaker', uuid, restaurantId);
+
+    client.broadcast.to(uuid).emit('removeMaker', restaurantId);
   }
 }
