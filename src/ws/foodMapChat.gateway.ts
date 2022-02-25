@@ -108,7 +108,17 @@ export class FoodMapChatGateway {
     // 방에 모든유저 emit
     // this.server.to(uuid).emit('updateRoom', 'test');
     // 자신을 제외한 유저 emit
-    client.broadcast.to(uuid).emit('updateRoom');
+    client.broadcast.to(uuid).emit('updateRoom', uuid);
+  }
+
+  @SubscribeMessage('delteRoom')
+  async delteRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() uuid: string,
+  ) {
+    console.log('룸 삭제', uuid);
+
+    client.broadcast.to(uuid).emit('delteRoom');
   }
 
   @SubscribeMessage('updateRestaurant')

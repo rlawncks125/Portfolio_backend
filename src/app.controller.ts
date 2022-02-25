@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Request,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -16,6 +17,7 @@ import {
   UploadApiErrorResponse,
   UploadApiResponse,
 } from 'cloudinary';
+import { Response } from 'express';
 import { AppService } from './app.service';
 
 @Controller()
@@ -54,5 +56,10 @@ export class AppController {
   @Get('file')
   async getFiles() {
     return this.appService.getFiels();
+  }
+
+  @Get('subway')
+  async getSubway(@Res() res: Response) {
+    return this.appService.getSebWaySchedule(res, 'incheon1down');
   }
 }

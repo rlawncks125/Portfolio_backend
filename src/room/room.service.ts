@@ -438,7 +438,8 @@ export class RoomService {
     editRoomInput: EditRoomInPutDto,
   ): Promise<EdtiRoomOutPutDto> {
     try {
-      const { markeImageUrl, roomName, superUser, uuid } = editRoomInput;
+      const { markeImageUrl, roomName, superUser, uuid, lating } =
+        editRoomInput;
       if (!uuid) {
         return {
           ok: false,
@@ -469,6 +470,7 @@ export class RoomService {
       roomName && (room.roomName = roomName);
       markeImageUrl && (room.markeImageUrl = markeImageUrl);
       superUser && (room.superUser = superUser);
+      lating && (room.lating = lating);
 
       const result = await this.roomRepository.save(room);
 

@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
+import { Response } from 'express';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -52,4 +53,26 @@ export class AppService {
       .max_results(5)
       .execute();
   }
+
+  async getSebWaySchedule(res: Response, type: keyof typeof ESubway) {
+    const fs = require('fs');
+    const folderPath = `${__dirname}/../src/assets/subwaySchedule/`;
+    let readPath = `${folderPath}/`;
+
+    readPath += ESubway[type];
+
+    fs.readFile(readPath, 'utf-8', (err: any, data: any) => {
+      if (data) {
+        res.send(data);
+      } else {
+        res.send(err);
+      }
+    });
+  }
+}
+enum ESubway {
+  'incheon1up' = '인천1호선 평일 상선.json',
+  'incheon1down' = '인천1호선 평일 하선.json',
+  'incheon2up' = '인천2호선 평일 상선.json',
+  'incheon2down' = '인천2호선 평일 하선.json',
 }
