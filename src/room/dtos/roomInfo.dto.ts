@@ -15,7 +15,11 @@ class RestaurantInfoDto extends OmitType(Restaurant, [
   'avgStarUpdate',
   'removeCommentUpdateAvgStarById',
 ] as const) {}
-class RoominfoDto extends PickType(Room, ['roomName', 'lating' as const]) {
+class RoominfoDto extends PickType(Room, [
+  'roomName',
+  'lating',
+  'markeImageUrl' as const,
+]) {
   @ApiProperty({
     description: '방장 정보',
     type: () => RoomUsersDto,

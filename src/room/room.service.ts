@@ -134,6 +134,7 @@ export class RoomService {
             id: room.superUser.id,
             username: room.superUser.username,
           },
+          markeImageUrl: room.markeImageUrl,
         },
         users: room.joinUsers.map((user) => {
           return {

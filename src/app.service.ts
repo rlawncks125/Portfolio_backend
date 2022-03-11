@@ -54,7 +54,7 @@ export class AppService {
       .execute();
   }
 
-  async getSebWaySchedule(res: Response, type: keyof typeof ESubway) {
+  async getSubWaySchedule(res: Response, type: SubWayType) {
     const fs = require('fs');
     const folderPath = `${__dirname}/../src/assets/subwaySchedule/`;
     let readPath = `${folderPath}/`;
@@ -70,6 +70,7 @@ export class AppService {
     });
   }
 }
+export type SubWayType = keyof typeof ESubway;
 enum ESubway {
   'incheon1up' = '인천1호선 평일 상선.json',
   'incheon1down' = '인천1호선 평일 하선.json',
