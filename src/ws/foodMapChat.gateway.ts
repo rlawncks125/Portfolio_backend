@@ -138,9 +138,11 @@ export class FoodMapChatGateway {
   async ApprovaWait(@MessageBody() userId: number) {
     console.log('승인 :', userId);
 
-    const userMeta = this.userMeataData.find((v) => v.user.id === userId);
+    const userMeta = this.userMeataData.filter((v) => v.user.id === userId);
 
-    userMeta.client.emit('updateApprovaWait');
+    userMeta.forEach((v) => {
+      v.client.emit('updateApprovaWait');
+    });
   }
 
   @SubscribeMessage('reqApprovaWait')

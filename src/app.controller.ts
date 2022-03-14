@@ -61,8 +61,8 @@ export class AppController {
   @Get('subway')
   async getSubway(
     @Res() res: Response,
-    @Body() { type }: { type: SubWayType },
+    @Body() { type, station }: { type: SubWayType; station: string },
   ) {
-    return this.appService.getSubWaySchedule(res, type);
+    return this.appService.getSubWaySchedule(res, type, station);
   }
 }

@@ -54,16 +54,29 @@ export class AppService {
       .execute();
   }
 
-  async getSubWaySchedule(res: Response, type: SubWayType) {
+  async getSubWaySchedule(res: Response, type: SubWayType, station: string) {
     const fs = require('fs');
-    const folderPath = `${__dirname}/../src/assets/subwaySchedule/`;
+    const folderPath = `${__dirname}/../src/assets/subwaySchedule`;
     let readPath = `${folderPath}/`;
 
     readPath += ESubway[type];
 
-    fs.readFile(readPath, 'utf-8', (err: any, data: any) => {
+    fs.readFile(readPath, 'utf-8', (err: any, data: string) => {
       if (data) {
-        res.send(data);
+        let times;
+        switch (type) {
+          case 'incheon1up':
+          case 'incheon1down':
+            times = incheonOneTimes(data, station);
+
+            break;
+
+          default:
+            times = null;
+            break;
+        }
+
+        res.send(times);
       } else {
         res.send(err);
       }
@@ -77,3 +90,33 @@ enum ESubway {
   'incheon2up' = '인천2호선 평일 상선.json',
   'incheon2down' = '인천2호선 평일 하선.json',
 }
+
+// 인천 1호선
+export const incheonOneTimes = (data: string, station: string) => {
+  // 상선 국제업무지구(시발 역) 도착 x
+  // 하선 계양(시발 역) 도착x
+  return data
+    .split('{')
+    .filter((v) => v.split('\n')[1].includes(`${station} 도착`))[0]
+    .split('\n')
+    .map((v) => {
+      const timeString = v.split(`":`)[1];
+
+      if (!timeString) {
+        return null;
+      }
+
+      const timeLine = timeString.split(`\"`)[1];
+      if (!timeLine) {
+        return null;
+      }
+
+      return timeLine;
+    })
+    .filter((v) => v !== null);
+};
+
+// 인천 2호선
+export const IncheonTwoTimes = (data: string, station: string) => {
+  return `2호선 ${station} 작업중`;
+};
