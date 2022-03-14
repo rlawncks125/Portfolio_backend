@@ -18,7 +18,7 @@ import {
   UploadApiResponse,
 } from 'cloudinary';
 import { Response } from 'express';
-import { AppService, SubWayType } from './app.service';
+import { AppService } from './app.service';
 
 @Controller()
 export class AppController {
@@ -56,13 +56,5 @@ export class AppController {
   @Get('file')
   async getFiles() {
     return this.appService.getFiels();
-  }
-
-  @Get('subway')
-  async getSubway(
-    @Res() res: Response,
-    @Body() { type, station }: { type: SubWayType; station: string },
-  ) {
-    return this.appService.getSubWaySchedule(res, type, station);
   }
 }

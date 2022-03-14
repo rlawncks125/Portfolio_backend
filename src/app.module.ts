@@ -8,6 +8,7 @@ import { UserModule } from './user/user.module';
 import { WsModule } from './ws/ws.module';
 import { RoomModule } from './room/room.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
+import { SubwayModule } from './subway/subway.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { RestaurantModule } from './restaurant/restaurant.module';
     WsModule,
     RoomModule,
     RestaurantModule,
+    SubwayModule,
   ],
   controllers: [AppController],
   providers: [AppService],
