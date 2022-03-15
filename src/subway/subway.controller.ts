@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Res } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { GetSubWayScheduleInPutDto } from './dtos/getSubWaySchedule.dto';
@@ -9,7 +9,7 @@ import { SubwayService } from './subway.service';
 export class SubwayController {
   constructor(private readonly subwayService: SubwayService) {}
 
-  @Get('')
+  @Post('')
   async getSubway(
     @Res() res: Response,
     @Body()

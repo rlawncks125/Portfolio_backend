@@ -2,8 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 
 import {
   ESubway,
-  incheonOneStation,
-  incheonTwoStation,
+  incheon1Station,
+  incheon2Station,
+  seoul1Station,
 } from '../subway.service';
 
 export const enumToArray = (enumme: any) => {
@@ -15,25 +16,33 @@ export const enumToArray = (enumme: any) => {
 
 export class GetSubWayScheduleInPutDto {
   @ApiProperty({
-    name: 'SubWayType',
     description: '행선',
-    enum: ['incheon1up', 'incheon1down', 'incheon2up', 'incheon2down'],
+    enum: [...Object.keys(ESubway)],
   })
   type: keyof typeof ESubway;
 
-  station: keyof typeof incheonOneStation | keyof typeof incheonTwoStation;
+  @ApiProperty({
+    description: '지하철역',
+  })
+  station: string;
 
   // Swagger Enum 만들려고 더미
   @ApiProperty({
-    description: '1호선',
-    enum: [...[...enumToArray(incheonOneStation)]],
+    description: '인천 1호선',
+    enum: [...enumToArray(incheon1Station)],
     required: false,
   })
-  station1?: keyof typeof incheonOneStation;
+  station1?: keyof typeof incheon1Station;
   @ApiProperty({
-    description: '2호선',
-    enum: [...[...enumToArray(incheonTwoStation)]],
+    description: '인천 2호선',
+    enum: [...enumToArray(incheon2Station)],
     required: false,
   })
-  station2?: keyof typeof incheonTwoStation;
+  station2?: keyof typeof incheon2Station;
+  @ApiProperty({
+    description: '서울 1호선',
+    enum: [...enumToArray(seoul1Station)],
+    required: false,
+  })
+  station3?: keyof typeof seoul1Station;
 }

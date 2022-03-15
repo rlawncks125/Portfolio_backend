@@ -14,16 +14,22 @@ export class SubwayService {
 
     fs.readFile(readPath, 'utf-8', (err: any, data: string) => {
       if (data) {
-        let times;
+        let times = null;
         switch (type) {
           case 'incheon1up':
           case 'incheon1down':
-            times = incheonOneTimes(data, station);
-
+            if (!(station in incheon1Station)) break;
+            times = timesSort(data, station);
             break;
           case 'incheon2up':
           case 'incheon2down':
-            times = IncheonTwoTimes(data, station);
+            if (!(station in incheon2Station)) break;
+            times = timesSort(data, station);
+            break;
+          case 'seoul1up':
+          case 'seoul1down':
+            if (!(station in seoul1Station)) break;
+            times = timesSort(data, station);
             break;
           default:
             times = null;
@@ -37,51 +43,27 @@ export class SubwayService {
     });
   }
 }
+
+const timesSort = (data: string, station: string) => {
+  return JSON.parse(data)
+    .filter((v) => v['역사명'] === station)
+    .sort(
+      (a, b) =>
+        +a['열차출발시간'].split(':')[0] - +b['열차출발시간'].split(':')[0],
+    );
+};
+
 export type SubWayType = keyof typeof ESubway;
 export enum ESubway {
-  'incheon1up' = '인천1호선 평일 상선.json',
-  'incheon1down' = '인천1호선 평일 하선.json',
-  'incheon2up' = '인천2호선 평일 상선.json',
-  'incheon2down' = '인천2호선 평일 하선.json',
+  'incheon1up' = '인천1호선 상선.json',
+  'incheon1down' = '인천1호선 하선.json',
+  'incheon2up' = '인천2호선 상선.json',
+  'incheon2down' = '인천2호선 하선.json',
+  'seoul1up' = '수도권1호선 상선.json',
+  'seoul1down' = '수도권1호선 하선.json',
 }
 
-// 인천 1호선
-const incheonOneTimes = (data: string, station: string) => {
-  if (!(station in incheonOneStation)) return false;
-  // 상선 국제업무지구(시발 역) 도착 x
-  // 하선 계양(시발 역) 도착x
-  return data
-    .split('{')
-    .filter((v) => v.split('\n')[1].includes(`${station} 도착`))[0]
-    .split('\n')
-    .map((v) => {
-      const timeString = v.split(`":`)[1];
-
-      if (!timeString) {
-        return null;
-      }
-
-      const timeLine = timeString.split(`\"`)[1];
-      if (!timeLine) {
-        return null;
-      }
-
-      return timeLine;
-    })
-    .filter((v) => v !== null);
-};
-
-// 인천 2호선
-const IncheonTwoTimes = (data: string, station: string) => {
-  if (!(station in incheonTwoStation)) return false;
-
-  // object value값을 배열로 Convert
-  return Object.values(
-    JSON.parse(data).filter((v) => v['구분'] === station)[0],
-  );
-};
-
-export enum incheonOneStation {
+export enum incheon1Station {
   '국제업무지구',
   '센트럴파크',
   '인천대입구',
@@ -89,7 +71,7 @@ export enum incheonOneStation {
   '테크노파크',
   '캠퍼스타운',
   '동막',
-  '동춘도착',
+  '동춘',
   '원인재',
   '신연수',
   '선학',
@@ -113,7 +95,7 @@ export enum incheonOneStation {
   '계양',
 }
 
-export enum incheonTwoStation {
+export enum incheon2Station {
   '운연',
   '인천대공원',
   '남동구청',
@@ -141,4 +123,105 @@ export enum incheonTwoStation {
   '검단사거리',
   '왕길',
   '검단오류',
+}
+export enum seoul1Station {
+  '동인천',
+  '도원',
+  '제물포',
+  '도화',
+  '주안',
+  '간석',
+  '동암',
+  '백운',
+  '부평',
+  '부개',
+  '송내',
+  '중동',
+  '부천',
+  '소사',
+  '역곡',
+  '온수',
+  '오류동',
+  '개봉',
+  '구일',
+  '구로',
+  '신도림',
+  '영등포',
+  '신길',
+  '대방',
+  '노량진',
+  '용산',
+  '인천',
+  '남영',
+  '서울역',
+  '시청',
+  '종각',
+  '종로3가',
+  '종로5가',
+  '동대문',
+  '동묘앞',
+  '신설동',
+  '제기동',
+  '청량리',
+  '회기',
+  '외대앞',
+  '신이문',
+  '석계',
+  '광운대',
+  '월계',
+  '녹천',
+  '창동',
+  '방학',
+  '도봉',
+  '도봉산',
+  '망월사',
+  '회룡',
+  '의정부',
+  '가능',
+  '녹양',
+  '양주',
+  '마전',
+  '덕계',
+  '덕정',
+  '지행',
+  '동두천중앙',
+  '보산',
+  '동두천',
+  '소요산',
+  '신창',
+  '온양온천',
+  '배방',
+  '아산',
+  '쌍용',
+  '봉명',
+  '천안',
+  '두정',
+  '직산',
+  '성환',
+  '평택',
+  '평택지제',
+  '서정리',
+  '송탄',
+  '진위',
+  '오산',
+  '오산대',
+  '세마',
+  '병점',
+  '세류',
+  '수원',
+  '화서',
+  '성균관대',
+  '의왕',
+  '당정',
+  '군포',
+  '금정',
+  '명학',
+  '안양',
+  '관악',
+  '석수',
+  '금천구청',
+  '독산',
+  '가산디지털단지',
+  '서동탄',
+  '광명',
 }
