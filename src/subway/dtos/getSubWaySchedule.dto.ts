@@ -5,6 +5,8 @@ import {
   incheon1Station,
   incheon2Station,
   seoul1Station,
+  Station7,
+  suinStation,
 } from '../subway.service';
 
 export const enumToArray = (enumme: any) => {
@@ -45,4 +47,17 @@ export class GetSubWayScheduleInPutDto {
     required: false,
   })
   station3?: keyof typeof seoul1Station;
+  @ApiProperty({
+    description: '7호선',
+    enum: [...enumToArray(Station7)],
+    required: false,
+  })
+  station4?: keyof typeof Station7;
+
+  @ApiProperty({
+    description: '수인분당선',
+    enum: [...enumToArray(suinStation)],
+    required: false,
+  })
+  station5?: keyof typeof suinStation;
 }

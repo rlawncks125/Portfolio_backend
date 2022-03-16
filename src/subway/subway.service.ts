@@ -6,6 +6,11 @@ export class SubwayService {
   constructor() {}
   //
   async getSubWaySchedule(res: Response, type: SubWayType, station: string) {
+    if (!(type in ESubway)) {
+      res.send('잘못된 접근 입니다.');
+      return;
+    }
+
     const fs = require('fs');
     const folderPath = `${__dirname}/../../src/assets/subwaySchedule`;
     let readPath = `${folderPath}/`;
@@ -14,27 +19,36 @@ export class SubwayService {
 
     fs.readFile(readPath, 'utf-8', (err: any, data: string) => {
       if (data) {
-        let times = null;
+        let times = '잘못된 역 이름 입니다.';
+        let isStationCheckd = false;
+
         switch (type) {
           case 'incheon1up':
           case 'incheon1down':
-            if (!(station in incheon1Station)) break;
-            times = timesSort(data, station);
+            if (station in incheon1Station) isStationCheckd = true;
             break;
           case 'incheon2up':
           case 'incheon2down':
-            if (!(station in incheon2Station)) break;
-            times = timesSort(data, station);
+            if (station in incheon2Station) isStationCheckd = true;
             break;
           case 'seoul1up':
           case 'seoul1down':
-            if (!(station in seoul1Station)) break;
-            times = timesSort(data, station);
+            if (station in seoul1Station) isStationCheckd = true;
+            break;
+          case 'suinup':
+          case 'suindown':
+            if (station in suinStation) isStationCheckd = true;
+            break;
+          case 'station7up':
+          case 'station7down':
+            if (station in Station7) isStationCheckd = true;
             break;
           default:
-            times = null;
+            isStationCheckd = false;
             break;
         }
+
+        isStationCheckd && (times = timesSort(data, station));
 
         res.send(times);
       } else {
@@ -45,12 +59,7 @@ export class SubwayService {
 }
 
 const timesSort = (data: string, station: string) => {
-  return JSON.parse(data)
-    .filter((v) => v['역사명'] === station)
-    .sort(
-      (a, b) =>
-        +a['열차출발시간'].split(':')[0] - +b['열차출발시간'].split(':')[0],
-    );
+  return JSON.parse(data).filter((v) => v['역사명'] === station);
 };
 
 export type SubWayType = keyof typeof ESubway;
@@ -61,6 +70,10 @@ export enum ESubway {
   'incheon2down' = '인천2호선 하선.json',
   'seoul1up' = '수도권1호선 상선.json',
   'seoul1down' = '수도권1호선 하선.json',
+  'station7up' = '7호선 상선.json',
+  'station7down' = '7호선 하선.json',
+  'suinup' = '수인분당선 상선.json',
+  'suindown' = '수인분당선 하선.json',
 }
 
 export enum incheon1Station {
@@ -224,4 +237,125 @@ export enum seoul1Station {
   '가산디지털단지',
   '서동탄',
   '광명',
+}
+export enum Station7 {
+  '석남',
+  '산곡',
+  '부평구청',
+  '굴포천',
+  '삼산체육관',
+  '상동',
+  '부천시청',
+  '신중동',
+  '춘의',
+  '부천종합운동장',
+  '까치울',
+  '온수',
+  '천왕',
+  '광명사거리',
+  '철산',
+  '가산디지털단지',
+  '남구로',
+  '대림',
+  '신풍',
+  '보라매',
+  '신대방삼거리',
+  '장승배기',
+  '상도',
+  '숭실대입구',
+  '남성',
+  '이수',
+  '내방',
+  '고속터미널',
+  '반포',
+  '논현',
+  '학동',
+  '강남구청',
+  '청담',
+  '뚝섬유원지',
+  '건대입구',
+  '어린이대공원',
+  '군자',
+  '중곡',
+  '용마산',
+  '사가정',
+  '면목',
+  '상봉',
+  '중화',
+  '먹골',
+  '태릉입구',
+  '공릉',
+  '하계',
+  '중계',
+  '노원',
+  '마들',
+  '수락산',
+  '도봉산',
+  '장암',
+}
+
+export enum suinStation {
+  '인천',
+  '신포',
+  '숭의',
+  '인하대',
+  '송도',
+  '연수',
+  '원인재',
+  '남동인더스파크',
+  '호구포',
+  '인천논현',
+  '소래포구',
+  '월곶',
+  '달월',
+  '오이도',
+  '정왕',
+  '신길온천',
+  '안산',
+  '초지',
+  '고잔',
+  '중앙',
+  '한대앞',
+  '사리',
+  '야목',
+  '어천',
+  '오목천',
+  '고색',
+  '수원',
+  '매교',
+  '수원시청',
+  '매탄권선',
+  '망포',
+  '영통',
+  '청명',
+  '상갈',
+  '기흥',
+  '신갈',
+  '구성',
+  '보정',
+  '죽전',
+  '오리',
+  '미금',
+  '정자',
+  '수내',
+  '서현',
+  '이매',
+  '야탑',
+  '모란',
+  '태평',
+  '가천대',
+  '복정',
+  '수서',
+  '대모산입구',
+  '개포동',
+  '구룡',
+  '도곡',
+  '한티',
+  '선릉',
+  '선정릉',
+  '강남구청',
+  '압구정로데오',
+  '서울숲',
+  '왕십리',
+  '청량리',
 }
