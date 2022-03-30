@@ -15,7 +15,13 @@ export class UserService {
     private usersRepository: Repository<User>,
   ) {}
 
-  async login({ username, password }: basicAuth): Promise<LoginOutPutDto> {
+  async login({
+    username: userNameBase64,
+    password,
+  }: basicAuth): Promise<LoginOutPutDto> {
+    // base64 디코딩
+    const username = Buffer.from(userNameBase64, 'base64').toString();
+
     const user = await this.usersRepository.findOne({
       username,
     });
@@ -49,15 +55,18 @@ export class UserService {
   }
 
   async create({
-    username,
+    username: userNameBase64,
     password,
   }: basicAuth): Promise<userCreateOutPutDto> {
     try {
-      if (username === '' || password === '')
+      if (userNameBase64 === '' || password === '')
         return {
           ok: false,
           err: '빈값이 있습니다.',
         };
+
+      // base64 디코딩
+      const username = Buffer.from(userNameBase64, 'base64').toString();
 
       const user = await this.usersRepository.findOne({ username });
 
