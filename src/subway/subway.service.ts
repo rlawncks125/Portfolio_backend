@@ -12,7 +12,10 @@ export class SubwayService {
     }
 
     const fs = require('fs');
-    const folderPath = `${__dirname}/../../src/assets/subwaySchedule`;
+    const folderPath =
+      process.env.ENV === 'prod'
+        ? `${__dirname}/../assets/subwaySchedule`
+        : `${__dirname}/../../src/assets/subwaySchedule`;
     let readPath = `${folderPath}/`;
 
     readPath += ESubway[type];
