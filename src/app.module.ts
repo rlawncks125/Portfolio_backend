@@ -15,7 +15,14 @@ import { SubwayModule } from './subway/subway.module';
     TypeOrmModule.forRoot({
       ...(process.env.Env === 'production'
         ? // heroku 배포시 url을 사용하여 연결
-          { url: process.env.DATABASE_URL }
+          {
+            url: process.env.DATABASE_URL,
+            // heroku error
+            // self signed sertificate
+            extra: {
+              ssl: { rejectUnauthorized: false },
+            },
+          }
         : {
             type: process.env.DB_TYPE as any,
             host: process.env.DB_HOST,
@@ -26,11 +33,6 @@ import { SubwayModule } from './subway/subway.module';
           }),
       entities: [`dist/**/*.entity{ .ts,.js}`],
       synchronize: process.env.ENV === 'production' ? false : true,
-      // heroku error
-      // self signed sertificate
-      extra: {
-        ssl: { rejectUnauthorized: false },
-      },
     }),
     UserModule,
     WsModule,
