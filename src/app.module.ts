@@ -13,7 +13,7 @@ import { SubwayModule } from './subway/subway.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      ...(process.env.Env === 'production'
+      ...(process.env.ENV === 'production'
         ? // heroku 배포시 url을 사용하여 연결
           {
             url: process.env.DATABASE_URL,
