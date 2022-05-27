@@ -13,14 +13,14 @@ import { SubwayModule } from './subway/subway.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: 'mariadb',
+      type: process.env.DB_TYPE as any,
       host: process.env.DB_HOST,
       port: +process.env.DB_PORT,
       username: process.env.DB_ROOT,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
       entities: [`dist/**/*.entity{ .ts,.js}`],
-      synchronize: true,
+      synchronize: process.env.ENV === 'prod' ? false : true,
     }),
     UserModule,
     WsModule,

@@ -41,6 +41,14 @@ export class UserController {
     return this.userService.login(auth);
   }
 
+  @ApiOperation({ summary: '로그인 토큰 확인' })
+  @Get('test')
+  @UseGuards(AuthGuard)
+  tetUser(@authUser() user: User) {
+    const finduser = this.userService.findById(user.id);
+    return finduser ? true : false;
+  }
+
   @ApiBasicAuth()
   @ApiOperation({ summary: '회원가입' })
   @ApiResponse({

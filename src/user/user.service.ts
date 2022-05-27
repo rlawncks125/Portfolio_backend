@@ -70,6 +70,7 @@ export class UserService {
 
       const user = await this.usersRepository.findOne({ username });
 
+      console.log(username, userNameBase64);
       if (user) {
         return {
           ok: false,
