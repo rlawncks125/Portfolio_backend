@@ -28,9 +28,9 @@ import { SubwayModule } from './subway/subway.module';
       // synchronize: process.env.ENV === 'production' ? false : true,
       synchronize: true,
       // heroku error
-      //  no encryption
+      // no encryption
       extra: {
-        ssl: true,
+        ssl: { rejectUnauthorized: false },
       },
     }),
     UserModule,
