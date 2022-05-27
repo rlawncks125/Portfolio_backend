@@ -13,20 +13,20 @@ import { SubwayModule } from './subway/subway.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      type: process.env.DB_TYPE as any,
-      host: process.env.DB_HOST,
-      port: +process.env.DB_PORT,
-      username: process.env.DB_ROOT,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      ...(process.env.Env === 'production'
+        ? // heroku 배포시 url을 사용하여 연결
+          { url: process.env.DATABASE_URL }
+        : {
+            type: process.env.DB_TYPE as any,
+            host: process.env.DB_HOST,
+            port: +process.env.DB_PORT,
+            username: process.env.DB_ROOT,
+            password: process.env.DB_PASSWORD,
+            database: process.env.DB_DATABASE,
+          }),
       entities: [`dist/**/*.entity{ .ts,.js}`],
       // synchronize: process.env.ENV === 'production' ? false : true,
       synchronize: true,
-      // heroku error
-      // no pg_hba.conf entry
-      extra: {
-        ssl: true,
-      },
     }),
     UserModule,
     WsModule,
