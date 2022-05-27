@@ -24,13 +24,13 @@ import { SubwayModule } from './subway/subway.module';
             },
           }
         : {
-            type: process.env.DB_TYPE as any,
             host: process.env.DB_HOST,
             port: +process.env.DB_PORT,
             username: process.env.DB_ROOT,
             password: process.env.DB_PASSWORD,
             database: process.env.DB_DATABASE,
           }),
+      type: process.env.DB_TYPE as any,
       entities: [`dist/**/*.entity{ .ts,.js}`],
       synchronize: process.env.NODE_ENV === 'production' ? false : true,
     }),
