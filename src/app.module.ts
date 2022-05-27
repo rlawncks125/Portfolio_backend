@@ -25,10 +25,9 @@ import { SubwayModule } from './subway/subway.module';
             database: process.env.DB_DATABASE,
           }),
       entities: [`dist/**/*.entity{ .ts,.js}`],
-      // synchronize: process.env.ENV === 'production' ? false : true,
-      synchronize: true,
+      synchronize: process.env.ENV === 'production' ? false : true,
       // heroku error
-      // no encryption
+      // self signed sertificate
       extra: {
         ssl: { rejectUnauthorized: false },
       },
