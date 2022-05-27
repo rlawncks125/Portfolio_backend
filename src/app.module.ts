@@ -27,6 +27,11 @@ import { SubwayModule } from './subway/subway.module';
       entities: [`dist/**/*.entity{ .ts,.js}`],
       // synchronize: process.env.ENV === 'production' ? false : true,
       synchronize: true,
+      // heroku error
+      //  no encryption
+      extra: {
+        ssl: true,
+      },
     }),
     UserModule,
     WsModule,
