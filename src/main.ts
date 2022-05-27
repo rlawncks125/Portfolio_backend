@@ -19,6 +19,9 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api', app, document);
 
-  await app.listen(process.env.PORT || 3000);
+  // heroku H10 에러로 인한 선언
+  const port: number = parseInt(`${process.env.PORT}`) || 3000;
+
+  await app.listen(port);
 }
 bootstrap();
