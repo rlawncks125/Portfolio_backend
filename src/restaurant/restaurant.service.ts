@@ -407,7 +407,9 @@ export class CommentService {
     }
   }
 
-  async getMessageById(id: number) {
+  async getMessageById(
+    id: number,
+  ): Promise<{ ok: boolean; err?: string; comment?: Comment }> {
     const comment: Comment = await this.commentRepository.findOne(id);
 
     if (!comment) {
@@ -417,7 +419,10 @@ export class CommentService {
       };
     }
 
-    return comment;
+    return {
+      ok: true,
+      comment,
+    };
   }
 
   async removeMessageById(

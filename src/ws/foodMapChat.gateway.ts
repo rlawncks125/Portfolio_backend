@@ -12,7 +12,10 @@ import {
 } from '@nestjs/websockets';
 import { emit } from 'process';
 import { Server, Socket } from 'socket.io';
-import { RestaurantService } from 'src/restaurant/restaurant.service';
+import {
+  CommentService,
+  RestaurantService,
+} from 'src/restaurant/restaurant.service';
 import { RoomService } from 'src/room/room.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -27,6 +30,7 @@ export class FoodMapChatGateway {
     private readonly userService: UserService,
     private readonly roomService: RoomService,
     private readonly restaurantService: RestaurantService,
+    private readonly commentService: CommentService,
   ) {}
   @WebSocketServer()
   server: Server;
@@ -128,10 +132,16 @@ export class FoodMapChatGateway {
     { uuid, restaurantId }: { uuid: string; restaurantId: number },
   ) {
     console.log('업데이트 레스토랑', uuid, '/', restaurantId);
-    client.broadcast.to(uuid).emit('updateRestaurant', {
-      uuid,
+
+    const { ok, restaurant } = await this.restaurantService.getRestaurantById(
       restaurantId,
-    });
+    );
+
+    ok &&
+      client.broadcast.to(uuid).emit('updateRestaurant', {
+        uuid,
+        restaurant,
+      });
   }
 
   @SubscribeMessage('ApprovaWait')

@@ -6,7 +6,10 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { RestaurantService } from 'src/restaurant/restaurant.service';
+import {
+  CommentService,
+  RestaurantService,
+} from 'src/restaurant/restaurant.service';
 import { RoomService } from 'src/room/room.service';
 import { User } from 'src/user/entities/user.entity';
 import { UserService } from 'src/user/user.service';
@@ -26,6 +29,7 @@ export class WsGateway {
     private readonly userService: UserService,
     private readonly roomService: RoomService,
     private readonly restaurantService: RestaurantService,
+    private readonly commentService: CommentService,
   ) {}
   @WebSocketServer()
   server: Server;
