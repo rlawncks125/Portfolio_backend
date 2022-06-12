@@ -5,12 +5,17 @@ import { Response } from 'express';
 export class SubwayService {
   constructor() {}
   //
-  async getSubWaySchedule(res: Response, type: SubWayType, station: string) {
+  async getSubWaySchedule(
+    res: Response,
+    type: SubWayType,
+    station: string,
+    getTime: number,
+  ) {
     if (!(type in ESubway)) {
       res.send('잘못된 접근 입니다.');
       return;
     }
-
+    console.log(getTime);
     const fs = require('fs');
     const folderPath =
       process.env.ENV === 'prod'
@@ -22,7 +27,7 @@ export class SubwayService {
 
     fs.readFile(readPath, 'utf-8', (err: any, data: string) => {
       if (data) {
-        let times = '잘못된 역 이름 입니다.';
+        let times: string | any[] = '잘못된 역 이름 입니다.';
         let isStationCheckd = false;
 
         switch (type) {
@@ -51,7 +56,7 @@ export class SubwayService {
             break;
         }
 
-        isStationCheckd && (times = timesSort(data, station));
+        isStationCheckd && (times = timesSort(data, station, getTime));
 
         res.send(times);
       } else {
@@ -61,8 +66,42 @@ export class SubwayService {
   }
 }
 
-const timesSort = (data: string, station: string) => {
-  return JSON.parse(data).filter((v) => v['역사명'] === station);
+const timesSort = (data: string, station: string, time: number) => {
+  const filterData = JSON.parse(data).filter((v) => v['역사명'] === station);
+  return filterGetTimes(filterData, time);
+};
+
+const filterGetTimes = (data: [], time: number): any[] => {
+  return data
+    .filter((v: any) => {
+      const isArrival = v['열차도착시간'] || null;
+      const isDeparture = v['열차출발시간'] || null;
+
+      const arrival = isArrival //
+        ? v['열차도착시간'].split(':')[0]
+        : null;
+      const departure = isDeparture
+        ? v['열차출발시간'].split(':')[0] || null
+        : null;
+
+      if (isArrival) return +arrival === time;
+      else if (isDeparture) return +departure === time;
+      return false;
+    })
+    .sort((a: any, b: any) => {
+      const isArrival = b['열차도착시간'] || null;
+      const isDeparture = b['열차출발시간'] || null;
+
+      if (isArrival)
+        return (
+          +a['열차도착시간'].split(':')[1] - +b['열차도착시간'].split(':')[1]
+        );
+      else if (isDeparture)
+        return (
+          +a['열차출발시간'].split(':')[1] - +b['열차출발시간'].split(':')[1]
+        );
+      return 0;
+    });
 };
 
 export type SubWayType = keyof typeof ESubway;

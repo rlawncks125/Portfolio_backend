@@ -13,8 +13,8 @@ export class SubwayController {
   async getSubway(
     @Res() res: Response,
     @Body()
-    { type, station }: GetSubWayScheduleInPutDto,
+    { type, station, getTime }: GetSubWayScheduleInPutDto,
   ) {
-    return this.subwayService.getSubWaySchedule(res, type, station);
+    return this.subwayService.getSubWaySchedule(res, type, station, +getTime);
   }
 }

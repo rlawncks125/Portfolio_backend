@@ -172,9 +172,13 @@ export class FoodMapChatGateway {
     @MessageBody()
     { uuid, restaurantId }: { uuid: string; restaurantId: string },
   ) {
-    console.log('업데이트 마커', uuid, restaurantId);
+    const { ok, restaurant } = await this.restaurantService.getRestaurantById(
+      +restaurantId,
+    );
 
-    client.broadcast.to(uuid).emit('createMaker', restaurantId);
+    console.log('레스토랑 생성', uuid, restaurantId);
+
+    ok && client.broadcast.to(uuid).emit('createMaker', restaurant);
   }
 
   @SubscribeMessage('removeMaker')
@@ -183,7 +187,7 @@ export class FoodMapChatGateway {
     @MessageBody()
     { uuid, restaurantId }: { uuid: string; restaurantId: string },
   ) {
-    console.log('removeMaker', uuid, restaurantId);
+    console.log('레스토랑 삭제', uuid, restaurantId);
 
     client.broadcast.to(uuid).emit('removeMaker', restaurantId);
   }

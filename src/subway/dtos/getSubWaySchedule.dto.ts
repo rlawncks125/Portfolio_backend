@@ -28,6 +28,11 @@ export class GetSubWayScheduleInPutDto {
   })
   station: string;
 
+  @ApiProperty({
+    description: '얻을시간',
+  })
+  getTime: number;
+
   // Swagger Enum 만들려고 더미
   @ApiProperty({
     description: '인천 1호선',
