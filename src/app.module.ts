@@ -9,6 +9,7 @@ import { WsModule } from './ws/ws.module';
 import { RoomModule } from './room/room.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { SubwayModule } from './subway/subway.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { SubwayModule } from './subway/subway.module';
     RoomModule,
     RestaurantModule,
     SubwayModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],
