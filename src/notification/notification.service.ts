@@ -22,12 +22,6 @@ export class NotificationService {
     );
   }
 
-  getPublicKey() {
-    return {
-      key: process.env.WORKER_PUBLICKEY,
-    };
-  }
-
   async pushNotification(data: string) {
     const lists = await this.notificationRepository.find({
       where: { updateAt: Not(IsNull()) },

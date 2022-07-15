@@ -12,8 +12,8 @@ export class Notification extends CoreEntity {
   endPoint: string;
 
   @ApiProperty({
-    description: 'auth값 입니다.',
-    example: 'auth값 입니다.',
+    description: 'endPoint 의 auth값 입니다.',
+    example: 'endPoint의 auth값 입니다.',
   })
   @Column()
   auth: string;

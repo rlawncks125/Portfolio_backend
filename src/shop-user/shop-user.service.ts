@@ -7,7 +7,11 @@ import { ShopUser } from './entities/shop-user.entity';
 import * as jwt from 'jsonwebtoken';
 import { CreateShopUserOutPut } from './dtos/createShopUser.dto';
 import { LoginShopUserOutPut } from './dtos/loginShopUser.dto';
-import { UpdateShopUserInput } from './dtos/updateShopUser.dto';
+import {
+  UpdateShopUserInput,
+  UpdateShopUserOutPut,
+} from './dtos/updateShopUser.dto';
+import { CoreOutPut } from 'src/common/dtos/output.dto';
 
 @Injectable()
 export class ShopUserService {
@@ -84,10 +88,16 @@ export class ShopUserService {
     }
   }
 
-  async update(user: ShopUser, { password, nickName }: UpdateShopUserInput) {
+  async update(
+    user: ShopUser,
+    { password, nickName }: UpdateShopUserInput,
+  ): Promise<UpdateShopUserOutPut> {
     try {
       if (!user) {
-        return '유저를 찾을수없습니다.';
+        return {
+          ok: false,
+          err: '유저를 찾을수없습니다.',
+        };
       }
 
       nickName && (user.nickName = nickName);
@@ -100,21 +110,30 @@ export class ShopUserService {
           });
 
       if (!ok) {
-        return '업데이트에 실패했습니다.';
+        return {
+          ok: false,
+          err: '업데이트에 실패했습니다.',
+        };
       }
 
       return {
         ok: true,
       };
     } catch (e) {
-      return e;
+      return {
+        ok: false,
+        err: e,
+      };
     }
   }
 
-  async delete(user: ShopUser) {
+  async delete(user: ShopUser): Promise<CoreOutPut> {
     try {
       if (!user) {
-        return '유저가 존재하지않습니다.';
+        return {
+          ok: false,
+          err: '유저가 존재하지않습니다.',
+        };
       }
 
       const ok = await this.shopUserRepository.delete({ id: user.id });
@@ -131,7 +150,7 @@ export class ShopUserService {
     } catch (e) {
       return {
         ok: false,
-        e,
+        err: e,
       };
     }
   }

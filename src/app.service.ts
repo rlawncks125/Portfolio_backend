@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
-import { Response } from 'express';
 import { Readable } from 'stream';
 
 @Injectable()

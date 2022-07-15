@@ -11,6 +11,7 @@ import { RestaurantModule } from './restaurant/restaurant.module';
 import { SubwayModule } from './subway/subway.module';
 import { NotificationModule } from './notification/notification.module';
 import { ShopUserModule } from './shop-user/shop-user.module';
+import { MailerModule } from './mailer/mailer.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { ShopUserModule } from './shop-user/shop-user.module';
     SubwayModule,
     NotificationModule,
     ShopUserModule,
+    MailerModule,
   ],
   controllers: [AppController],
   providers: [AppService],
