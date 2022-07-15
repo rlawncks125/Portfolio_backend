@@ -10,6 +10,11 @@ export class NotificationController {
     return await this.notificationService.pushNotification(data);
   }
 
+  @Get('publicKey')
+  async getPublickey() {
+    return this.notificationService.getPublicKey();
+  }
+
   @Post('register')
   async registerEndPoint(@Body() data: any) {
     return await this.notificationService.registerEndPoint(data);

@@ -1,12 +1,16 @@
-import { NextFunction, Response } from 'express';
+import e, { NextFunction, Response } from 'express';
 import { basicAuth } from 'src/common/interface';
 import * as jwt from 'jsonwebtoken';
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
+import { ShopUserService } from 'src/shop-user/shop-user.service';
 
 @Injectable()
 export class JwtMiddleware implements NestMiddleware {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly shopUserService: ShopUserService,
+  ) {}
   async use(req: Request, res: Response, next: NextFunction) {
     try {
       if ('authorization' in req.headers) {
@@ -25,6 +29,14 @@ export class JwtMiddleware implements NestMiddleware {
 
             req['user'] = user;
           }
+        } else if (type === 'shop-token') {
+          const decoded = jwt.verify(token, process.env.JWT_KEY);
+
+          if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+            const user = await this.shopUserService.findById(decoded.id);
+
+            req['user'] = user;
+          }
         }
       }
 
@@ -40,13 +52,25 @@ export class JwtMiddleware implements NestMiddleware {
           req['user'] = user;
         }
       }
+      if ('shop-token' in req.headers) {
+        const decoded = jwt.verify(
+          req.headers['shop-token'],
+          process.env.JWT_KEY,
+        );
+
+        if (typeof decoded === 'object' && decoded.hasOwnProperty('id')) {
+          const user = await this.shopUserService.findById(decoded.id);
+
+          req['user'] = user;
+        }
+      }
     } catch (e) {}
 
     next();
   }
 }
 
-const basic64Auth = (basic64Data: string): basicAuth => {
+export const basic64Auth = (basic64Data: string): basicAuth => {
   // Basic auth 처리
   const detail = Buffer.from(basic64Data, 'base64').toString('ascii');
   const data = detail.split(':');

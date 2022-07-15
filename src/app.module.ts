@@ -10,6 +10,7 @@ import { RoomModule } from './room/room.module';
 import { RestaurantModule } from './restaurant/restaurant.module';
 import { SubwayModule } from './subway/subway.module';
 import { NotificationModule } from './notification/notification.module';
+import { ShopUserModule } from './shop-user/shop-user.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { NotificationModule } from './notification/notification.module';
     RestaurantModule,
     SubwayModule,
     NotificationModule,
+    ShopUserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

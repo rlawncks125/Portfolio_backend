@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Like, Not, Repository } from 'typeorm';
 import { Notification } from './entities/Notification.entity';
+import { basic64Auth } from '../JwtMiddleware/Jwt.middleware';
 
 import * as webpush from 'web-push';
 
@@ -11,15 +12,20 @@ export class NotificationService {
     @InjectRepository(Notification)
     private notificationRepository: Repository<Notification>,
   ) {
-    const publicKey =
-      'BFLHBvpUcFLzAvMYrSzt3T9tGCvurGrpQseVkFyiJx2TU2gTQez7Idf20pP13PWSZmDWBpU5Fv7aGgIxAoBFjd8';
-    const privateKey = '55AzEdxydkWCn6gm1N4gbn4hfirhvacC1Vzahj4-rpc';
+    const publicKey = process.env.WORKER_PUBLICKEY;
+    const privateKey = process.env.WORKER_PRIVATEKEY;
 
     webpush.setVapidDetails(
       'mailto:example@yourdomain.org',
       publicKey,
       privateKey,
     );
+  }
+
+  getPublicKey() {
+    return {
+      key: process.env.WORKER_PUBLICKEY,
+    };
   }
 
   async pushNotification(data: string) {
