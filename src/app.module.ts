@@ -12,6 +12,7 @@ import { SubwayModule } from './subway/subway.module';
 import { NotificationModule } from './notification/notification.module';
 import { ShopUserModule } from './shop-user/shop-user.module';
 import { MailerModule } from './mailer/mailer.module';
+import { ShopItemModule } from './shop-item/shop-item.module';
 
 @Module({
   imports: [
@@ -45,6 +46,7 @@ import { MailerModule } from './mailer/mailer.module';
     NotificationModule,
     ShopUserModule,
     MailerModule,
+    ShopItemModule,
   ],
   controllers: [AppController],
   providers: [AppService],

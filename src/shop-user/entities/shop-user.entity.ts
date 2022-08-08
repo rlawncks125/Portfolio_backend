@@ -1,9 +1,17 @@
-import { BeforeInsert, BeforeUpdate, Column, Entity } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+} from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InternalServerErrorException } from '@nestjs/common';
 
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { ShopUserSeller } from './shop-user-seller.entity';
 
 export enum ShopRole {
   'admin' = 'admin',
@@ -25,9 +33,52 @@ export class ShopUser extends CoreEntity {
   @Column({ unique: true, nullable: true })
   nickName: string;
 
-  @ApiProperty({ description: '역할', example: '역할' })
+  @ApiProperty({
+    description: '이메일 주소입니다.',
+    example: '이메일 주소입니다.',
+  })
+  @Column({ unique: true, nullable: true, default: null })
+  email: string;
+
+  @ApiProperty({
+    description: '역할',
+    example: '역할',
+    enum: [ShopRole.company, ShopRole.customer],
+  })
   @Column({ type: 'enum', enum: ShopRole, default: ShopRole.customer })
   role?: ShopRole;
+
+  @ApiProperty({
+    description: '주소 입니다.',
+    example: '주소 입니다.',
+  })
+  @Column({ nullable: true, default: null })
+  addr?: string;
+
+  @ApiProperty({
+    description: '핸드폰 번호입니다.',
+    example: '핸드폰 번호입니다.',
+  })
+  @Column({ unique: true, nullable: true, default: null })
+  tel: string;
+
+  @ApiProperty({
+    description: '우편전자 입니다.',
+    example: '우편전자 입니다.',
+  })
+  @Column({ nullable: true, default: null })
+  postcode: string;
+
+  @ApiProperty({
+    description: '판매자 정보',
+    example: '판매자정보',
+  })
+  @OneToOne(() => ShopUserSeller, (seller) => seller.user, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn()
+  sellerInfo: ShopUserSeller;
 
   // save 되기 전 패스워드 해쉬 함수 를 이용하여 암호화
   @BeforeInsert()

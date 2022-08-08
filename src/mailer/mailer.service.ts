@@ -51,4 +51,41 @@ export class MailerService {
       `,
     });
   }
+
+  async snedFindPasswordMail({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) {
+    return await this.#transporter.sendMail({
+      to: email,
+      subject: '임시 비밀번호를 발송 하였습니다.',
+      html: `
+      <div style="margin: auto; text-align: center">
+      <h1>변경된 패스워드로 로그인 해주세요</h1>
+      <div style="border: 1px solid black">
+        <h1>${password}</h1>
+        <div style="padding: 1rem">
+          <a
+            href=http://localhost:3000/
+            style="
+              text-decoration: none;
+              padding: 0.5rem 1rem;
+              color: white;
+              background-color: #5959fb;
+              border-radius: 1px;
+              border-color: white;
+            "
+          >
+            인증
+          </a>
+        </div>
+      </div>
+    </div>
+      
+      `,
+    });
+  }
 }
