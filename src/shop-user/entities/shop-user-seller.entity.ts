@@ -1,6 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { Column, Entity, OneToOne } from 'typeorm';
+import { ShopIreceipt } from 'src/shop-item/eitities/shop-ireceipt.entity';
+import { ShopItem } from 'src/shop-item/eitities/shop-item.entity';
+import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
 import { ShopUser } from './shop-user.entity';
 
 @Entity()
@@ -27,4 +29,26 @@ export class ShopUserSeller extends CoreEntity {
   @ApiProperty({ description: '회사주소', example: '회사주소' })
   @Column()
   companyAddress: string;
+
+  @ApiProperty({
+    type: () => [ShopItem],
+    description: '판매중인 아이템',
+    example: '판매중인 아이템',
+  })
+  @OneToMany(() => ShopItem, (item) => item.sellUserInfo, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  sellItems: ShopItem[];
+
+  @ApiProperty({
+    type: () => [ShopIreceipt],
+    description: '영수증',
+    example: '영수증',
+  })
+  @OneToMany(() => ShopIreceipt, (ireceipt) => ireceipt.sellUserInfo, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  Ireceipt: ShopIreceipt[];
 }

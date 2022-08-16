@@ -4,6 +4,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  ManyToMany,
+  OneToMany,
   OneToOne,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -12,6 +14,7 @@ import { InternalServerErrorException } from '@nestjs/common';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ShopUserSeller } from './shop-user-seller.entity';
+import { ShopIreceipt } from 'src/shop-item/eitities/shop-ireceipt.entity';
 
 export enum ShopRole {
   'admin' = 'admin',
@@ -70,6 +73,7 @@ export class ShopUser extends CoreEntity {
   postcode: string;
 
   @ApiProperty({
+    type: () => ShopUserSeller,
     description: '판매자 정보',
     example: '판매자정보',
   })
@@ -79,6 +83,17 @@ export class ShopUser extends CoreEntity {
   })
   @JoinColumn()
   sellerInfo: ShopUserSeller;
+
+  @ApiProperty({
+    type: () => [ShopIreceipt],
+    description: '영수증',
+    example: '영수증',
+  })
+  @OneToMany(() => ShopIreceipt, (ireceipt) => ireceipt.purchasedUser, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  Ireceipts: ShopIreceipt[];
 
   // save 되기 전 패스워드 해쉬 함수 를 이용하여 암호화
   @BeforeInsert()

@@ -57,9 +57,19 @@ export class ShopUserService {
     }
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_KEY);
+
+    const { email, addr, nickName, postcode, tel, role } = user;
     return {
       ok: true,
       token,
+      userInfo: {
+        email,
+        nickName,
+        postcode,
+        tel,
+        addr,
+        role,
+      },
       sellerInfo: user.sellerInfo,
     };
   }
@@ -189,7 +199,9 @@ export class ShopUserService {
   }
 
   async findById(id: number): Promise<ShopUser> {
-    const user = await this.shopUserRepository.findOne(id);
+    const user = await this.shopUserRepository.findOne(id, {
+      relations: ['sellerInfo', 'Ireceipts'],
+    });
     return user;
   }
 
@@ -239,7 +251,7 @@ export class ShopUserService {
       };
     }
 
-    const seller = this.sellerRepository.save(
+    const seller = await this.sellerRepository.save(
       this.sellerRepository.create({
         user,
         companyAddress,
@@ -257,6 +269,7 @@ export class ShopUserService {
 
     return {
       ok: true,
+      sellerInfo: seller,
     };
   }
 

@@ -1,4 +1,4 @@
-import { OmitType } from '@nestjs/swagger';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { CoreOutPut } from 'src/common/dtos/output.dto';
 import { ShopUserSeller } from '../entities/shop-user-seller.entity';
 
@@ -7,4 +7,7 @@ export class AddCompanyInputDto extends OmitType(ShopUserSeller, [
   'id',
 ] as const) {}
 
-export class AddCompanyOutPutDto extends CoreOutPut {}
+export class AddCompanyOutPutDto extends CoreOutPut {
+  @ApiProperty({ description: '판매자정보', example: '판매자정보' })
+  sellerInfo?: ShopUserSeller;
+}
