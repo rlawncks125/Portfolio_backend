@@ -12,8 +12,6 @@ export class AddShopItemInputDto extends PickType(ShopItem, [
   'parcel',
   'freeParcel',
   'origin',
-  'reviews',
-  'QA',
 ] as const) {}
 
 export class AddShopItemsOutPutDto extends CoreOutPut {

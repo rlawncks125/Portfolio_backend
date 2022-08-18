@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { AppService } from 'src/app.service';
 import { ShopUser } from 'src/shop-user/entities/shop-user.entity';
 import { Repository } from 'typeorm';
 import {
@@ -16,6 +17,7 @@ export class ShopItemService {
     private readonly itemRepository: Repository<ShopItem>,
     @InjectRepository(ShopIreceipt)
     private readonly ireceipRepository: Repository<ShopIreceipt>,
+    private readonly appService: AppService,
   ) {}
 
   async getSellItems(user: ShopUser) {
@@ -50,6 +52,8 @@ export class ShopItemService {
     const data: ShopItem = {
       ...body,
       sellUserInfo: user.sellerInfo,
+      QA: [],
+      reviews: [],
     };
 
     const item = await this.itemRepository.save(
@@ -69,8 +73,28 @@ export class ShopItemService {
     };
   }
 
+  async deleteItemById(id: number) {
+    const shopItem = await this.itemRepository.findOne({ id });
+    await this.appService.deleteShopItemImageByHtml(shopItem.detailHtml);
+
+    const result = await this.itemRepository.remove(shopItem);
+
+    if (!result) {
+      return {
+        ok: false,
+      };
+    }
+
+    return {
+      ok: true,
+    };
+  }
+
   async getItemById(id: number) {
-    const item = await this.itemRepository.findOne({ id });
+    const item = await this.itemRepository.findOne(
+      { id },
+      { relations: ['sellUserInfo'] },
+    );
 
     return {
       ok: true,

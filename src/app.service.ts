@@ -46,6 +46,25 @@ export class AppService {
     return ds;
   }
 
+  async deleteShopItemImageByHtml(html: string) {
+    const splits = html.split('back-Portfolio/');
+
+    const deleteFileList = [];
+    splits.forEach((v, index) => {
+      if (index === 0) {
+        return;
+      }
+
+      const fileName = v.split(`.jpg\"`)[0];
+      deleteFileList.push(this.deleteClouldnaryByFileName(fileName));
+    });
+
+    Promise.all(deleteFileList).then((v) => {
+      // 이미지 삭제 결과
+      // console.log(v);
+    });
+  }
+
   async getFiels() {
     return v2.search
       .expression('folder=back-Portfolio')

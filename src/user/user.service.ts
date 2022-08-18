@@ -107,6 +107,10 @@ export class UserService {
       dsc && (user.dsc = dsc);
       password && (user.password = password);
 
+      if (!password) {
+        user.updateAt = new Date();
+      }
+
       const ok = password
         ? await this.usersRepository.save(user)
         : await this.usersRepository.update(user.id, {

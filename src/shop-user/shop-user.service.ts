@@ -146,11 +146,17 @@ export class ShopUserService {
       tel && (user.tel = tel);
       addr && (user.addr = addr);
 
+      if (!password) {
+        // update할때 외래키 사용중임 컬럼 제거
+        delete user.Ireceipts;
+        delete user.sellerInfo;
+        user.updateAt = new Date();
+      }
+
       const ok = password
         ? await this.shopUserRepository.save(user)
-        : await this.shopUserRepository.update(user.id, {
-            ...user,
-          });
+        : await this.shopUserRepository.update(user.id, { ...user });
+      console.log(user);
 
       if (!ok) {
         return {

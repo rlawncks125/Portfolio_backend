@@ -50,6 +50,7 @@ import { ShopItemModule } from './shop-item/shop-item.module';
   ],
   controllers: [AppController],
   providers: [AppService],
+  exports: [AppService],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

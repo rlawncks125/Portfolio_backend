@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ShopAuthGuard } from 'src/auth/auth.guard';
 import { authUser } from 'src/auth/authUser.decorator';
@@ -40,5 +48,10 @@ export class ShopItemController {
   @Get(':id')
   async getItemById(@Param() param) {
     return this.itemService.getItemById(+param.id);
+  }
+
+  @Delete(':id')
+  async deleteItem(@Param() param) {
+    return this.itemService.deleteItemById(+param.id);
   }
 }
