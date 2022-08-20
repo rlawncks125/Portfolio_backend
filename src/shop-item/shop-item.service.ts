@@ -129,14 +129,25 @@ export class ShopItemService {
       { relations: ['sellUserInfo'] },
     );
 
-    if (shopItem.sellUserInfo !== user.sellerInfo) {
+    if (shopItem.sellUserInfo.id !== user.sellerInfo.id) {
       return {
         ok: false,
         err: '소유자가 아닙니다.',
       };
     }
 
-    await this.appService.deleteShopItemImageByHtml(shopItem.detailHtml);
+    const deleteThumbnailURL = shopItem.thumbnailSrc
+      .split('/')
+      .pop()
+      ?.split('.')[0];
+
+    const deleteThumbnail =
+      this.appService.deleteClouldnaryByFileName(deleteThumbnailURL);
+    const deleteHtmlImages = this.appService.deleteShopItemImageByHtml(
+      shopItem.detailHtml,
+    );
+
+    await Promise.all([deleteThumbnail, deleteHtmlImages]);
 
     const result = await this.itemRepository.remove(shopItem);
 
