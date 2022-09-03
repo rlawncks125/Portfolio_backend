@@ -48,6 +48,14 @@ export class AppController {
     return this.appService.uploadClouldnaryByfile(file);
   }
 
+  @Post('Thumbnail')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadThumbnail(
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return this.appService.uploadClouldnaryThumbnail(file);
+  }
+
   @Delete('file/:fileName')
   async deleteFile(@Param() { fileName }: { fileName: string }) {
     return this.appService.deleteClouldnaryByFileName(fileName);

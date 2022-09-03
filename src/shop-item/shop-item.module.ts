@@ -5,10 +5,11 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ShopItem } from './eitities/shop-item.entity';
 import { ShopIreceipt } from './eitities/shop-ireceipt.entity';
 import { AppService } from 'src/app.service';
+import { ShopIreceiptService } from './shop-Ireceipt.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([ShopItem, ShopIreceipt])],
-  providers: [ShopItemService, AppService],
+  providers: [ShopItemService, AppService, ShopIreceiptService],
   controllers: [ShopItemController],
 })
 export class ShopItemModule {}

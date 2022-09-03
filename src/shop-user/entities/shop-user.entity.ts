@@ -15,6 +15,7 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { ApiProperty } from '@nestjs/swagger';
 import { ShopUserSeller } from './shop-user-seller.entity';
 import { ShopIreceipt } from 'src/shop-item/eitities/shop-ireceipt.entity';
+import { BasketItem } from 'src/common/entities/bask-item';
 
 export enum ShopRole {
   'admin' = 'admin',
@@ -71,6 +72,14 @@ export class ShopUser extends CoreEntity {
   })
   @Column({ nullable: true, default: null })
   postcode: string;
+
+  @ApiProperty({
+    description: '장바구니 아이템 정보.',
+    example: '장바구니 아이템 정보.',
+    type: () => [BasketItem],
+  })
+  @Column({ default: null, type: 'json', nullable: true })
+  basketItems: BasketItem[];
 
   @ApiProperty({
     type: () => ShopUserSeller,

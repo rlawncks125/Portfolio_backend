@@ -3,7 +3,7 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { ShopUserSeller } from 'src/shop-user/entities/shop-user-seller.entity';
 import { ShopUser } from 'src/shop-user/entities/shop-user.entity';
 import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
-import { BasketItem } from './shop-item.entity';
+import { BasketItem } from '../../common/entities/bask-item';
 
 class PayMentInfo {
   @ApiProperty({ description: '결제 방식', example: '결제 방식' })

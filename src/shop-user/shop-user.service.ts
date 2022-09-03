@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { basicAuth } from 'src/common/interface';
 import { Repository } from 'typeorm';
-import { ShopUser } from './entities/shop-user.entity';
+import { ShopRole, ShopUser } from './entities/shop-user.entity';
 
 import * as jwt from 'jsonwebtoken';
 import {
@@ -22,6 +22,11 @@ import {
   UpdateCompanyOutPutDto,
 } from './dtos/updateCompany.dto';
 import { MailerService } from 'src/mailer/mailer.service';
+import {
+  AddBasketItemInputDto,
+  AddBasketItemOutPutDto,
+} from './dtos/addBasketItem.dto';
+import { RemoveBasketItemInputDto } from './dtos/removeBasketItem.dto';
 @Injectable()
 export class ShopUserService {
   constructor(
@@ -147,16 +152,16 @@ export class ShopUserService {
       addr && (user.addr = addr);
 
       if (!password) {
+        user.updateAt = new Date();
         // update할때 외래키 사용중임 컬럼 제거
         delete user.Ireceipts;
         delete user.sellerInfo;
-        user.updateAt = new Date();
       }
 
       const ok = password
         ? await this.shopUserRepository.save(user)
         : await this.shopUserRepository.update(user.id, { ...user });
-      console.log(user);
+      // console.log(user);
 
       if (!ok) {
         return {
@@ -375,5 +380,92 @@ export class ShopUserService {
     return {
       ok: true,
     };
+  }
+
+  async addBasketItem(
+    user: ShopUser,
+    { basketItem }: AddBasketItemInputDto,
+  ): Promise<AddBasketItemOutPutDto> {
+    try {
+      if (!user) {
+        return {
+          ok: false,
+          err: '유저가 존재하지않습니다.',
+        };
+      }
+
+      if (user.role !== ShopRole.customer) {
+        return {
+          ok: false,
+          err: '고객이 아닙니다.',
+        };
+      }
+      user.basketItems = [...(user.basketItems || []), basketItem].flat(2);
+
+      const ok = await this.shopUserRepository.update(user.id, {
+        basketItems: user.basketItems,
+      });
+
+      if (!ok) {
+        return {
+          ok: false,
+          err: '업데이트에 실패하였습니다.',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async removeBasketItem(
+    user: ShopUser,
+    { itemIndex }: RemoveBasketItemInputDto,
+  ) {
+    try {
+      if (!user) {
+        return {
+          ok: false,
+          err: '유저가 존재하지않습니다.',
+        };
+      }
+
+      if (user.role !== ShopRole.customer) {
+        return {
+          ok: false,
+          err: '고객이 아닙니다.',
+        };
+      }
+
+      user.basketItems = user.basketItems.filter(
+        (v, index) => index !== +itemIndex,
+      );
+
+      const ok = await this.shopUserRepository.update(user.id, {
+        basketItems: user.basketItems,
+      });
+
+      if (!ok) {
+        return {
+          ok: false,
+          err: '업데이트에 실패하였습니다.',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
   }
 }

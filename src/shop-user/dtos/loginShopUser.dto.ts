@@ -7,7 +7,11 @@ import {
 import { CoreOutPut } from 'src/common/dtos/output.dto';
 import { ShopUser } from '../entities/shop-user.entity';
 
-class UserInfo extends PickType(ShopUser, [
+class SellerRealtions extends PartialType(
+  PickType(ShopUser, ['sellerInfo'] as const),
+) {}
+
+export class UserInfo extends PickType(ShopUser, [
   'email',
   'nickName',
   'tel',
@@ -15,10 +19,6 @@ class UserInfo extends PickType(ShopUser, [
   'postcode',
   'role',
 ]) {}
-
-class SellerRealtions extends PartialType(
-  PickType(ShopUser, ['sellerInfo'] as const),
-) {}
 
 export class LoginShopUserOutPut extends IntersectionType(
   CoreOutPut,

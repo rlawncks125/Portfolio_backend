@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -18,15 +19,32 @@ import {
   AddShopItemInputDto,
   AddShopItemsOutPutDto,
 } from './dtos/addShopItem.dto';
+import {
+  CreateIreceiptInputDto,
+  CreateIreceiptOutPutDto,
+} from './dtos/create-ireceipt.dto';
 import { GetItemInfoOutPutDto } from './dtos/get-iteminfo.dto';
+import {
+  GetItemsInfoInputDto,
+  GetItemsInfoOutPutDto,
+} from './dtos/get-itemsInfo.dto';
+import { GetBasketItemsOutPutDto } from './dtos/getBasketItems.dto';
+import {
+  SearchItemsOutPutDto,
+  SearchItemsQueryInputDto,
+} from './dtos/searchItem.dto';
 import { SellitemsOutPutDto } from './dtos/sell-items.dto';
 import { UpdateItemInputDto, UpdateItemOutPut } from './dtos/update-item.dto';
+import { ShopIreceiptService } from './shop-Ireceipt.service';
 import { ShopItemService } from './shop-item.service';
 
 @ApiTags('shopitem')
 @Controller('shop-item')
 export class ShopItemController {
-  constructor(private readonly itemService: ShopItemService) {}
+  constructor(
+    private readonly itemService: ShopItemService,
+    private readonly ireceiptService: ShopIreceiptService,
+  ) {}
 
   @ApiOperation({ summary: '아이템 추가' })
   @ApiResponse({
@@ -41,6 +59,71 @@ export class ShopItemController {
     @Body() body: AddShopItemInputDto,
   ): Promise<AddShopItemsOutPutDto> {
     return this.itemService.addItem(user, body);
+  }
+
+  // 아이템 검색
+  @ApiOperation({ summary: '아이템 검색' })
+  @ApiResponse({
+    type: SearchItemsOutPutDto,
+    status: 200,
+  })
+  @Get('search')
+  async searchItems(@Query() query: SearchItemsQueryInputDto) {
+    return this.itemService.searchItems(query);
+  }
+
+  // 아이템 삭제
+
+  //
+
+  @ApiOperation({ summary: '등록한 아이템들 얻기' })
+  @ApiResponse({
+    type: SellitemsOutPutDto,
+    status: 200,
+  })
+  @Get('sell-items')
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['company'])
+  async getSellItems(@authUser() user: ShopUser) {
+    return this.itemService.getSellItems(user);
+  }
+
+  @ApiOperation({ summary: '여러 아이템 정보 얻기' })
+  @ApiResponse({
+    type: GetItemsInfoOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['customer'])
+  @Post('items')
+  async getItemsByIds(@Body() body: GetItemsInfoInputDto) {
+    return this.itemService.getItemByIds(body);
+  }
+
+  // 장바구니 아이템 얻기
+  @ApiOperation({ summary: '장바구니 아이템 얻기' })
+  @ApiResponse({
+    type: GetBasketItemsOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['customer'])
+  @Get('basketItems')
+  async getBasketItems(@authUser() user: ShopUser) {
+    return this.itemService.getBasketItems(user);
+  }
+
+  // 결제 ( 영수증 생성 )
+  @ApiOperation({ summary: '영수증 발행' })
+  @ApiResponse({
+    type: CreateIreceiptOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['company'])
+  @Post('ireceipt')
+  async createIreceipt(@Body() body: CreateIreceiptInputDto) {
+    return this.ireceiptService.createIreceiptService(body);
   }
 
   // 아이템 변경
@@ -60,23 +143,7 @@ export class ShopItemController {
     return this.itemService.updateItem(user, +parm.id, body);
   }
 
-  // 아이템 삭제
-
-  //
-
-  @ApiOperation({ summary: '등록한 아이템들 얻기' })
-  @ApiResponse({
-    type: SellitemsOutPutDto,
-    status: 200,
-  })
-  @Get('sell-items')
-  @UseGuards(ShopAuthGuard)
-  @ShopRoles(['company'])
-  async getSellItems(@authUser() user: ShopUser) {
-    return this.itemService.getSellItems(user);
-  }
-
-  @ApiOperation({ summary: '아이템들 정보 얻기' })
+  @ApiOperation({ summary: '아이템 정보 얻기' })
   @ApiResponse({
     type: GetItemInfoOutPutDto,
     status: 200,
@@ -97,8 +164,4 @@ export class ShopItemController {
   async deleteItem(@authUser() user, @Param() param) {
     return this.itemService.deleteItemById(user, +param.id);
   }
-
-  // 결제 ( 영수증 생성 )
-
-  //
 }

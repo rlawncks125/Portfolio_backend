@@ -19,6 +19,10 @@ import { BasicAuth } from 'src/auth/basicAuth.decorator';
 import { ShopRoles } from 'src/auth/roles.decorator';
 import { CoreOutPut } from 'src/common/dtos/output.dto';
 import { basicAuth } from 'src/common/interface';
+import {
+  AddBasketItemInputDto,
+  AddBasketItemOutPutDto,
+} from './dtos/addBasketItem.dto';
 import { AddCompanyInputDto, AddCompanyOutPutDto } from './dtos/addCompany.dto';
 import {
   CreateShopUserInputDto,
@@ -26,6 +30,10 @@ import {
 } from './dtos/createShopUser.dto';
 import { FindPasswordInputDto } from './dtos/findPassword.dto';
 import { LoginShopUserOutPut } from './dtos/loginShopUser.dto';
+import {
+  RemoveBasketItemInputDto,
+  RemoveBasketItemOutPutdto,
+} from './dtos/removeBasketItem.dto';
 import {
   UpdateCompanyInutDto,
   UpdateCompanyOutPutDto,
@@ -66,6 +74,28 @@ export class ShopUserController {
   @Get()
   userLogin(@BasicAuth() auth: basicAuth): Promise<LoginShopUserOutPut> {
     return this.shopUserService.login(auth);
+  }
+
+  @ApiOperation({ summary: '내정보 얻기' })
+  @ApiResponse({
+    type: LoginShopUserOutPut,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @Get('myinfo')
+  myInfo(@authUser() user: ShopUser): LoginShopUserOutPut {
+    return {
+      ok: true,
+      sellerInfo: user.sellerInfo,
+      userInfo: {
+        email: user.email,
+        nickName: user.nickName,
+        postcode: user.postcode,
+        tel: user.tel,
+        addr: user.addr,
+        role: user.role,
+      },
+    };
   }
 
   @ApiOperation({ summary: '패스워드 확인' })
@@ -153,5 +183,35 @@ export class ShopUserController {
   @UseGuards(ShopAuthGuard)
   deleteCompany(@authUser() user: ShopUser) {
     return this.shopUserService.deleteCompany(user);
+  }
+
+  @ApiOperation({ summary: '장바구니 추가' })
+  @ApiResponse({
+    type: AddBasketItemOutPutDto,
+    status: 200,
+  })
+  @ShopRoles(['customer'])
+  @UseGuards(ShopAuthGuard)
+  @Post('baskItem')
+  addBasketItem(
+    @authUser() user: ShopUser,
+    @Body() input: AddBasketItemInputDto,
+  ) {
+    return this.shopUserService.addBasketItem(user, input);
+  }
+
+  @ApiOperation({ summary: '장바구니 아이템 삭제' })
+  @ApiResponse({
+    type: RemoveBasketItemOutPutdto,
+    status: 200,
+  })
+  @ShopRoles(['customer'])
+  @UseGuards(ShopAuthGuard)
+  @Patch('baskItem')
+  removeBasketItem(
+    @authUser() user: ShopUser,
+    @Body() input: RemoveBasketItemInputDto,
+  ) {
+    return this.shopUserService.removeBasketItem(user, input);
   }
 }

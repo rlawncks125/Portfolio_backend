@@ -1,5 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { UploadApiErrorResponse, UploadApiResponse, v2 } from 'cloudinary';
+import {
+  TransformationOptions,
+  UploadApiErrorResponse,
+  UploadApiResponse,
+  v2,
+} from 'cloudinary';
 import { Readable } from 'stream';
 
 @Injectable()
@@ -16,13 +21,15 @@ export class AppService {
     return 'Hello World!aassddww';
   }
 
-  async uploadClouldnaryByfile(
+  async uploadClouldnary(
     file: Express.Multer.File,
-  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
-    const clouldUpload = new Promise((resolve, reject) => {
+    transformation?: TransformationOptions,
+  ) {
+    return new Promise((resolve, reject) => {
       const upload = v2.uploader.upload_stream(
         {
           folder: 'back-Portfolio',
+          transformation: transformation,
         },
         (err, result) => {
           if (err) reject(err);
@@ -31,8 +38,21 @@ export class AppService {
       );
       Readable.from(file.buffer).pipe(upload);
     }) as Promise<UploadApiResponse | UploadApiErrorResponse>;
+  }
 
-    return clouldUpload;
+  async uploadClouldnaryByfile(
+    file: Express.Multer.File,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return await this.uploadClouldnary(file);
+  }
+
+  async uploadClouldnaryThumbnail(
+    file: Express.Multer.File,
+  ): Promise<UploadApiResponse | UploadApiErrorResponse> {
+    return await this.uploadClouldnary(file, {
+      width: 270,
+      height: 140,
+    });
   }
 
   async deleteClouldnaryByFileName(fileName: string) {
