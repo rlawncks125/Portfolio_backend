@@ -6,7 +6,8 @@ export class CreateShopUserInputDto extends PickType(ShopUser, [
   'nickName',
   'role',
   'email',
-  'addr',
+  'address',
+  'addressDetail',
   'tel',
   'postcode',
 ]) {}

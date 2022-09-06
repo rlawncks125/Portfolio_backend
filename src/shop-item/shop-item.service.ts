@@ -236,6 +236,7 @@ export class ShopItemService {
   }
 
   async getBasketItems(user: ShopUser): Promise<GetBasketItemsOutPutDto> {
+    console.log('장바구니호출');
     if (!user.basketItems) {
       return {
         ok: false,

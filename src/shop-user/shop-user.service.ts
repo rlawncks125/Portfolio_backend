@@ -26,7 +26,10 @@ import {
   AddBasketItemInputDto,
   AddBasketItemOutPutDto,
 } from './dtos/addBasketItem.dto';
-import { RemoveBasketItemInputDto } from './dtos/removeBasketItem.dto';
+import {
+  RemoveBasketItemInputDto,
+  RemoveBasketItemOutPutdto,
+} from './dtos/removeBasketItem.dto';
 @Injectable()
 export class ShopUserService {
   constructor(
@@ -63,7 +66,8 @@ export class ShopUserService {
 
     const token = jwt.sign({ id: user.id }, process.env.JWT_KEY);
 
-    const { email, addr, nickName, postcode, tel, role } = user;
+    const { email, address, addressDetail, nickName, postcode, tel, role } =
+      user;
     return {
       ok: true,
       token,
@@ -72,7 +76,8 @@ export class ShopUserService {
         nickName,
         postcode,
         tel,
-        addr,
+        address,
+        addressDetail,
         role,
       },
       sellerInfo: user.sellerInfo,
@@ -81,7 +86,15 @@ export class ShopUserService {
 
   async create(
     { username, password }: basicAuth,
-    { nickName, role, email, postcode, tel, addr }: CreateShopUserInputDto,
+    {
+      nickName,
+      role,
+      email,
+      postcode,
+      tel,
+      address,
+      addressDetail,
+    }: CreateShopUserInputDto,
   ): Promise<CreateShopUserOutPut> {
     try {
       if (username === '' || password === '')
@@ -106,6 +119,14 @@ export class ShopUserService {
         };
       }
 
+      const emailCheked = await this.shopUserRepository.findOne({ email });
+      if (emailCheked) {
+        return {
+          ok: false,
+          err: '이메일이 이미 등록되어 있습니다.',
+        };
+      }
+
       const ok = await this.shopUserRepository.save(
         this.shopUserRepository.create({
           userId: username,
@@ -115,7 +136,8 @@ export class ShopUserService {
           email,
           postcode,
           tel,
-          addr,
+          address,
+          addressDetail,
         }),
       );
 
@@ -134,7 +156,15 @@ export class ShopUserService {
 
   async update(
     user: ShopUser,
-    { password, nickName, email, postcode, tel, addr }: UpdateShopUserInput,
+    {
+      password,
+      nickName,
+      email,
+      postcode,
+      tel,
+      addressDetail,
+      address,
+    }: UpdateShopUserInput,
   ): Promise<UpdateShopUserOutPut> {
     try {
       if (!user) {
@@ -149,12 +179,12 @@ export class ShopUserService {
       email && (user.email = email);
       postcode && (user.postcode = postcode);
       tel && (user.tel = tel);
-      addr && (user.addr = addr);
+      address && (user.address = address);
+      addressDetail && (user.addressDetail = addressDetail);
 
       if (!password) {
         user.updateAt = new Date();
         // update할때 외래키 사용중임 컬럼 제거
-        delete user.Ireceipts;
         delete user.sellerInfo;
       }
 
@@ -211,7 +241,7 @@ export class ShopUserService {
 
   async findById(id: number): Promise<ShopUser> {
     const user = await this.shopUserRepository.findOne(id, {
-      relations: ['sellerInfo', 'Ireceipts'],
+      relations: ['sellerInfo', 'ireceipt'],
     });
     return user;
   }
@@ -427,7 +457,7 @@ export class ShopUserService {
   async removeBasketItem(
     user: ShopUser,
     { itemIndex }: RemoveBasketItemInputDto,
-  ) {
+  ): Promise<RemoveBasketItemOutPutdto> {
     try {
       if (!user) {
         return {
@@ -460,6 +490,7 @@ export class ShopUserService {
 
       return {
         ok: true,
+        removeIndex: itemIndex,
       };
     } catch (err) {
       return {

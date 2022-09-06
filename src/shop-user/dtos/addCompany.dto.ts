@@ -5,7 +5,6 @@ import { ShopUserSeller } from '../entities/shop-user-seller.entity';
 export class AddCompanyInputDto extends OmitType(ShopUserSeller, [
   'user',
   'id',
-  'Ireceipt',
   'sellItems',
 ] as const) {}
 

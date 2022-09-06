@@ -32,7 +32,6 @@ export class ShopAuthGuard implements CanActivate {
     const user: ShopUser = context.switchToHttp().getRequest()['user'];
 
     if (!user) return false;
-
     const roles = this.reflector.get<string[]>(
       'shop-roles',
       context.getHandler(),

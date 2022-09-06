@@ -15,7 +15,8 @@ export class UserInfo extends PickType(ShopUser, [
   'email',
   'nickName',
   'tel',
-  'addr',
+  'addressDetail',
+  'address',
   'postcode',
   'role',
 ]) {}

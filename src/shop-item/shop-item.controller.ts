@@ -22,7 +22,7 @@ import {
 import {
   CreateIreceiptInputDto,
   CreateIreceiptOutPutDto,
-} from './dtos/create-ireceipt.dto';
+} from './dtos/ineceipt/create-ireceipt.dto';
 import { GetItemInfoOutPutDto } from './dtos/get-iteminfo.dto';
 import {
   GetItemsInfoInputDto,
@@ -37,6 +37,7 @@ import { SellitemsOutPutDto } from './dtos/sell-items.dto';
 import { UpdateItemInputDto, UpdateItemOutPut } from './dtos/update-item.dto';
 import { ShopIreceiptService } from './shop-Ireceipt.service';
 import { ShopItemService } from './shop-item.service';
+import { GetIreceiptOutPutDto } from './dtos/ineceipt/get-ireceipt.dto';
 
 @ApiTags('shopitem')
 @Controller('shop-item')
@@ -108,7 +109,7 @@ export class ShopItemController {
   })
   @UseGuards(ShopAuthGuard)
   @ShopRoles(['customer'])
-  @Get('basketItems')
+  @Get('basket-items')
   async getBasketItems(@authUser() user: ShopUser) {
     return this.itemService.getBasketItems(user);
   }
@@ -120,10 +121,39 @@ export class ShopItemController {
     status: 200,
   })
   @UseGuards(ShopAuthGuard)
-  @ShopRoles(['company'])
+  @ShopRoles(['customer'])
   @Post('ireceipt')
-  async createIreceipt(@Body() body: CreateIreceiptInputDto) {
-    return this.ireceiptService.createIreceiptService(body);
+  async createIreceipt(
+    @authUser() user: ShopUser,
+    @Body() body: CreateIreceiptInputDto,
+  ) {
+    return this.ireceiptService.createIreceipt(user, body);
+  }
+
+  // 주문내역
+  @ApiOperation({ summary: '주문내역' })
+  @ApiResponse({
+    type: GetIreceiptOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['customer'])
+  @Get('ireceipt')
+  async getIreceipt(@authUser() user: ShopUser) {
+    return this.ireceiptService.getIreceipts(user);
+  }
+
+  // 판매 한 아이템
+  @ApiOperation({ summary: '판매한 아이템 목록' })
+  @ApiResponse({
+    type: GetIreceiptOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['company'])
+  @Get('soldItem')
+  async getSoldItem(@authUser() user: ShopUser) {
+    return this.ireceiptService.getSoldItem(user);
   }
 
   // 아이템 변경
@@ -150,6 +180,7 @@ export class ShopItemController {
   })
   @Get(':id')
   async getItemById(@Param() param) {
+    console.log(`get ${param}`);
     return this.itemService.getItemById(+param.id);
   }
 

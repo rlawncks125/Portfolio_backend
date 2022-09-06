@@ -2,8 +2,9 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { ShopUserSeller } from 'src/shop-user/entities/shop-user-seller.entity';
 import { ShopUser } from 'src/shop-user/entities/shop-user.entity';
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne } from 'typeorm';
-import { BasketItem } from '../../common/entities/bask-item';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany } from 'typeorm';
+
+import { ShopSoldItem } from './shop-soldItem.entity';
 
 class PayMentInfo {
   @ApiProperty({ description: '결제 방식', example: '결제 방식' })
@@ -23,30 +24,21 @@ class PayMentInfo {
 @Entity()
 export class ShopIreceipt extends CoreEntity {
   @ApiProperty({
-    type: () => ShopUserSeller,
-    description: '판매 유저',
-    example: '판매 유저',
-  })
-  @ManyToOne(() => ShopUserSeller, (sell) => sell.Ireceipt)
-  @JoinColumn()
-  sellUserInfo: ShopUserSeller; // 판매자 유저 정보
-
-  @ApiProperty({
     type: () => ShopUser,
     description: '구매 유저',
     example: '구매 유저',
   })
-  @ManyToOne(() => ShopUser, (user) => user.Ireceipts)
+  @ManyToOne(() => ShopUser, (user) => user.ireceipt)
   @JoinColumn()
   purchasedUser: ShopUser; // 구매한 유저 정보
 
   @ApiProperty({
-    type: () => [BasketItem],
-    description: '아아템 목록',
-    example: '아아템 목록',
+    type: () => [ShopSoldItem],
+    description: '판매된 아이템 정보',
+    example: '판매된 아이템 정보',
   })
-  @Column('json')
-  Items: BasketItem[];
+  @OneToMany(() => ShopSoldItem, (soldItem) => soldItem.Ireceipt)
+  soldItems: ShopSoldItem[];
 
   @ApiProperty({
     type: () => PayMentInfo,
@@ -55,4 +47,11 @@ export class ShopIreceipt extends CoreEntity {
   })
   @Column('json')
   paymentInfo: PayMentInfo;
+
+  @ApiProperty({
+    description: '총결제 금액',
+    example: '총결제 금액',
+  })
+  @Column()
+  totalPrice: number;
 }

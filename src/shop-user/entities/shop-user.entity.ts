@@ -16,6 +16,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ShopUserSeller } from './shop-user-seller.entity';
 import { ShopIreceipt } from 'src/shop-item/eitities/shop-ireceipt.entity';
 import { BasketItem } from 'src/common/entities/bask-item';
+import { ShopSoldItem } from 'src/shop-item/eitities/shop-soldItem.entity';
 
 export enum ShopRole {
   'admin' = 'admin',
@@ -53,11 +54,18 @@ export class ShopUser extends CoreEntity {
   role?: ShopRole;
 
   @ApiProperty({
-    description: '주소 입니다.',
-    example: '주소 입니다.',
+    description: '도로명 주소 입니다.',
+    example: '도로명 주소 입니다.',
   })
   @Column({ nullable: true, default: null })
-  addr?: string;
+  address?: string;
+
+  @ApiProperty({
+    description: '상세 주소 입니다.',
+    example: '상세 주소 입니다.',
+  })
+  @Column({ nullable: true, default: null })
+  addressDetail?: string;
 
   @ApiProperty({
     description: '핸드폰 번호입니다.',
@@ -94,6 +102,17 @@ export class ShopUser extends CoreEntity {
   sellerInfo: ShopUserSeller;
 
   @ApiProperty({
+    type: () => [ShopSoldItem],
+    description: '구매한 아이템',
+    example: '구매한 아이템',
+  })
+  @OneToMany(() => ShopSoldItem, (item) => item.purchasedUser, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  purchased: ShopSoldItem[];
+
+  @ApiProperty({
     type: () => [ShopIreceipt],
     description: '영수증',
     example: '영수증',
@@ -102,7 +121,7 @@ export class ShopUser extends CoreEntity {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  Ireceipts: ShopIreceipt[];
+  ireceipt: ShopIreceipt[];
 
   // save 되기 전 패스워드 해쉬 함수 를 이용하여 암호화
   @BeforeInsert()

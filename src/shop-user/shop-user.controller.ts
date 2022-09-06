@@ -92,7 +92,8 @@ export class ShopUserController {
         nickName: user.nickName,
         postcode: user.postcode,
         tel: user.tel,
-        addr: user.addr,
+        addressDetail: user.addressDetail,
+        address: user.address,
         role: user.role,
       },
     };
