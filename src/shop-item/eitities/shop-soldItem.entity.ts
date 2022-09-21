@@ -46,6 +46,43 @@ class ShipInfo {
   postcode: string;
 }
 
+/**
+ * Enum 배송 상태
+ */
+export enum Status {
+  '결제완료',
+  /**
+   * 배송 정보 접수
+   * informationReceived
+   */
+  '배송 정보 접수',
+  /**
+   * 화물접수
+   * atPick
+   */
+  '화물접수',
+  /**
+   * 운송 업체 시설 도착
+   * ArrivedAtCarrierFacility
+   */
+  '운송 업체 시설 도착',
+  /**
+   * 배송중
+   * inTransit
+   */
+  '배송중',
+  /**
+   * 배송직전
+   * outForDelivery
+   */
+  '배송직전',
+  /**
+   * 배송완료
+   * delivered
+   */
+  '배송완료',
+}
+
 @Entity()
 export class ShopSoldItem extends CoreEntity {
   @ApiProperty({
@@ -101,4 +138,27 @@ export class ShopSoldItem extends CoreEntity {
   @Column('json')
   // 배송정보
   shipInfo: ShipInfo;
+
+  @ApiProperty({
+    description: '배송 상태',
+    isArray: true,
+    enum: Status,
+  })
+  @Column({
+    type: 'enum',
+    enum: Status,
+    default: Status['결제완료'],
+  })
+  // 배송 상태
+  status: Status;
+
+  // 운송 택배사
+
+  @ApiProperty({
+    description: '운송자 번호',
+    example: '운송자 번호',
+  })
+  @Column({ default: null, nullable: true })
+  // 운송자 번호
+  transportNumber: string;
 }

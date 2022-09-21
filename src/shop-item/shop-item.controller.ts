@@ -38,6 +38,11 @@ import { UpdateItemInputDto, UpdateItemOutPut } from './dtos/update-item.dto';
 import { ShopIreceiptService } from './shop-Ireceipt.service';
 import { ShopItemService } from './shop-item.service';
 import { GetIreceiptOutPutDto } from './dtos/ineceipt/get-ireceipt.dto';
+import { GetSoldItemsOutPutDto } from './dtos/ineceipt/get-solditems.dto';
+import {
+  PatchSoldItemInputDto,
+  PatchSoldItemOutputDto,
+} from './dtos/patch-solditem.dto';
 
 @ApiTags('shopitem')
 @Controller('shop-item')
@@ -146,7 +151,7 @@ export class ShopItemController {
   // 판매 한 아이템
   @ApiOperation({ summary: '판매한 아이템 목록' })
   @ApiResponse({
-    type: GetIreceiptOutPutDto,
+    type: GetSoldItemsOutPutDto,
     status: 200,
   })
   @UseGuards(ShopAuthGuard)
@@ -154,6 +159,22 @@ export class ShopItemController {
   @Get('soldItem')
   async getSoldItem(@authUser() user: ShopUser) {
     return this.ireceiptService.getSoldItem(user);
+  }
+
+  // 택배 화물 접수
+  @ApiOperation({ summary: '판매아이템 정보 변경' })
+  @ApiResponse({
+    type: PatchSoldItemOutputDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['company'])
+  @Patch('soldItem')
+  async patchSolditem(
+    @authUser() user: ShopUser,
+    @Body() input: PatchSoldItemInputDto,
+  ) {
+    return this.ireceiptService.updateSolidItem(user, input);
   }
 
   // 아이템 변경

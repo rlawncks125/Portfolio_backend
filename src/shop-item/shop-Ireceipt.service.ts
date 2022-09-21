@@ -12,6 +12,11 @@ import {
 import { CreateSolidItemInPutDto } from './dtos/ineceipt/create-solditem.dto';
 import { ShopSoldItem } from './eitities/shop-soldItem.entity';
 import { GetIreceiptOutPutDto } from './dtos/ineceipt/get-ireceipt.dto';
+import { GetSoldItemsOutPutDto } from './dtos/ineceipt/get-solditems.dto';
+import {
+  PatchSoldItemInputDto,
+  PatchSoldItemOutputDto,
+} from './dtos/patch-solditem.dto';
 
 @Injectable()
 export class ShopIreceiptService {
@@ -77,7 +82,7 @@ export class ShopIreceiptService {
   async getIreceipts(user: ShopUser): Promise<GetIreceiptOutPutDto> {
     const ids = user.ireceipt.map((v) => v.id);
     const ireceipts = await this.ireceipRepository.findByIds(ids, {
-      relations: ['soldItems'],
+      relations: ['soldItems', 'soldItems.sellUserInfo'],
     });
 
     return {
@@ -86,7 +91,7 @@ export class ShopIreceiptService {
     };
   }
 
-  async getSoldItem(user: ShopUser) {
+  async getSoldItem(user: ShopUser): Promise<GetSoldItemsOutPutDto> {
     const items = await this.soldItemRepository.find({
       where: {
         sellUserInfo: user.sellerInfo,
@@ -98,5 +103,44 @@ export class ShopIreceiptService {
       ok: true,
       items,
     };
+  }
+
+  async updateSolidItem(
+    user: ShopUser,
+    { itemId, status, transportNumber }: PatchSoldItemInputDto,
+  ): Promise<PatchSoldItemOutputDto> {
+    try {
+      const soldItem = await this.soldItemRepository.findOne(itemId, {
+        relations: ['sellUserInfo'],
+      });
+
+      if (soldItem.sellUserInfo.id !== user.sellerInfo.id)
+        return {
+          ok: false,
+          err: '소유자가 아닙니다.',
+        };
+
+      soldItem.status = status;
+
+      transportNumber && (soldItem.transportNumber = transportNumber);
+
+      const ok = await this.soldItemRepository.save(soldItem);
+
+      if (!ok) {
+        return {
+          ok: false,
+          err: '저장하지 못함',
+        };
+      }
+      return {
+        ok: true,
+        soldItem,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
   }
 }
