@@ -36,7 +36,7 @@ import { ShopItemModule } from './shop-item/shop-item.module';
           }),
       type: process.env.DB_TYPE as any,
       entities: [`dist/**/*.entity{ .ts,.js}`],
-      synchronize: process.env.NODE_ENV === 'production' ? false : true,
+      synchronize: process.env.NODE_ENV === 'production' ? true : true,
     }),
     UserModule,
     WsModule,
