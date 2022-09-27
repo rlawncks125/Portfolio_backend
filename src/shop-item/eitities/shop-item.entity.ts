@@ -72,7 +72,7 @@ export class ShopItem extends CoreEntity {
 
   // 제품 설명 이미지
   @ApiProperty({ description: '제품 설명 ', example: '제품 설명 ' })
-  @Column('longtext')
+  @Column(process.env.NODE_ENV === 'production' ? 'text' : 'longtext')
   detailHtml: string;
 
   // 옵션 ( 옵션명 , 금액 )

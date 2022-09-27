@@ -6,6 +6,7 @@ import {
   v2,
 } from 'cloudinary';
 import { Readable } from 'stream';
+import axios from 'axios';
 
 @Injectable()
 export class AppService {

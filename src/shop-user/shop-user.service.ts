@@ -186,11 +186,13 @@ export class ShopUserService {
         user.updateAt = new Date();
         // update할때 외래키 사용중임 컬럼 제거
         delete user.sellerInfo;
+        delete user.ireceipt;
       }
 
       const ok = password
         ? await this.shopUserRepository.save(user)
         : await this.shopUserRepository.update(user.id, { ...user });
+
       // console.log(user);
 
       if (!ok) {
