@@ -16,7 +16,8 @@ import {
 @Entity()
 export class Room extends CoreEntity {
   @ApiProperty({ description: '방고유아이디입니다.', example: 'room_UUID' })
-  @PrimaryGeneratedColumn('uuid')
+  // @PrimaryGeneratedColumn('uuid')
+  @Column({ unique: true })
   uuid: string;
 
   @ApiProperty({ description: '방 이름입니다..', example: 'roomName' })
