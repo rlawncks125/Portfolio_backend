@@ -19,7 +19,21 @@ export class AppService {
   }
 
   getHello(): string {
-    return 'Hello World!aassddww';
+    const s1 = process.env.DB_HOST;
+    const s2 = +process.env.DB_PORT;
+    const s3 = process.env.DB_ROOT;
+    const s4 = process.env.DB_PASSWORD;
+    const s5 = process.env.DB_DATABASE;
+    const s6 = process.env.DB_TYPE as any;
+
+    return `Hello World!aassddww 
+${s1}
+${s2}
+${s3}
+${s4}
+${s5}
+${s6}
+    `;
   }
 
   async uploadClouldnary(
