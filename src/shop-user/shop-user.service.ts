@@ -97,6 +97,8 @@ export class ShopUserService {
     }: CreateShopUserInputDto,
   ): Promise<CreateShopUserOutPut> {
     try {
+      console.log(username, password, nickName);
+
       if (username === '' || password === '')
         return {
           ok: false,
