@@ -24,13 +24,13 @@ import { ShopItemModule } from './shop-item/shop-item.module';
       database: process.env.DB_DATABASE,
       type: process.env.DB_TYPE as any,
 
-      ...(process.env.NODE_ENV === 'production'
-        ? {
-            extra: {
-              ssl: { rejectUnauthorized: false },
-            },
-          }
-        : {}),
+      // ...(process.env.NODE_ENV === 'production'
+      //   ? {
+      //       extra: {
+      //         ssl: { rejectUnauthorized: false },
+      //       },
+      //     }
+      //   : {}),
 
       entities: [`dist/**/*.entity{ .ts,.js}`],
       synchronize: process.env.NODE_ENV === 'production' ? true : true,
