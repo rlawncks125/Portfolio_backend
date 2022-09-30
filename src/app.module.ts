@@ -34,6 +34,7 @@ import { ShopItemModule } from './shop-item/shop-item.module';
 
       entities: [`dist/**/*.entity{ .ts,.js}`],
       synchronize: process.env.NODE_ENV === 'production' ? false : true,
+      logger: 'simple-console',
     }),
     UserModule,
     WsModule,
