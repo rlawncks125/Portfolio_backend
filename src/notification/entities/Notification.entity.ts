@@ -8,7 +8,7 @@ export class Notification extends CoreEntity {
     description: '엔드 포인트 입니다.',
     example: '엔드포인트',
   })
-  @Column({ type: process.env.NODE_ENV === 'production' ? 'text' : 'longtext' })
+  @Column({ type: process.env.DB_TYPE === 'postgres' ? 'text' : 'longtext' })
   endPoint: string;
 
   @ApiProperty({

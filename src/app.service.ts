@@ -57,6 +57,8 @@ export class AppService {
   }
 
   async deleteClouldnaryByFileName(fileName: string) {
+    if (fileName === '' || !fileName) return;
+
     const deleteFoloder = 'back-Portfolio';
     const deleteImageUrl = `${deleteFoloder}/${fileName}`;
 
