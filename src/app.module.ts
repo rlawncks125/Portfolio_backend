@@ -17,11 +17,11 @@ import { ShopItemModule } from './shop-item/shop-item.module';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
-      host: process.env.DB_HOST,
+      host: process.env.DB_HOST + '',
       port: +process.env.DB_PORT,
-      username: process.env.DB_ROOT,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      username: process.env.DB_ROOT + '',
+      password: process.env.DB_PASSWORD + '',
+      database: process.env.DB_DATABASE + '',
       type: process.env.DB_TYPE as any,
 
       // ...(process.env.NODE_ENV === 'production'
