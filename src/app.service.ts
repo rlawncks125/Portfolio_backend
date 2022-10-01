@@ -26,14 +26,7 @@ export class AppService {
     const s5 = process.env.DB_DATABASE;
     const s6 = process.env.DB_TYPE as any;
 
-    return `Hello World!aassddww 
-${s1}
-${s2}
-${s3}
-${s4}
-${s5}
-${s6}
-    `;
+    return `Hello World!aassddww`;
   }
 
   async uploadClouldnary(

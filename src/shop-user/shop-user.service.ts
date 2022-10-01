@@ -140,9 +140,22 @@ export class ShopUserService {
         address,
         addressDetail,
       });
-      console.log(createUser);
+      // console.log(createUser);
 
-      const ok = await this.shopUserRepository.save({ ...createUser });
+      // const ok = await this.shopUserRepository.save(
+      //   this.shopUserRepository.create({
+      //     userId: username,
+      //     password,
+      //     nickName,
+      //     role,
+      //     email,
+      //     postcode,
+      //     tel,
+      //     address,
+      //     addressDetail,
+      //   }),
+      // );
+      const ok = await this.shopUserRepository.insert(createUser);
       if (ok) {
         return {
           ok: true,
