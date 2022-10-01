@@ -71,7 +71,7 @@ export class ShopUser extends CoreEntity {
     description: '핸드폰 번호입니다.',
     example: '핸드폰 번호입니다.',
   })
-  @Column({ unique: true, nullable: true, default: null })
+  @Column({ nullable: true, default: null })
   tel: string;
 
   @ApiProperty({

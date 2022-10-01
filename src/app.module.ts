@@ -13,16 +13,28 @@ import { NotificationModule } from './notification/notification.module';
 import { ShopUserModule } from './shop-user/shop-user.module';
 import { MailerModule } from './mailer/mailer.module';
 import { ShopItemModule } from './shop-item/shop-item.module';
+import { User } from './user/entities/user.entity';
+import { ShopUser } from './shop-user/entities/shop-user.entity';
+import { ShopItem } from './shop-item/eitities/shop-item.entity';
+import { ShopUserSeller } from './shop-user/entities/shop-user-seller.entity';
+import { ShopIreceipt } from './shop-item/eitities/shop-ireceipt.entity';
+import { ShopSoldItem } from './shop-item/eitities/shop-soldItem.entity';
+import { Room } from './room/entities/room.entity';
+import { Restaurant } from './restaurant/entities/restaurant.entity';
+import { Comment } from './restaurant/entities/comment.entity';
+import { Notification } from './notification/entities/Notification.entity';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot({
+      // url: 'postgresql://pg1101.gabiadb.com:5432/rlawncks',
+
       host: process.env.DB_HOST + '',
       port: +process.env.DB_PORT,
-      username: process.env.DB_ROOT + '',
-      password: process.env.DB_PASSWORD + '',
       database: process.env.DB_DATABASE + '',
       type: process.env.DB_TYPE as any,
+      username: process.env.DB_ROOT + '',
+      password: process.env.DB_PASSWORD + '',
 
       // ...(process.env.NODE_ENV === 'production'
       //   ? {
@@ -32,7 +44,9 @@ import { ShopItemModule } from './shop-item/shop-item.module';
       //     }
       //   : {}),
 
+      // postgres DB 호스팅 사용시 에러
       entities: [`dist/**/*.entity{ .ts,.js}`],
+
       synchronize: process.env.NODE_ENV === 'production' ? false : true,
       logger: 'simple-console',
     }),
