@@ -67,7 +67,7 @@ export class ShopItemService {
       reviews: [],
     };
 
-    const item = await this.itemRepository.save(
+    const item = await this.itemRepository.insert(
       this.itemRepository.create(data),
     );
 
@@ -80,7 +80,7 @@ export class ShopItemService {
 
     return {
       ok: true,
-      item,
+      item: item.identifiers as any,
     };
   }
 

@@ -66,3 +66,11 @@ TypeOrmModule.forRoot({
       synchronize: process.env.NODE_ENV === 'production' ? false : true,
     }),
 ```
+
+## DB 가비아 DB 호스팅으로 바꾼후 문제점
+
+<!-- Idle_in_transaction_session_timeout 에러 -->
+<!-- insert 기능하는 save는 에러로 인해  -->
+
+typeorm save(insert 기능하는) 에러로 작동안함
+typeorm insert로 주면 timeout 에러 안남
