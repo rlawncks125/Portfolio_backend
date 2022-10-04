@@ -4,6 +4,7 @@ import { AppService } from 'src/app.service';
 import { CoreOutPut } from 'src/common/dtos/output.dto';
 import { BaksetItemSelectedOptions } from 'src/common/entities/bask-item';
 import { ShopUser } from 'src/shop-user/entities/shop-user.entity';
+import { ShopUserService } from 'src/shop-user/shop-user.service';
 import { ILike, Raw, Repository } from 'typeorm';
 import {
   AddShopItemInputDto,

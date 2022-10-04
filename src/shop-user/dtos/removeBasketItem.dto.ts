@@ -3,16 +3,18 @@ import { CoreOutPut } from 'src/common/dtos/output.dto';
 
 export class RemoveBasketItemInputDto {
   @ApiProperty({
+    type: [Number],
     description: '장바구니 아이템 인덱스',
     example: '장바구니 아이템 인덱스',
   })
-  itemIndex: number;
+  itemIndex: number[];
 }
 
 export class RemoveBasketItemOutPutdto extends CoreOutPut {
   @ApiProperty({
+    type: [Number],
     description: '제거된 아이템 인덱스',
     example: '제거된 아이템 인덱스',
   })
-  removeIndex?: number;
+  removeIndex?: number[];
 }

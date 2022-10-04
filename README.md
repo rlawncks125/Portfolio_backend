@@ -86,3 +86,5 @@ typoerm save() => insert, update로 명시하는 기능으로 사용
 - [o] shop-item ( ireceipt , shop-item )
 - [o] shop-user
 - [] user
+
+removeBasketItem => 받는 index인자 배열로 변경 inclueds로 체크

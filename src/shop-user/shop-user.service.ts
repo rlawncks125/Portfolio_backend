@@ -484,7 +484,7 @@ export class ShopUserService {
       }
 
       user.basketItems = user.basketItems.filter(
-        (v, index) => index !== +itemIndex,
+        (v, index) => !itemIndex.includes(index),
       );
 
       const ok = await this.shopUserRepository.update(user.id, {

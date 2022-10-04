@@ -17,6 +17,7 @@ import {
   PatchSoldItemInputDto,
   PatchSoldItemOutputDto,
 } from './dtos/patch-solditem.dto';
+import { ShopUserService } from 'src/shop-user/shop-user.service';
 
 @Injectable()
 export class ShopIreceiptService {
@@ -26,6 +27,7 @@ export class ShopIreceiptService {
     @InjectRepository(ShopSoldItem)
     private readonly soldItemRepository: Repository<ShopSoldItem>,
     private readonly appService: AppService,
+    private readonly shopUserService: ShopUserService,
   ) {}
 
   async CreateSoldItemById(
@@ -59,30 +61,49 @@ export class ShopIreceiptService {
     user: ShopUser,
     { paymentInfo, soldItems: p_soldItems, totalPrice }: CreateIreceiptInputDto,
   ): Promise<CreateIreceiptOutPutDto> {
-    let itemsList = [];
+    try {
+      let itemsList = [];
 
-    const ok = await this.ireceipRepository.insert({
-      paymentInfo,
-      totalPrice,
-      purchasedUser: user,
-    });
-    const ireceipt = await this.ireceipRepository.findOne(ok.identifiers[0].id);
-
-    p_soldItems.forEach(({ payment, shipInfo, soldItemsInfo }) => {
-      itemsList.push(
-        this.CreateSoldItemById(user, {
-          payment,
-          sellUserInfo: soldItemsInfo.item.sellUserInfo,
-          shipInfo,
-          soldItemsInfo,
-          Ireceipt: ireceipt,
-        }),
+      const ok = await this.ireceipRepository.insert({
+        paymentInfo,
+        totalPrice,
+        purchasedUser: user,
+      });
+      const ireceipt = await this.ireceipRepository.findOne(
+        ok.identifiers[0].id,
       );
-    });
 
-    return {
-      ok: false,
-    };
+      p_soldItems.forEach(({ payment, shipInfo, soldItemsInfo }) => {
+        itemsList.push(
+          this.CreateSoldItemById(user, {
+            payment,
+            sellUserInfo: soldItemsInfo.item.sellUserInfo,
+            shipInfo,
+            soldItemsInfo,
+            Ireceipt: ireceipt,
+          }),
+        );
+      });
+
+      // 구매한 장바구니 아이템 제거
+      // 추후 장바구니 index를 추가하여 선택한 아이템만 구매할수있게 구현
+
+      this.shopUserService.removeBasketItem(user, {
+        itemIndex: Array.from(
+          { length: p_soldItems.length },
+          (v, index) => index,
+        ),
+      });
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
   }
 
   async getIreceipts(user: ShopUser): Promise<GetIreceiptOutPutDto> {
