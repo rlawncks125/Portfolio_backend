@@ -296,6 +296,7 @@ export class ShopUserService {
     }
 
     // const seller = await this.sellerRepository.save(
+
     const ok = await this.sellerRepository.insert(
       this.sellerRepository.create({
         user,
@@ -308,7 +309,7 @@ export class ShopUserService {
     );
 
     const id = ok.identifiers[0].id;
-    const seller = await this.sellerRepository.findOne(id);
+    const seller = await this.sellerRepository.findOne({ id });
 
     if (!seller) {
       return {

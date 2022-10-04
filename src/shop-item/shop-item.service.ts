@@ -53,6 +53,8 @@ export class ShopItemService {
     user: ShopUser,
     body: AddShopItemInputDto,
   ): Promise<AddShopItemsOutPutDto> {
+    console.log(user);
+
     if (!user.sellerInfo) {
       return {
         ok: false,

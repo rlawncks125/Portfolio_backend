@@ -98,7 +98,6 @@ export class ShopUser extends CoreEntity {
     nullable: true,
     onDelete: 'SET NULL',
   })
-  @JoinColumn()
   sellerInfo: ShopUserSeller;
 
   @ApiProperty({

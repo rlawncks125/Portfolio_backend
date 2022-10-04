@@ -3,12 +3,20 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { ShopIreceipt } from 'src/shop-item/eitities/shop-ireceipt.entity';
 import { ShopItem } from 'src/shop-item/eitities/shop-item.entity';
 import { ShopSoldItem } from 'src/shop-item/eitities/shop-soldItem.entity';
-import { Column, Entity, ManyToMany, OneToMany, OneToOne } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
+} from 'typeorm';
 import { ShopUser } from './shop-user.entity';
 
 @Entity()
 export class ShopUserSeller extends CoreEntity {
   @OneToOne(() => ShopUser, (user) => user.sellerInfo)
+  @JoinColumn()
   user: ShopUser;
 
   @ApiProperty({ description: '대표자', example: '대표자' })
