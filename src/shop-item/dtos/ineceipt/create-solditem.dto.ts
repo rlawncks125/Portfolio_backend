@@ -6,4 +6,5 @@ export class CreateSolidItemInPutDto extends PickType(ShopSoldItem, [
   'payment',
   'shipInfo',
   'soldItemsInfo',
+  'Ireceipt',
 ]) {}

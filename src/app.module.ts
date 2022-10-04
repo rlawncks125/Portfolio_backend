@@ -37,7 +37,7 @@ import { ShopItemModule } from './shop-item/shop-item.module';
       // postgres DB 호스팅 사용시 에러
       entities: [`dist/**/*.entity{ .ts,.js}`],
 
-      synchronize: process.env.NODE_ENV === 'production' ? false : false,
+      synchronize: process.env.NODE_ENV === 'production' ? false : true,
       logger: 'simple-console',
     }),
     UserModule,

@@ -112,7 +112,7 @@ export class ShopSoldItem extends CoreEntity {
     onDelete: 'CASCADE',
   })
   @JoinColumn()
-  Ireceipt: ShopIreceipt; // 구매한 유저 정보
+  Ireceipt: ShopIreceipt; // 영수증
 
   @ApiProperty({
     type: () => SolidItemInfo,

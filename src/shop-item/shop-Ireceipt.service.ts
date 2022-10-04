@@ -30,7 +30,13 @@ export class ShopIreceiptService {
 
   async CreateSoldItemById(
     purchasedUser: ShopUser,
-    { sellUserInfo, soldItemsInfo, payment, shipInfo }: CreateSolidItemInPutDto,
+    {
+      sellUserInfo,
+      soldItemsInfo,
+      payment,
+      shipInfo,
+      Ireceipt,
+    }: CreateSolidItemInPutDto,
   ) {
     // return await this.soldItemRepository.save(
     const ok = await this.soldItemRepository.insert(
@@ -40,6 +46,7 @@ export class ShopIreceiptService {
         sellUserInfo,
         shipInfo,
         soldItemsInfo,
+        Ireceipt,
       }),
     );
 
@@ -54,6 +61,13 @@ export class ShopIreceiptService {
   ): Promise<CreateIreceiptOutPutDto> {
     let itemsList = [];
 
+    const ok = await this.ireceipRepository.insert({
+      paymentInfo,
+      totalPrice,
+      purchasedUser: user,
+    });
+    const ireceipt = await this.ireceipRepository.findOne(ok.identifiers[0].id);
+
     p_soldItems.forEach(({ payment, shipInfo, soldItemsInfo }) => {
       itemsList.push(
         this.CreateSoldItemById(user, {
@@ -61,25 +75,10 @@ export class ShopIreceiptService {
           sellUserInfo: soldItemsInfo.item.sellUserInfo,
           shipInfo,
           soldItemsInfo,
+          Ireceipt: ireceipt,
         }),
       );
     });
-
-    // let soldItems: ShopSoldItem[] | [] = [];
-    // await Promise.all(itemsList).then((v) => {
-    //   soldItems = v as ShopSoldItem[];
-    // });
-    const soldItems = await this.soldItemRepository.findByIds(itemsList);
-
-    // await this.ireceipRepository.save(
-    await this.ireceipRepository.insert(
-      this.ireceipRepository.create({
-        paymentInfo,
-        soldItems,
-        totalPrice,
-        purchasedUser: user,
-      }),
-    );
 
     return {
       ok: false,
@@ -118,7 +117,7 @@ export class ShopIreceiptService {
   ): Promise<PatchSoldItemOutputDto> {
     try {
       const soldItem = await this.soldItemRepository.findOne(itemId, {
-        relations: ['sellUserInfo'],
+        relations: ['sellUserInfo', 'purchasedUser'],
       });
 
       if (soldItem.sellUserInfo.id !== user.sellerInfo.id)
