@@ -184,16 +184,15 @@ export class ShopUserService {
       address && (user.address = address);
       addressDetail && (user.addressDetail = addressDetail);
 
-      if (!password) {
-        user.updateAt = new Date();
-        // update할때 외래키 사용중임 컬럼 제거
-        delete user.sellerInfo;
-        delete user.ireceipt;
-      }
+      user.updateAt = new Date();
+      // 외래키 의존성
+      delete user.sellerInfo;
+      delete user.ireceipt;
 
-      const ok = password
-        ? await this.shopUserRepository.save(user)
-        : await this.shopUserRepository.update(user.id, { ...user });
+      // 패스워드 암호화
+      password && (await user.hashPassword());
+
+      const ok = await this.shopUserRepository.update(user.id, { ...user });
 
       // console.log(user);
 
@@ -296,7 +295,8 @@ export class ShopUserService {
       };
     }
 
-    const seller = await this.sellerRepository.save(
+    // const seller = await this.sellerRepository.save(
+    const ok = await this.sellerRepository.insert(
       this.sellerRepository.create({
         user,
         companyAddress,
@@ -306,12 +306,15 @@ export class ShopUserService {
         represent,
       }),
     );
+
+    const id = ok.identifiers[0].id;
+    const seller = await this.sellerRepository.findOne(id);
+
     if (!seller) {
       return {
         ok: false,
       };
     }
-
     return {
       ok: true,
       sellerInfo: seller,
@@ -344,8 +347,10 @@ export class ShopUserService {
     eMail && (seller.eMail = eMail);
     phone && (seller.phone = phone);
     represent && (seller.represent = represent);
+    seller.updateAt = new Date();
 
-    const result = await this.sellerRepository.save(seller);
+    // const result = await this.sellerRepository.save(seller);
+    const result = await this.sellerRepository.update(seller.id, { ...seller });
 
     if (!result) {
       return {

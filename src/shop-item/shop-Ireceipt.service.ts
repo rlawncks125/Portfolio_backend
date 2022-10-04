@@ -28,11 +28,12 @@ export class ShopIreceiptService {
     private readonly appService: AppService,
   ) {}
 
-  async CreateSoldItem(
+  async CreateSoldItemById(
     purchasedUser: ShopUser,
     { sellUserInfo, soldItemsInfo, payment, shipInfo }: CreateSolidItemInPutDto,
   ) {
-    return await this.soldItemRepository.save(
+    // return await this.soldItemRepository.save(
+    const ok = await this.soldItemRepository.insert(
       this.soldItemRepository.create({
         payment,
         purchasedUser,
@@ -41,18 +42,21 @@ export class ShopIreceiptService {
         soldItemsInfo,
       }),
     );
+
+    const id = ok.identifiers[0].id;
+
+    return id;
   }
 
   async createIreceipt(
     user: ShopUser,
     { paymentInfo, soldItems: p_soldItems, totalPrice }: CreateIreceiptInputDto,
   ): Promise<CreateIreceiptOutPutDto> {
-    let soldItems: ShopSoldItem[] | [] = [];
-
     let itemsList = [];
+
     p_soldItems.forEach(({ payment, shipInfo, soldItemsInfo }) => {
       itemsList.push(
-        this.CreateSoldItem(user, {
+        this.CreateSoldItemById(user, {
           payment,
           sellUserInfo: soldItemsInfo.item.sellUserInfo,
           shipInfo,
@@ -61,11 +65,14 @@ export class ShopIreceiptService {
       );
     });
 
-    await Promise.all(itemsList).then((v) => {
-      soldItems = v as ShopSoldItem[];
-    });
+    // let soldItems: ShopSoldItem[] | [] = [];
+    // await Promise.all(itemsList).then((v) => {
+    //   soldItems = v as ShopSoldItem[];
+    // });
+    const soldItems = await this.soldItemRepository.findByIds(itemsList);
 
-    await this.ireceipRepository.save(
+    // await this.ireceipRepository.save(
+    await this.ireceipRepository.insert(
       this.ireceipRepository.create({
         paymentInfo,
         soldItems,
@@ -124,7 +131,10 @@ export class ShopIreceiptService {
 
       transportNumber && (soldItem.transportNumber = transportNumber);
 
-      const ok = await this.soldItemRepository.save(soldItem);
+      // const ok = await this.soldItemRepository.save(soldItem);
+      const ok = await this.soldItemRepository.update(soldItem.id, {
+        ...soldItem,
+      });
 
       if (!ok) {
         return {

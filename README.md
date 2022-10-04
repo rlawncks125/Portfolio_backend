@@ -48,6 +48,7 @@ TypeOrmModule.forRoot({
             url: process.env.DATABASE_URL,
             // heroku error
             // self signed sertificate
+            // heroku Addon postgres 사용 시 설정
             extra: {
               ssl: { rejectUnauthorized: false },
             },
@@ -69,8 +70,19 @@ TypeOrmModule.forRoot({
 
 ## DB 가비아 DB 호스팅으로 바꾼후 문제점
 
-<!-- Idle_in_transaction_session_timeout 에러 -->
-<!-- insert 기능하는 save는 에러로 인해  -->
+1.  <!-- postgres 제공하는 UUID를 확장 ( uuid-ossp ) 을 설치하지 못하여 사용 못함 -->
+    <!-- @PrimaryGeneratedColumn('uuid') 사용 x -->
 
-typeorm save(insert 기능하는) 에러로 작동안함
-typeorm insert로 주면 timeout 에러 안남
+2.  <!-- Idle_in_transaction_session_timeout 에러 -->
+
+<!-- save사용시 Idle_in_transaction_session_timeout에러 발생 -->
+
+typoerm save() => insert, update로 명시하는 기능으로 사용
+
+## typeOrm save() -> insert,update,delete 로 교체
+
+- [] restaurnt
+- [o] room
+- [o] shop-item ( ireceipt , shop-item )
+- [o] shop-user
+- [] user

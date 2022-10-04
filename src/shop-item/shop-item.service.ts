@@ -67,20 +67,22 @@ export class ShopItemService {
       reviews: [],
     };
 
-    const item = await this.itemRepository.insert(
+    const ok = await this.itemRepository.insert(
       this.itemRepository.create(data),
     );
 
-    if (!item) {
+    if (!ok) {
       return {
         ok: false,
         err: '생성도중 에러가 발생했습니다.',
       };
     }
 
+    const item = await this.itemRepository.findOne(ok.identifiers[0].id);
+
     return {
       ok: true,
-      item: item.identifiers as any,
+      item,
     };
   }
 

@@ -31,6 +31,8 @@ import { EditRoomInPutDto, EdtiRoomOutPutDto } from './dtos/editRoom.dto';
 import { myApprovalWaitRoomsOutPutDto } from './dtos/myApprovalWaitRooms.dto';
 import { AcceptUserInPutDto, AcceptUserOutPutDto } from './dtos/AcceptUser.dto';
 
+import { v4 as uuidV4 } from 'uuid';
+
 @Injectable()
 export class RoomService {
   constructor(
@@ -176,8 +178,11 @@ export class RoomService {
     { lating, roomName, markeImageUrl }: CreateRoomInputDto,
   ): Promise<CreateRoomOutPutDto> {
     try {
-      const room = await this.roomRepository.save(
+      const uuid = uuidV4();
+
+      const ok = await this.roomRepository.insert(
         this.roomRepository.create({
+          uuid,
           lating,
           roomName,
           superUser: user,
@@ -186,12 +191,15 @@ export class RoomService {
         }),
       );
 
-      if (!room) {
+      if (!ok) {
         return {
           ok: false,
           err: '예기치 못한 에러가 발생했습니다.',
         };
       }
+      const id = ok.identifiers[0].id;
+
+      const room = await this.roomRepository.findOne({ id });
 
       return {
         ok: true,
@@ -311,7 +319,9 @@ export class RoomService {
       }
       // 대기 유저
       room.approvalWaitUsers = [...room.approvalWaitUsers, user];
-      await this.roomRepository.save(room);
+      // await this.roomRepository.save(room);
+      room.updateAt = new Date();
+      await this.roomRepository.insert({ ...room });
 
       // 승인 확인
       // room.joinUsers = [...room.joinUsers, user];
@@ -356,10 +366,12 @@ export class RoomService {
       }
 
       room.joinUsers = room.joinUsers.filter((v) => v.id !== user.id);
+      room.updateAt = new Date();
 
       room.joinUsers.length === 0
         ? this.roomRepository.delete({ id: room.id })
-        : this.roomRepository.save(room);
+        : // : this.roomRepository.save(room);
+          this.roomRepository.update(room.id, { ...room });
 
       return { ok: true };
     } catch (err) {
@@ -472,8 +484,10 @@ export class RoomService {
       markeImageUrl && (room.markeImageUrl = markeImageUrl);
       superUser && (room.superUser = superUser);
       lating && (room.lating = lating);
+      room.updateAt = new Date();
 
-      const result = await this.roomRepository.save(room);
+      // const result = await this.roomRepository.save(room);
+      const result = await this.roomRepository.update(room.id, { ...room });
 
       if (!result) {
         return {
@@ -556,7 +570,8 @@ export class RoomService {
 
       // 승인 확인
       room.joinUsers = [...room.joinUsers, userInfo];
-      await this.roomRepository.save(room);
+      // await this.roomRepository.save(room);
+      await this.roomRepository.update(room.id, { ...room });
 
       return {
         ok: true,

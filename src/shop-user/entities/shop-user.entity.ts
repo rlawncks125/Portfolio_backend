@@ -123,9 +123,9 @@ export class ShopUser extends CoreEntity {
   })
   ireceipt: ShopIreceipt[];
 
-  // save 되기 전 패스워드 해쉬 함수 를 이용하여 암호화
+  // save() 함수를 이용 를 하여 update할경우 호출
+  // @BeforeUpdate()
   @BeforeInsert()
-  @BeforeUpdate()
   async hashPassword(): Promise<void> {
     try {
       this.password = await bcrypt.hash(this.password, 10);
