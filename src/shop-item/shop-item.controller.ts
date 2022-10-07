@@ -44,6 +44,8 @@ import {
   PatchSoldItemOutputDto,
 } from './dtos/patch-solditem.dto';
 import { AddReivewOutPutDto, AddReviewInputDto } from './dtos/add-review.dto';
+import { AddQAInputDto, AddQAOutPutDto } from './dtos/add-QA.dto';
+import { AnswerQAInputDto, AnswerQAOutPutDtop } from './dtos/answer-QA.dto';
 
 @ApiTags('shopitem')
 @Controller('shop-item')
@@ -191,6 +193,30 @@ export class ShopItemController {
     @Body() input: AddReviewInputDto,
   ) {
     return this.ireceiptService.addReivew(user, input);
+  }
+
+  @ApiOperation({ summary: '문의 하기' })
+  @ApiResponse({
+    type: AddQAOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['customer'])
+  @Post('QA')
+  async addQA(@authUser() user: ShopUser, @Body() input: AddQAInputDto) {
+    return this.itemService.addQA(user, input);
+  }
+
+  @ApiOperation({ summary: '문의 답변' })
+  @ApiResponse({
+    type: AnswerQAOutPutDtop,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['company'])
+  @Post('answerQA')
+  async answerQA(@authUser() user: ShopUser, @Body() input: AnswerQAInputDto) {
+    return this.itemService.answerQA(user, input);
   }
 
   // 아이템 변경

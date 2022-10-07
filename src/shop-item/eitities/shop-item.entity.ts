@@ -31,7 +31,7 @@ class option {
   price: number;
 }
 
-class QA {
+export class QA {
   @ApiProperty({ description: 'QA 제목', example: 'QA 제목' })
   title: string;
   @ApiProperty({ description: 'QA 내용', example: 'QA 내용' })

@@ -6,10 +6,12 @@ import { BaksetItemSelectedOptions } from 'src/common/entities/bask-item';
 import { ShopUser } from 'src/shop-user/entities/shop-user.entity';
 import { ShopUserService } from 'src/shop-user/shop-user.service';
 import { ILike, Raw, Repository } from 'typeorm';
+import { AddQAInputDto, AddQAOutPutDto } from './dtos/add-QA.dto';
 import {
   AddShopItemInputDto,
   AddShopItemsOutPutDto,
 } from './dtos/addShopItem.dto';
+import { AnswerQAInputDto } from './dtos/answer-QA.dto';
 import { GetItemInfoOutPutDto } from './dtos/get-iteminfo.dto';
 import {
   GetItemsInfoInputDto,
@@ -22,7 +24,7 @@ import {
 } from './dtos/searchItem.dto';
 import { SellitemsOutPutDto } from './dtos/sell-items.dto';
 import { UpdateItemInputDto, UpdateItemOutPut } from './dtos/update-item.dto';
-import { ShopItem } from './eitities/shop-item.entity';
+import { QA, ShopItem } from './eitities/shop-item.entity';
 
 @Injectable()
 export class ShopItemService {
@@ -281,5 +283,109 @@ export class ShopItemService {
         };
       }),
     };
+  }
+
+  async addQA(
+    user: ShopUser,
+    { text, title, type, itemId }: AddQAInputDto,
+  ): Promise<AddQAOutPutDto> {
+    try {
+      const item = await this.itemRepository.findOne({ id: itemId });
+
+      if (!item) {
+        return {
+          ok: false,
+          err: '아이템이 존재하지 않음',
+        };
+      }
+
+      const QA: QA = {
+        addDay: new Date().toLocaleString(),
+        nickName: user.nickName,
+        status: '답변 대기',
+        text,
+        title,
+        type,
+        answer: null,
+      };
+
+      const ok = await this.itemRepository.update(item.id, {
+        QA: [...item.QA, QA],
+        updateAt: new Date(),
+      });
+
+      if (!ok) {
+        return {
+          ok: false,
+          err: '업데이트 하지 못함',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async answerQA(user: ShopUser, { addDay, answer, itemId }: AnswerQAInputDto) {
+    try {
+      const item = await this.itemRepository.findOne(
+        { id: itemId },
+        {
+          relations: ['sellUserInfo'],
+        },
+      );
+
+      if (!item) {
+        return {
+          ok: false,
+          err: '아이템이 존재하지 않음',
+        };
+      }
+
+      if (item.sellUserInfo.id !== user.sellerInfo.id) {
+        return {
+          ok: false,
+          err: '권한 없음',
+        };
+      }
+
+      const QA = item.QA.map((v) => {
+        if (v.addDay === addDay) {
+          return {
+            ...v,
+            answer,
+            status: '답변 완료',
+          };
+        }
+        return v;
+      });
+
+      const ok = await this.itemRepository.update(item.id, {
+        QA,
+        updateAt: new Date(),
+      });
+
+      if (!ok) {
+        return {
+          ok: false,
+          err: '업데이트 하지 못함',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
   }
 }
