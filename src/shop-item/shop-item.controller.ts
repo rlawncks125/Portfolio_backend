@@ -43,6 +43,7 @@ import {
   PatchSoldItemInputDto,
   PatchSoldItemOutputDto,
 } from './dtos/patch-solditem.dto';
+import { AddReivewOutPutDto, AddReviewInputDto } from './dtos/add-review.dto';
 
 @ApiTags('shopitem')
 @Controller('shop-item')
@@ -175,6 +176,21 @@ export class ShopItemController {
     @Body() input: PatchSoldItemInputDto,
   ) {
     return this.ireceiptService.updateSolidItem(user, input);
+  }
+
+  @ApiOperation({ summary: '리뷰 달기' })
+  @ApiResponse({
+    type: AddReivewOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['customer'])
+  @Post('soldItem')
+  async addReview(
+    @authUser() user: ShopUser,
+    @Body() input: AddReviewInputDto,
+  ) {
+    return this.ireceiptService.addReivew(user, input);
   }
 
   // 아이템 변경

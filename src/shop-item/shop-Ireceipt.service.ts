@@ -18,6 +18,8 @@ import {
   PatchSoldItemOutputDto,
 } from './dtos/patch-solditem.dto';
 import { ShopUserService } from 'src/shop-user/shop-user.service';
+import { ShopItem } from './eitities/shop-item.entity';
+import { AddReivewOutPutDto, AddReviewInputDto } from './dtos/add-review.dto';
 
 @Injectable()
 export class ShopIreceiptService {
@@ -26,6 +28,8 @@ export class ShopIreceiptService {
     private readonly ireceipRepository: Repository<ShopIreceipt>,
     @InjectRepository(ShopSoldItem)
     private readonly soldItemRepository: Repository<ShopSoldItem>,
+    @InjectRepository(ShopItem)
+    private readonly ItemRepository: Repository<ShopItem>,
     private readonly appService: AppService,
     private readonly shopUserService: ShopUserService,
   ) {}
@@ -165,6 +169,81 @@ export class ShopIreceiptService {
       return {
         ok: true,
         soldItem,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async addReivew(
+    user: ShopUser,
+    { soldId, star, text, title, selectedOptions }: AddReviewInputDto,
+  ): Promise<AddReivewOutPutDto> {
+    try {
+      const soldItem = await this.soldItemRepository.findOne(
+        { id: soldId },
+        {
+          relations: ['purchasedUser'],
+        },
+      );
+
+      if (soldItem.isReview) {
+        return {
+          ok: false,
+          err: '이미 리뷰을 달았습니다.',
+        };
+      }
+
+      if (soldItem.purchasedUser.id !== user.id) {
+        return {
+          ok: false,
+          err: '구매자가 아닙니다.',
+        };
+      }
+
+      const item = await this.ItemRepository.findOne({
+        id: soldItem.soldItemsInfo.item.id,
+      });
+
+      if (!item) {
+        return {
+          ok: false,
+          err: '아이템이 존재하지 않습니다.',
+        };
+      }
+
+      item.updateAt = new Date();
+
+      item.reviews = [
+        ...item.reviews,
+        {
+          addDay: new Date().toLocaleDateString(),
+          nickName: user.nickName,
+          star,
+          text,
+          title,
+          selectedOptions,
+        },
+      ];
+
+      const ok = await this.ItemRepository.update(item.id, item);
+
+      if (!ok) {
+        return {
+          ok: false,
+          err: '반영하지 못했습니다.',
+        };
+      }
+
+      await this.soldItemRepository.update(soldId, {
+        isReview: true,
+      });
+
+      return {
+        ok: true,
       };
     } catch (err) {
       return {

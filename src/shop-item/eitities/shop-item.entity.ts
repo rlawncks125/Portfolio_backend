@@ -15,6 +15,13 @@ class review {
   nickName: string;
   @ApiProperty({ description: '등록 날짜', example: '등록 날짜' })
   addDay: string;
+  @ApiProperty({
+    description: '추가 옵션',
+    example: '추가 옵션',
+    default: null,
+    nullable: true,
+  })
+  selectedOptions: string;
 }
 
 class option {

@@ -8,8 +8,6 @@ import { AppService } from 'src/app.service';
 import { ShopIreceiptService } from './shop-Ireceipt.service';
 import { ShopSoldItem } from './eitities/shop-soldItem.entity';
 
-import { ShopUserService } from 'src/shop-user/shop-user.service';
-
 import { ShopUserModule } from 'src/shop-user/shop-user.module';
 
 @Module({

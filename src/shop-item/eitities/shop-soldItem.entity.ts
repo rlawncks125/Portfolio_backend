@@ -161,4 +161,11 @@ export class ShopSoldItem extends CoreEntity {
   @Column({ default: null, nullable: true })
   // 운송자 번호
   transportNumber: string;
+
+  @ApiProperty({
+    description: '리뷰 달았는지 체크',
+    example: '리뷰 달았는지 체크',
+  })
+  @Column({ default: false })
+  isReview: boolean;
 }
