@@ -28,7 +28,6 @@ class MyRoomsinfoDto extends PickType(Room, [
   'uuid',
   'roomName',
   'lating',
-  'markeImageUrl',
   'superUser',
 ] as const) {
   @ApiProperty({

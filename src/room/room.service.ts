@@ -73,7 +73,7 @@ export class RoomService {
             uuid: v.uuid,
             roomName: v.roomName,
             lating: v.lating,
-            markeImageUrl: v.markeImageUrl,
+
             superUser: v.superUser,
             joinUsersInfo: v.joinUsers.map((v) => {
               return {
@@ -136,7 +136,6 @@ export class RoomService {
             id: room.superUser.id,
             username: room.superUser.username,
           },
-          markeImageUrl: room.markeImageUrl,
         },
         users: room.joinUsers.map((user) => {
           return {
@@ -175,32 +174,32 @@ export class RoomService {
 
   async createRoom(
     user: User,
-    { lating, roomName, markeImageUrl }: CreateRoomInputDto,
+    { lating, roomName }: CreateRoomInputDto,
   ): Promise<CreateRoomOutPutDto> {
     try {
       const uuid = uuidV4();
 
-      const ok = await this.roomRepository.insert(
-        this.roomRepository.create({
-          uuid,
-          lating,
-          roomName,
-          superUser: user,
-          joinUsers: [user],
-          markeImageUrl,
-        }),
-      );
+      const createRoom = this.roomRepository.create({
+        uuid,
+        lating,
+        roomName,
+        superUser: user,
+        joinUsers: [user],
+      });
 
-      if (!ok) {
-        return {
-          ok: false,
-          err: '예기치 못한 에러가 발생했습니다.',
-        };
-      }
-      const id = ok.identifiers[0].id;
+      // const ok = await this.roomRepository.insert(createRoom);
+      // const id = ok.identifiers[0].id;
 
-      const room = await this.roomRepository.findOne({ id });
+      // if (!ok) {
+      //   return {
+      //     ok: false,
+      //     err: '예기치 못한 에러가 발생했습니다.',
+      //   };
+      // }
 
+      // const room = await this.roomRepository.findOne({ id });
+
+      const room = await this.roomRepository.save(createRoom);
       return {
         ok: true,
         room: {
@@ -209,13 +208,12 @@ export class RoomService {
           uuid: room.uuid,
           lating: room.lating,
           superUser: room.superUser,
-          markeImageUrl: room.markeImageUrl,
         },
       };
-    } catch (e) {
+    } catch (err) {
       return {
         ok: false,
-        err: '방만들기 에 실패했습니다.',
+        err,
       };
     }
   }
@@ -425,7 +423,7 @@ export class RoomService {
       return {
         ok: true,
         roomList: roomList.map((v) => {
-          const { uuid, roomName, superUser, markeImageUrl, id } = v;
+          const { uuid, roomName, superUser, id } = v;
           return {
             id,
             uuid,
@@ -433,7 +431,6 @@ export class RoomService {
             superUserinfo: {
               username: superUser.username,
             },
-            markeImageUrl,
           };
         }),
         // roomList,
@@ -451,8 +448,7 @@ export class RoomService {
     editRoomInput: EditRoomInPutDto,
   ): Promise<EdtiRoomOutPutDto> {
     try {
-      const { markeImageUrl, roomName, superUser, uuid, lating } =
-        editRoomInput;
+      const { roomName, superUser, uuid, lating } = editRoomInput;
       if (!uuid) {
         return {
           ok: false,
@@ -481,7 +477,7 @@ export class RoomService {
       }
 
       roomName && (room.roomName = roomName);
-      markeImageUrl && (room.markeImageUrl = markeImageUrl);
+
       superUser && (room.superUser = superUser);
       lating && (room.lating = lating);
       room.updateAt = new Date();

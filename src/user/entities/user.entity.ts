@@ -31,6 +31,10 @@ export class User extends CoreEntity {
   @Column({ default: '' })
   dsc: string;
 
+  @ApiProperty({ description: '아바타', example: '아바타' })
+  @Column({ default: null, nullable: true })
+  avatar: string;
+
   @ApiProperty({ description: '권한 있는 방들', example: '권한 있는 방들' })
   @OneToMany(() => Room, (room) => room.superUser)
   superRooms: Room[];

@@ -11,7 +11,7 @@ import { User } from '../entities/user.entity';
 // 방법 1 .pickType class로 만들어서 type값으로 할당
 // Object구조로 만들고 싶을때 좋을거 같음
 
-class UserOutPut extends PartialType(PickType(User, ['username', 'dsc'])) {}
+class UserInfo extends PartialType(PickType(User, ['username', 'dsc'])) {}
 
 export class LoginOutPutDto extends CoreOutPut {
   @ApiProperty({
@@ -24,10 +24,10 @@ export class LoginOutPutDto extends CoreOutPut {
   token?: string;
 
   @ApiProperty({
-    type: UserOutPut,
+    type: UserInfo,
   })
   @IsOptional()
-  user?: UserOutPut;
+  user?: UserInfo;
   //  !! 주의 return값 넘길떄 { username, dsc } 로념겨야함
   //  user로 넘기면 모든 데이터 넘어옴
 }

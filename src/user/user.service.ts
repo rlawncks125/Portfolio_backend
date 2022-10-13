@@ -78,7 +78,8 @@ export class UserService {
         };
       }
 
-      const ok = await this.usersRepository.save(
+      // const ok = await this.usersRepository.save(
+      const ok = await this.usersRepository.insert(
         this.usersRepository.create({
           username,
           password,
@@ -98,24 +99,34 @@ export class UserService {
     }
   }
 
-  async update(user: User, { password, dsc }: UserUpdateInputDto) {
+  async update(user: User, { password, dsc, avatar }: UserUpdateInputDto) {
     try {
       if (!user) {
         return '유저를 찾을수없습니다.';
       }
 
       dsc && (user.dsc = dsc);
-      password && (user.password = password);
+      avatar && (user.avatar = avatar);
+      user.updateAt = new Date();
 
-      if (!password) {
-        user.updateAt = new Date();
+      if (password) {
+        user.password = password;
+        user.hashPassword();
       }
 
-      const ok = password
-        ? await this.usersRepository.save(user)
-        : await this.usersRepository.update(user.id, {
-            ...user,
-          });
+      // if (!password) {
+      //   user.updateAt = new Date();
+      // }
+
+      // const ok = password
+      //   ? await this.usersRepository.save(user)
+      //   : await this.usersRepository.update(user.id, {
+      //       ...user,
+      //     });
+
+      const ok = await this.usersRepository.update(user.id, {
+        ...user,
+      });
 
       if (!ok) {
         return '업데이트에 실패했습니다.';
