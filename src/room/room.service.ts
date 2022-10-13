@@ -184,22 +184,35 @@ export class RoomService {
         lating,
         roomName,
         superUser: user,
-        joinUsers: [user],
       });
 
-      // const ok = await this.roomRepository.insert(createRoom);
-      // const id = ok.identifiers[0].id;
+      const ok = await this.roomRepository.insert(createRoom);
 
-      // if (!ok) {
-      //   return {
-      //     ok: false,
-      //     err: '예기치 못한 에러가 발생했습니다.',
-      //   };
-      // }
+      if (!ok) {
+        return {
+          ok: false,
+          err: '예기치 못한 에러가 발생했습니다.',
+        };
+      }
 
-      // const room = await this.roomRepository.findOne({ id });
+      const id = ok.identifiers[0].id;
+      const room = await this.roomRepository.findOne(
+        { id },
+        {
+          relations: ['joinUsers'],
+        },
+      );
 
-      const room = await this.roomRepository.save(createRoom);
+      // many-to-many 매핑
+      // room.joinUsers = user
+      await this.roomRepository
+        .createQueryBuilder()
+        .relation(Room, 'joinUsers')
+        .of(room.id)
+        .add(user.id);
+
+      // const room = await this.roomRepository.save(createRoom);
+
       return {
         ok: true,
         room: {

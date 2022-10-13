@@ -41,7 +41,9 @@ export class Room extends CoreEntity {
     example: '참가한 유저들입니다.',
     type: () => [User],
   })
-  @ManyToMany(() => User, (user) => user.joinRooms)
+  @ManyToMany(() => User, (user) => user.joinRooms, {
+    cascade: true,
+  })
   @JoinTable()
   joinUsers: User[];
 
