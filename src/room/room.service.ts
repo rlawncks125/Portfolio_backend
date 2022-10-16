@@ -305,6 +305,9 @@ export class RoomService {
     }
   }
 
+  /**
+   * 방 참여 신청
+   */
   async joinRoom(
     user: User,
     { uuid }: JoinRoomInputDto,
@@ -328,11 +331,19 @@ export class RoomService {
           err: '이미 있는 유저입니다.',
         };
       }
+
+      // many-to-many 추가
+      await this.roomRepository
+        .createQueryBuilder()
+        .relation(Room, 'approvalWaitUsers')
+        .of(room.id)
+        .add(user.id);
+
       // 대기 유저
-      room.approvalWaitUsers = [...room.approvalWaitUsers, user];
+      // room.approvalWaitUsers = [...room.approvalWaitUsers, user];
       // await this.roomRepository.save(room);
-      room.updateAt = new Date();
-      await this.roomRepository.insert({ ...room });
+      // room.updateAt = new Date();
+      // await this.roomRepository.update(room.id, { ...room });
 
       // 승인 확인
       // room.joinUsers = [...room.joinUsers, user];
@@ -571,16 +582,30 @@ export class RoomService {
         };
       }
 
-      const userInfo = await this.userService.findById(acceptUserId);
+      // 대기 목록에서 제거
+      await this.roomRepository
+        .createQueryBuilder()
+        .relation(Room, 'approvalWaitUsers')
+        .of(room.id)
+        .remove(acceptUserId);
 
-      room.approvalWaitUsers = room.approvalWaitUsers.filter(
-        (v) => v.id !== userInfo.id,
-      );
+      // 참여중인 유저 추가
+      await this.roomRepository
+        .createQueryBuilder()
+        .relation(Room, 'joinUsers')
+        .of(room.id)
+        .add(acceptUserId);
 
-      // 승인 확인
-      room.joinUsers = [...room.joinUsers, userInfo];
-      // await this.roomRepository.save(room);
-      await this.roomRepository.update(room.id, { ...room });
+      // const userInfo = await this.userService.findById(acceptUserId);
+
+      // room.approvalWaitUsers = room.approvalWaitUsers.filter(
+      //   (v) => v.id !== userInfo.id,
+      // );
+
+      // // 승인 확인
+      // room.joinUsers = [...room.joinUsers, userInfo];
+      // // await this.roomRepository.save(room);
+      // await this.roomRepository.update(room.id, { ...room });
 
       return {
         ok: true,

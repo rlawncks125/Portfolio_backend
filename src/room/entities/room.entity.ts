@@ -61,7 +61,9 @@ export class Room extends CoreEntity {
     example: '승인대기 유저들',
     type: () => [User],
   })
-  @ManyToMany(() => User, (user) => user.approvalWaitRooms)
+  @ManyToMany(() => User, (user) => user.approvalWaitRooms, {
+    cascade: true,
+  })
   @JoinTable()
   approvalWaitUsers: User[];
 }

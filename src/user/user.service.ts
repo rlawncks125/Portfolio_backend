@@ -22,6 +22,8 @@ export class UserService {
     // base64 디코딩
     const username = Buffer.from(userNameBase64, 'base64').toString();
 
+    console.log(username, userNameBase64);
+
     const user = await this.usersRepository.findOne({
       username,
     });
@@ -70,7 +72,7 @@ export class UserService {
 
       const user = await this.usersRepository.findOne({ username });
 
-      console.log(username, userNameBase64);
+      // console.log(username, userNameBase64);
       if (user) {
         return {
           ok: false,

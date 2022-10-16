@@ -4,7 +4,7 @@ import { CoreEntity } from 'src/common/entities/core.entity';
 import { Lating } from 'src/common/entities/Lating.entity';
 import { Room } from 'src/room/entities/room.entity';
 import { User } from 'src/user/entities/user.entity';
-import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { BeforeInsert, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { Comment } from './comment.entity';
 
 class SuperUserDto {
@@ -108,6 +108,7 @@ export class Restaurant extends CoreEntity {
   specialization?: string[] | null;
 
   //   별점 평균 계산
+
   avgStarUpdate(): number {
     const star = this.comments.map((v) => v.star).reduce((a, b) => a + b, 0.0);
 

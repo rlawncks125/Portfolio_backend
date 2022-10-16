@@ -67,7 +67,8 @@ export class RestaurantService {
           ok: false,
         };
       }
-      const restaurant = await this.restaurantRespository.save(
+      // const restaurant = await this.restaurantRespository.save(
+      const ok = await this.restaurantRespository.insert(
         this.restaurantRespository.create({
           resturantSuperUser: {
             nickName: user.username,
@@ -82,6 +83,16 @@ export class RestaurantService {
           specialization,
         }),
       );
+
+      if (!ok) {
+        return {
+          ok: false,
+          err: '생성하지 못하였습니다.',
+        };
+      }
+      const id = ok.identifiers[0].id;
+
+      const restaurant = await this.restaurantRespository.findOne({ id });
 
       return {
         ok: true,
@@ -186,6 +197,7 @@ export class CommentService {
     { restaurantId, message, role, star }: AddRestaurantCommentByIdIdInputDto,
   ): Promise<AddRestaurantCommentByIdIdOutPutDto> {
     try {
+      console.log(restaurantId, message, role, star);
       if (!(role in MessageUserRole)) {
         return {
           ok: false,
@@ -204,7 +216,8 @@ export class CommentService {
         };
       }
 
-      const comment = await this.commentRepository.save(
+      // const comment = await this.commentRepository.save(
+      const c_ok = await this.commentRepository.insert(
         this.commentRepository.create({
           parentRestaurant: restaurant,
           message: {
@@ -219,10 +232,18 @@ export class CommentService {
         }),
       );
 
-      restaurant.comments = [...restaurant.comments, comment];
-      restaurant.avgStar = restaurant.avgStarUpdate();
+      // const comment = await this.commentRepository.findOne({
+      //   id: c_ok.identifiers[0].id,
+      // });
 
-      const result = await this.restaurantRespository.save(restaurant);
+      // restaurant.comments = [...restaurant.comments, comment];
+      restaurant.avgStar = restaurant.avgStarUpdate();
+      restaurant.updateAt = new Date();
+
+      const result = await this.restaurantRespository.update(restaurant.id, {
+        avgStar: restaurant.avgStar,
+        updateAt: new Date(),
+      });
 
       if (!result) {
         return {
@@ -265,8 +286,10 @@ export class CommentService {
       }
 
       comment.message.message = message;
+      comment.updateAt = new Date();
 
-      const result = await this.commentRepository.save(comment);
+      // const result = await this.commentRepository.save(comment);
+      const result = await this.commentRepository.update(comment.id, comment);
 
       if (!result) {
         return {
@@ -333,7 +356,9 @@ export class CommentService {
         return v;
       });
 
-      const result = await this.commentRepository.save(comment);
+      // const result = await this.commentRepository.save(comment);
+      comment.updateAt = new Date();
+      const result = await this.commentRepository.update(comment.id, comment);
 
       if (!result) {
         return {
@@ -387,7 +412,8 @@ export class CommentService {
         ? (comment.childMessages = [...comment.childMessages, addMessage])
         : (comment.childMessages = [addMessage]);
 
-      const result = await this.commentRepository.save(comment);
+      // const result = await this.commentRepository.save(comment);
+      const result = await this.commentRepository.update(comment.id, comment);
 
       if (!result) {
         return {
@@ -439,10 +465,18 @@ export class CommentService {
         const deleted = await this.commentRepository.delete({ id });
 
         if (deleted) {
+          // 평균 별점 갱신
           const restaurant = comment.parentRestaurant;
           restaurant.avgStar = restaurant.removeCommentUpdateAvgStarById(id);
 
-          const updated = await this.restaurantRespository.save(restaurant);
+          // const updated = await this.restaurantRespository.save(restaurant);
+          const updated = await this.restaurantRespository.update(
+            restaurant.id,
+            {
+              avgStar: restaurant.avgStar,
+              updateAt: new Date(),
+            },
+          );
 
           if (updated) {
             return {
