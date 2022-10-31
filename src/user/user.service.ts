@@ -1,31 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import * as jwt from 'jsonwebtoken';
 import { UserUpdateInputDto } from './dtos/userUpdate.dto';
 import { basicAuth } from 'src/common/interface';
 import { LoginOutPutDto } from './dtos/login.dto';
 import { userCreateOutPutDto } from './dtos/userCreate.dto';
+import { AppService } from 'src/app.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    private readonly appService: AppService,
   ) {}
 
   async login({
     username: userNameBase64,
     password,
   }: basicAuth): Promise<LoginOutPutDto> {
-    // base64 디코딩
+    //  base64 디코딩
     const username = Buffer.from(userNameBase64, 'base64').toString();
 
-    console.log(username, userNameBase64);
-
     const user = await this.usersRepository.findOne({
-      username,
+      where: {
+        // 한글 아이디는 front에서 인코딩 해서 보냄
+        // insomnia 나 swagger에서 영어아이디 로그인 하기위해
+        // 디코딩 안됨 값도 체크 하기위해 In()사용
+        username: In([userNameBase64, username]),
+      },
     });
 
     if (!user) {
@@ -48,11 +53,7 @@ export class UserService {
     return {
       ok: true,
       token,
-
-      user: {
-        username: user.username,
-        dsc: user.dsc,
-      },
+      user,
     };
   }
 
@@ -107,6 +108,15 @@ export class UserService {
         return '유저를 찾을수없습니다.';
       }
 
+      if (avatar && new RegExp(/res.cloudinary.com/g).test(user.avatar)) {
+        // 이미지 삭제
+        // 삭제할 파일 이름 만 추출하는 작업
+        console.log('이미지삭제');
+        const imageURL = user.avatar.split('/').pop()?.split('.')[0];
+
+        await this.appService.deleteClouldnaryByFileName(imageURL);
+      }
+
       dsc && (user.dsc = dsc);
       avatar && (user.avatar = avatar);
       user.updateAt = new Date();
@@ -134,7 +144,12 @@ export class UserService {
         return '업데이트에 실패했습니다.';
       }
 
-      return 'update';
+      const newUser = await this.usersRepository.findOne({ id: user.id });
+
+      return {
+        ok: true,
+        user: newUser,
+      };
     } catch (e) {
       return e;
     }

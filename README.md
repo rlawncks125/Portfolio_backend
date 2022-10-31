@@ -81,7 +81,7 @@ typoerm save() => insert, update로 명시하는 기능으로 사용
 
 ## typeOrm save() -> insert,update,delete 로 교체
 
-- [] restaurnt
+- [o] restaurnt
 - [o] room
 - [o] shop-item ( ireceipt , shop-item )
 - [o] shop-user

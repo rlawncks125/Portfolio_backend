@@ -129,40 +129,41 @@ export class RoomService {
 
       return {
         ok: true,
-        roomInfo: {
-          roomName: room.roomName,
-          lating: room.lating,
-          superUserInfo: {
-            id: room.superUser.id,
-            username: room.superUser.username,
-          },
-        },
-        users: room.joinUsers.map((user) => {
-          return {
-            id: user.id,
-            username: user.username,
-          };
-        }),
-        ApprovalWaitUsers: room.approvalWaitUsers.map((user) => {
-          return {
-            id: user.id,
-            username: user.username,
-          };
-        }),
-        RestaurantInfo: room.restaurants.map((v) => {
-          return {
-            id: v.id,
-            resturantSuperUser: v.resturantSuperUser,
-            restaurantName: v.restaurantName,
-            restaurantImageUrl: v.restaurantImageUrl,
-            location: v.location,
-            lating: v.lating,
-            avgStar: v.avgStar,
-            comments: v.comments,
-            hashTags: v.hashTags,
-            specialization: v.specialization,
-          };
-        }),
+        room,
+        // roomInfo: {
+        //   roomName: room.roomName,
+        //   lating: room.lating,
+        //   superUserInfo: {
+        //     id: room.superUser.id,
+        //     username: room.superUser.username,
+        //   },
+        // },
+        // users: room.joinUsers.map((user) => {
+        //   return {
+        //     id: user.id,
+        //     username: user.username,
+        //   };
+        // }),
+        // ApprovalWaitUsers: room.approvalWaitUsers.map((user) => {
+        //   return {
+        //     id: user.id,
+        //     username: user.username,
+        //   };
+        // }),
+        // RestaurantInfo: room.restaurants.map((v) => {
+        //   return {
+        //     id: v.id,
+        //     resturantSuperUser: v.resturantSuperUser,
+        //     restaurantName: v.restaurantName,
+        //     restaurantImageUrl: v.restaurantImageUrl,
+        //     location: v.location,
+        //     lating: v.lating,
+        //     avgStar: v.avgStar,
+        //     comments: v.comments,
+        //     hashTags: v.hashTags,
+        //     specialization: v.specialization,
+        //   };
+        // }),
       };
     } catch (e) {
       return {
@@ -379,21 +380,42 @@ export class RoomService {
         };
       }
 
-      // 방장일시
+      // 방장일시 방장 양도
       if (room.superUser.id === user.id) {
         const remainUser = room.joinUsers.filter((v) => v.id !== user.id);
+
+        if (remainUser.length === 0) {
+          // 남은 유저가 없을시 방 삭제
+          await this.roomRepository.delete({ id: room.id });
+          return {
+            ok: true,
+          };
+        }
+
         const randomIndex = Math.floor(Math.random() * remainUser.length);
 
-        room.superUser = remainUser[randomIndex];
+        const newSuperUser = remainUser[randomIndex];
+        room.updateAt = new Date();
+
+        await this.roomRepository
+          .createQueryBuilder()
+          .relation(Room, 'superUser')
+          .of(room.id)
+          .set(newSuperUser.id);
       }
 
-      room.joinUsers = room.joinUsers.filter((v) => v.id !== user.id);
-      room.updateAt = new Date();
+      await this.roomRepository
+        .createQueryBuilder()
+        .relation(Room, 'joinUsers')
+        .of(room.id)
+        .remove(user.id);
 
-      room.joinUsers.length === 0
-        ? this.roomRepository.delete({ id: room.id })
-        : // : this.roomRepository.save(room);
-          this.roomRepository.update(room.id, { ...room });
+      // room.joinUsers = room.joinUsers.filter((v) => v.id !== user.id);
+
+      // room.joinUsers.length === 0
+      //   ? this.roomRepository.delete({ id: room.id })
+      //   : // : this.roomRepository.save(room);
+      //     this.roomRepository.update(room.id, { ...room });
 
       return { ok: true };
     } catch (err) {
@@ -606,6 +628,96 @@ export class RoomService {
       // room.joinUsers = [...room.joinUsers, userInfo];
       // // await this.roomRepository.save(room);
       // await this.roomRepository.update(room.id, { ...room });
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async rejectUser(user: User, { uuid, id: acceptUserId }: AcceptUserInPutDto) {
+    try {
+      const room = await this.roomRepository.findOne(
+        { uuid },
+        {
+          relations: ['approvalWaitUsers', 'joinUsers', 'superUser'],
+        },
+      );
+
+      if (!room) {
+        return {
+          ok: false,
+          err: '방이 존재하지않습니다.',
+        };
+      }
+
+      if (room.superUser.id !== user.id) {
+        return {
+          ok: false,
+          err: '권한이 없는 유저입니다.',
+        };
+      }
+
+      const isFind = room.approvalWaitUsers.find((v) => v.id === +acceptUserId);
+      if (!isFind) {
+        return {
+          ok: false,
+          err: '대기 목록에 없는 유저입니다.',
+        };
+      }
+
+      // 대기 목록에서 제거
+      await this.roomRepository
+        .createQueryBuilder()
+        .relation(Room, 'approvalWaitUsers')
+        .of(room.id)
+        .remove(acceptUserId);
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async kickUser(user: User, { uuid, id: acceptUserId }: AcceptUserInPutDto) {
+    try {
+      const room = await this.roomRepository.findOne(
+        { uuid },
+        {
+          relations: ['joinUsers', 'superUser'],
+        },
+      );
+
+      if (!room) {
+        return {
+          ok: false,
+          err: '방이 존재하지않습니다.',
+        };
+      }
+
+      if (room.superUser.id !== user.id) {
+        return {
+          ok: false,
+          err: '권한이 없는 유저입니다.',
+        };
+      }
+
+      // 대기 목록에서 제거
+      await this.roomRepository
+        .createQueryBuilder()
+        .relation(Room, 'joinUsers')
+        .of(room.id)
+        .remove(acceptUserId);
 
       return {
         ok: true,

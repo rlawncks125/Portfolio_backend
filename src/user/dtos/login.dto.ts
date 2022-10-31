@@ -24,10 +24,15 @@ export class LoginOutPutDto extends CoreOutPut {
   token?: string;
 
   @ApiProperty({
-    type: UserInfo,
+    type: User,
   })
   @IsOptional()
-  user?: UserInfo;
+  user?: User;
+  // @ApiProperty({
+  //   type: UserInfo,
+  // })
+  // @IsOptional()
+  // user?: UserInfo;
   //  !! 주의 return값 넘길떄 { username, dsc } 로념겨야함
   //  user로 넘기면 모든 데이터 넘어옴
 }

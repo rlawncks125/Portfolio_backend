@@ -8,7 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { authUser } from 'src/auth/authUser.decorator';
 import { User } from 'src/user/entities/user.entity';
@@ -26,6 +26,9 @@ import { EditRoomInPutDto, EdtiRoomOutPutDto } from './dtos/editRoom.dto';
 import { myApprovalWaitRoomsOutPutDto } from './dtos/myApprovalWaitRooms.dto';
 import { AcceptUserInPutDto, AcceptUserOutPutDto } from './dtos/AcceptUser.dto';
 
+@ApiHeader({
+  name: 'acces-token',
+})
 @ApiTags('room')
 @Controller('room')
 export class RoomController {
@@ -146,13 +149,41 @@ export class RoomController {
     status: 200,
     type: AcceptUserOutPutDto,
   })
-  @Post('accept')
+  @Post('joinAccept')
   @UseGuards(AuthGuard)
-  async AcceptUser(
+  async acceptUser(
     @authUser() user: User,
     @Body() acceptInput: AcceptUserInPutDto,
   ): Promise<AcceptUserOutPutDto> {
     return this.roomService.AcceptUser(user, acceptInput);
+  }
+
+  @ApiOperation({ summary: '유저 거절 ( rejectUser )' })
+  @ApiResponse({
+    status: 200,
+    type: AcceptUserOutPutDto,
+  })
+  @Post('joinReject')
+  @UseGuards(AuthGuard)
+  async RejectUser(
+    @authUser() user: User,
+    @Body() acceptInput: AcceptUserInPutDto,
+  ): Promise<AcceptUserOutPutDto> {
+    return this.roomService.rejectUser(user, acceptInput);
+  }
+
+  @ApiOperation({ summary: '유저 강퇴 ( kickUser )' })
+  @ApiResponse({
+    status: 200,
+    type: AcceptUserOutPutDto,
+  })
+  @Post('kickUser')
+  @UseGuards(AuthGuard)
+  async kickUser(
+    @authUser() user: User,
+    @Body() acceptInput: AcceptUserInPutDto,
+  ): Promise<AcceptUserOutPutDto> {
+    return this.roomService.kickUser(user, acceptInput);
   }
 
   @ApiOperation({ summary: '방나가기 ( leaveRoom )' })

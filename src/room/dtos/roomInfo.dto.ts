@@ -24,27 +24,33 @@ class RoominfoDto extends PickType(Room, ['roomName', 'lating'] as const) {
 }
 
 export class RoomInfoOutPutDto extends CoreOutPut {
+  // @ApiProperty({
+  //   description: '방 정보',
+  //   type: () => RoominfoDto,
+  // })
+  // roomInfo?: RoominfoDto;
+
+  // @ApiProperty({
+  //   description: '방안에 유저들',
+  //   type: () => [RoomUsersDto],
+  // })
+  // users?: RoomUsersDto[];
+
+  // @ApiProperty({
+  //   description: '승인 대기 중인 유저들',
+  //   type: () => [ApprovalWaitUsersDto],
+  // })
+  // ApprovalWaitUsers?: ApprovalWaitUsersDto[];
+
+  // @ApiProperty({
+  //   description: '레스토랑 정보들',
+  //   type: () => [RestaurantInfoDto],
+  // })
+  // RestaurantInfo?: RestaurantInfoDto[];
+
   @ApiProperty({
     description: '방 정보',
-    type: () => RoominfoDto,
+    type: () => Room,
   })
-  roomInfo?: RoominfoDto;
-
-  @ApiProperty({
-    description: '방안에 유저들',
-    type: () => [RoomUsersDto],
-  })
-  users?: RoomUsersDto[];
-
-  @ApiProperty({
-    description: '승인 대기 중인 유저들',
-    type: () => [ApprovalWaitUsersDto],
-  })
-  ApprovalWaitUsers?: ApprovalWaitUsersDto[];
-
-  @ApiProperty({
-    description: '레스토랑 정보들',
-    type: () => [RestaurantInfoDto],
-  })
-  RestaurantInfo?: RestaurantInfoDto[];
+  room?: Room;
 }

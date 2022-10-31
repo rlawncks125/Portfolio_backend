@@ -159,7 +159,8 @@ export class FoodMapChatGateway {
   async reqApprovaWait(@MessageBody() uuid: string) {
     const room = await this.roomService.RoomInfo(uuid);
     const superUser = this.userMeataData.find(
-      (v) => v.user.id === room.roomInfo.superUserInfo.id,
+      // (v) => v.user.id === room.roomInfo.superUserInfo.id,
+      (v) => v.user.id === room.room.superUser.id,
     );
     if (superUser) {
       superUser.client.emit('updateReqApprovaWait');

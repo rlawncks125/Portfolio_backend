@@ -64,7 +64,7 @@ export class UserController {
   @Patch()
   @UseGuards(AuthGuard)
   userUpdate(@authUser() user: User, @Body() body: UserUpdateInputDto) {
-    // console.log(user);
+    // console.log(body);
     return this.userService.update(user, body);
   }
 

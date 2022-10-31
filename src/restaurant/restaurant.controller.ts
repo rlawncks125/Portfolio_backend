@@ -8,7 +8,7 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from 'src/auth/auth.guard';
 import { authUser } from 'src/auth/authUser.decorator';
 import { CoreOutPut } from 'src/common/dtos/output.dto';
@@ -34,11 +34,25 @@ import {
   EditCommentMessageInPutDto,
   EditCommentMessageOutPutDto,
 } from './dtos/EditCommentMessage.dto';
-import { GetRestaurantByIdOutPutDto } from './dtos/GetRestaurantById.dto';
-import { RemoveMessageByIdOutPutDto } from './dtos/RemoveMessageById.dto';
-import { RemoveRestaurantOutPutDto } from './dtos/RemoveRestaurant.dto';
+import {
+  GetRestaurantByIdOutPutDto,
+  GetRestaurantByIdParmsDto,
+} from './dtos/GetRestaurantById.dto';
+import {
+  RemoveChildMessageInputDto,
+  RemoveChildMessageOutPutDto,
+  RemoveMessageByIdOutPutDto,
+  RemoveMessageByParamsDto,
+} from './dtos/RemoveMessageById.dto';
+import {
+  RemoveRestaurantOutPutDto,
+  RemoveRestaurantPramsDto,
+} from './dtos/RemoveRestaurant.dto';
 import { CommentService, RestaurantService } from './restaurant.service';
 
+@ApiHeader({
+  name: 'acces-token',
+})
 @ApiTags('restaurant')
 @UseGuards(AuthGuard)
 @Controller('restaurant')
@@ -55,7 +69,7 @@ export class RestaurantController {
   })
   @Get(':id')
   getRestaurantById(
-    @Param() { id }: { id: number },
+    @Param() { id }: GetRestaurantByIdParmsDto,
   ): Promise<GetRestaurantByIdOutPutDto> {
     return this.restaurantService.getRestaurantById(id);
   }
@@ -77,7 +91,7 @@ export class RestaurantController {
   @Delete(':id')
   removeRestaurant(
     @authUser() user: User,
-    @Param() { id }: { id: number },
+    @Param() { id }: RemoveRestaurantPramsDto,
   ): Promise<RemoveRestaurantOutPutDto> {
     return this.restaurantService.removeRestaurant(user, id);
   }
@@ -123,6 +137,21 @@ export class RestaurantController {
     return this.commentService.addMessageByCommentId(user, inputData);
   }
 
+  @ApiOperation({
+    summary: '레스토랑 댓글에 추가댓글 삭제 ( removeCommentChildMessage )',
+  })
+  @ApiResponse({
+    type: RemoveChildMessageOutPutDto,
+    status: 200,
+  })
+  @Patch('comment/removeMessage')
+  removeCommentChildMessage(
+    @authUser() user: User,
+    @Body() input: RemoveChildMessageInputDto,
+  ): Promise<AddMessageByCommentIdOutPutDto> {
+    return this.commentService.removeCommentChildMessage(user, input);
+  }
+
   @ApiOperation({ summary: '레스토랑 대댓글 변경 ( editCommentChildMessage )' })
   @ApiResponse({
     type: EditCommentChildMessageOutPutDto,
@@ -139,7 +168,7 @@ export class RestaurantController {
 
   @ApiOperation({ summary: '댓글 정보 얻기 ( addMessageById 없어도 될듯? )' })
   @Get('comment/:id')
-  addMessageById(@Param() { id }: { id: number }) {
+  addMessageById(@Param() { id }: RemoveMessageByParamsDto) {
     return this.commentService.getMessageById(id);
   }
 
@@ -151,7 +180,7 @@ export class RestaurantController {
   @Delete('comment/:id')
   removeMessageById(
     @authUser() user: User,
-    @Param() { id }: { id: string },
+    @Param() { id }: RemoveMessageByParamsDto,
   ): Promise<RemoveMessageByIdOutPutDto> {
     return this.commentService.removeMessageById(user, +id);
   }

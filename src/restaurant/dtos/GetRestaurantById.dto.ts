@@ -7,3 +7,5 @@ export class GetRestaurantByIdOutPutDto extends CoreOutPut {
   @ApiProperty({ type: () => RestaurantInfoDto })
   restaurant?: RestaurantInfoDto;
 }
+
+export class GetRestaurantByIdParmsDto extends PickType(Restaurant, ['id']) {}

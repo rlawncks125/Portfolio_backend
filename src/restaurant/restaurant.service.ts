@@ -23,7 +23,11 @@ import {
   AddMessageByCommentIdOutPutDto,
 } from './dtos/AddMessageByCommentId.dto';
 
-import { RemoveMessageByIdOutPutDto } from './dtos/RemoveMessageById.dto';
+import {
+  RemoveChildMessageInputDto,
+  RemoveChildMessageOutPutDto,
+  RemoveMessageByIdOutPutDto,
+} from './dtos/RemoveMessageById.dto';
 import { RemoveRestaurantOutPutDto } from './dtos/RemoveRestaurant.dto';
 import { RoomService } from 'src/room/room.service';
 import {
@@ -152,9 +156,10 @@ export class RestaurantService {
         }
       }
 
+      // 방 주인권한으로 삭제
       const roomParentId = restuanrt.parentRoom.id;
 
-      const myRooms = await (await this.roomService.mySuperRooms(user)).myRooms;
+      const myRooms = (await this.roomService.mySuperRooms(user)).myRooms;
 
       if (myRooms.filter((v) => v.id === roomParentId).length > 0) {
         const result = await this.restaurantRespository.delete({ id: +id });
@@ -197,7 +202,7 @@ export class CommentService {
     { restaurantId, message, role, star }: AddRestaurantCommentByIdIdInputDto,
   ): Promise<AddRestaurantCommentByIdIdOutPutDto> {
     try {
-      console.log(restaurantId, message, role, star);
+      console.log('댓글 추가', restaurantId, message, role, star);
       if (!(role in MessageUserRole)) {
         return {
           ok: false,
@@ -205,11 +210,11 @@ export class CommentService {
         };
       }
 
-      const restaurant: Restaurant = await this.restaurantRespository.findOne(
+      const isRestaurant: Restaurant = await this.restaurantRespository.findOne(
         restaurantId,
       );
 
-      if (!restaurant) {
+      if (!isRestaurant) {
         return {
           ok: false,
           err: '레스토랑이 존재하지않음',
@@ -219,7 +224,7 @@ export class CommentService {
       // const comment = await this.commentRepository.save(
       const c_ok = await this.commentRepository.insert(
         this.commentRepository.create({
-          parentRestaurant: restaurant,
+          parentRestaurant: isRestaurant,
           message: {
             CreateTime: new Date(),
             message,
@@ -237,6 +242,10 @@ export class CommentService {
       // });
 
       // restaurant.comments = [...restaurant.comments, comment];
+      const restaurant: Restaurant = await this.restaurantRespository.findOne(
+        restaurantId,
+      );
+
       restaurant.avgStar = restaurant.avgStarUpdate();
       restaurant.updateAt = new Date();
 
@@ -358,6 +367,67 @@ export class CommentService {
 
       // const result = await this.commentRepository.save(comment);
       comment.updateAt = new Date();
+      const result = await this.commentRepository.update(comment.id, comment);
+
+      if (!result) {
+        return {
+          ok: false,
+          err: '댓글을 갱신하는데 예기치 못한 사황이 발생하였습니다.',
+        };
+      }
+
+      return {
+        ok: true,
+      };
+    } catch (err) {
+      return {
+        ok: false,
+        err,
+      };
+    }
+  }
+
+  async removeCommentChildMessage(
+    user: User,
+    { CreateTime, id }: RemoveChildMessageInputDto,
+  ): Promise<RemoveChildMessageOutPutDto> {
+    try {
+      const comment: Comment = await this.commentRepository.findOne(id);
+
+      if (!comment) {
+        return {
+          ok: false,
+          err: '댓글을 찾을수 없습니다.',
+        };
+      }
+
+      // 대댓글 체크
+      const findIndex = comment.childMessages.findIndex(
+        (v) => v.CreateTime === CreateTime,
+      );
+
+      if (findIndex < 0) {
+        return {
+          ok: false,
+          err: '대댓글을 찾을수 없습니다.',
+        };
+      }
+
+      const childComment = comment.childMessages[findIndex];
+      const isCheck = childComment.userInfo.nickName === user.username;
+
+      if (!isCheck) {
+        return {
+          ok: false,
+          err: '권한이 없는 유저입니다.',
+        };
+      }
+
+      comment.childMessages = comment.childMessages.filter(
+        (v) => v.CreateTime !== CreateTime,
+      );
+      comment.updateAt = new Date();
+
       const result = await this.commentRepository.update(comment.id, comment);
 
       if (!result) {
