@@ -231,6 +231,7 @@ export class CommentService {
             userInfo: {
               nickName: user.username,
               role,
+              avata: user.avatar,
             },
           },
           star: star,
@@ -475,6 +476,7 @@ export class CommentService {
         userInfo: {
           nickName: user.username,
           role,
+          avata: user.avatar,
         },
       } as messageType;
 

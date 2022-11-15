@@ -476,6 +476,7 @@ export class RoomService {
             roomName,
             superUserinfo: {
               username: superUser.username,
+              avatar: superUser.avatar,
             },
           };
         }),
@@ -704,7 +705,7 @@ export class RoomService {
           err: '방이 존재하지않습니다.',
         };
       }
-
+      console.log(room.superUser.id, user.id, acceptUserId);
       if (room.superUser.id !== user.id) {
         return {
           ok: false,

@@ -109,10 +109,12 @@ export class FoodMapChatGateway {
   ) {
     console.log('업데이트 룸', uuid);
 
+    const room = await this.roomService.RoomInfo(uuid);
+
     // 방에 모든유저 emit
     // this.server.to(uuid).emit('updateRoom', 'test');
     // 자신을 제외한 유저 emit
-    client.broadcast.to(uuid).emit('updateRoom', uuid);
+    client.broadcast.to(uuid).emit('updateRoom', room);
   }
 
   @SubscribeMessage('delteRoom')
@@ -146,12 +148,23 @@ export class FoodMapChatGateway {
 
   @SubscribeMessage('ApprovaWait')
   async ApprovaWait(@MessageBody() userId: number) {
-    console.log('승인 :', userId);
+    // console.log('승인 :', userId);
 
     const userMeta = this.userMeataData.filter((v) => v.user.id === userId);
 
     userMeta.forEach((v) => {
       v.client.emit('updateApprovaWait');
+    });
+  }
+
+  @SubscribeMessage('kickUser')
+  async kickUser(@MessageBody() userId: number) {
+    // console.log('강제퇴장 :', userId);
+
+    const userMeta = this.userMeataData.filter((v) => v.user.id === userId);
+
+    userMeta.forEach((v) => {
+      v.client.emit('kickUser');
     });
   }
 
@@ -167,8 +180,8 @@ export class FoodMapChatGateway {
     }
   }
 
-  @SubscribeMessage('createMaker')
-  async createMaker(
+  @SubscribeMessage('createRestaurant')
+  async createRestaurant(
     @ConnectedSocket() client: Socket,
     @MessageBody()
     { uuid, restaurantId }: { uuid: string; restaurantId: string },
@@ -179,17 +192,17 @@ export class FoodMapChatGateway {
 
     console.log('레스토랑 생성', uuid, restaurantId);
 
-    ok && client.broadcast.to(uuid).emit('createMaker', restaurant);
+    ok && client.broadcast.to(uuid).emit('createRestaurant', restaurant);
   }
 
-  @SubscribeMessage('removeMaker')
-  async removeMaker(
+  @SubscribeMessage('removeRestaurant')
+  async removeRestaurant(
     @ConnectedSocket() client: Socket,
     @MessageBody()
     { uuid, restaurantId }: { uuid: string; restaurantId: string },
   ) {
     console.log('레스토랑 삭제', uuid, restaurantId);
 
-    client.broadcast.to(uuid).emit('removeMaker', restaurantId);
+    client.broadcast.to(uuid).emit('removeRestaurant', restaurantId);
   }
 }

@@ -9,7 +9,7 @@ export enum searchTypeEnum {
   SuperUser = 'SuperUser',
 }
 
-class superUserInfoDto extends PickType(User, ['username']) {}
+class superUserInfoDto extends PickType(User, ['username', 'avatar']) {}
 class roomInfoDto extends PickType(Room, ['uuid', 'roomName', 'id']) {
   @ApiProperty({
     description: '방장 유저 정보',

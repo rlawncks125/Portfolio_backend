@@ -31,6 +31,13 @@ class UserCommentInfo {
   })
   @Column({ type: 'enum', enum: MessageUserRole })
   role: MessageUserRole;
+
+  @ApiProperty({
+    description: '닉네임',
+    example: '닉네임',
+  })
+  @Column({ nullable: true, default: null })
+  avata?: string;
 }
 
 export class messageType {

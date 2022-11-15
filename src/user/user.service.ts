@@ -109,7 +109,7 @@ export class UserService {
       }
 
       if (avatar && new RegExp(/res.cloudinary.com/g).test(user.avatar)) {
-        // 이미지 삭제
+        // 클라우드 이미지 삭제
         // 삭제할 파일 이름 만 추출하는 작업
         console.log('이미지삭제');
         const imageURL = user.avatar.split('/').pop()?.split('.')[0];
@@ -141,7 +141,10 @@ export class UserService {
       });
 
       if (!ok) {
-        return '업데이트에 실패했습니다.';
+        return {
+          ok: false,
+          err: '업데이트에 실패했습니다.',
+        };
       }
 
       const newUser = await this.usersRepository.findOne({ id: user.id });
@@ -151,7 +154,10 @@ export class UserService {
         user: newUser,
       };
     } catch (e) {
-      return e;
+      return {
+        ok: false,
+        err: e,
+      };
     }
   }
 
