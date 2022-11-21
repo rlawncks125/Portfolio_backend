@@ -102,7 +102,10 @@ export class UserService {
     }
   }
 
-  async update(user: User, { password, dsc, avatar }: UserUpdateInputDto) {
+  async update(
+    user: User,
+    { password, dsc, avatar, theme }: UserUpdateInputDto,
+  ) {
     try {
       if (!user) {
         return '유저를 찾을수없습니다.';
@@ -119,6 +122,7 @@ export class UserService {
 
       dsc && (user.dsc = dsc);
       avatar && (user.avatar = avatar);
+      theme && (user.theme = theme);
       user.updateAt = new Date();
 
       if (password) {
