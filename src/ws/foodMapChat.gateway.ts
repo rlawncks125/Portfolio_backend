@@ -226,6 +226,6 @@ export class FoodMapChatGateway {
     if (this.server) {
       this.server?.emit('ping', { beat: 1 });
     }
-    console.log('ping send');
+    // console.log('ping send');
   }
 }
