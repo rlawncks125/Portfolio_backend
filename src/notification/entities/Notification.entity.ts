@@ -2,19 +2,55 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CoreEntity } from 'src/common/entities/core.entity';
 import { Column, Entity } from 'typeorm';
 
+/** webpush PlayLoad */
+export class NotificationPayLoad {
+  /** 알람 제목 */
+  @ApiProperty({
+    description: '알람 제목',
+    example: '알람 제목',
+  })
+  title: string;
+
+  /** 알람 내용 */
+  @ApiProperty({
+    description: '알람 내용',
+    example: '알람 내용',
+  })
+  body: string;
+}
+
 @Entity()
 export class Notification extends CoreEntity {
   @ApiProperty({
-    description: '엔드 포인트 입니다.',
-    example: '엔드포인트',
+    description: 'subscription 입니다.',
+    example: 'subscription',
   })
   @Column({ type: process.env.DB_TYPE === 'postgres' ? 'text' : 'longtext' })
-  endPoint: string;
+  subscription: string;
 
   @ApiProperty({
-    description: 'endPoint 의 auth값 입니다.',
-    example: 'endPoint의 auth값 입니다.',
+    description: 'subscription 의 auth값 입니다.',
+    example: 'subscription 의 auth값 입니다.',
   })
   @Column()
   auth: string;
+
+  @ApiProperty({
+    description: '등록된 유저 아이디 입니다.',
+    example: '등록된 유저 아이디 입니다.',
+  })
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  userId: number;
+
+  @ApiProperty({
+    description: '알림 받기 설정',
+    example: '알림 받기 설정',
+  })
+  @Column({
+    default: true,
+  })
+  isPush: boolean;
 }

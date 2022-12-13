@@ -6,6 +6,8 @@ import { RoomModule } from 'src/room/room.module';
 import { RestaurantModule } from 'src/restaurant/restaurant.module';
 import { FoodMapChatGateway } from './foodMapChat.gateway';
 
+import { NotificationModule } from 'src/notification/notification.module';
+
 @Module({
   imports: [UserModule, RoomModule, RestaurantModule],
   providers: [FoodMapChatGateway],

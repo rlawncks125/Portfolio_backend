@@ -13,6 +13,7 @@ import { NotificationModule } from './notification/notification.module';
 import { ShopUserModule } from './shop-user/shop-user.module';
 import { MailerModule } from './mailer/mailer.module';
 import { ShopItemModule } from './shop-item/shop-item.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { ShopItemModule } from './shop-item/shop-item.module';
       synchronize: process.env.NODE_ENV === 'production' ? false : true,
       logger: 'simple-console',
     }),
+    ScheduleModule.forRoot(),
     UserModule,
     WsModule,
     RoomModule,

@@ -32,6 +32,7 @@ import { myApprovalWaitRoomsOutPutDto } from './dtos/myApprovalWaitRooms.dto';
 import { AcceptUserInPutDto, AcceptUserOutPutDto } from './dtos/AcceptUser.dto';
 
 import { v4 as uuidV4 } from 'uuid';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class RoomService {
@@ -39,6 +40,7 @@ export class RoomService {
     @InjectRepository(Room)
     private readonly roomRepository: Repository<Room>,
     private readonly userService: UserService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async myRoomsInfo(user: User): Promise<MyRoomsOutPutDto> {
@@ -618,6 +620,11 @@ export class RoomService {
         .relation(Room, 'joinUsers')
         .of(room.id)
         .add(acceptUserId);
+
+      await this.notificationService.pushNotificationByUserId(acceptUserId, {
+        title: `${room.roomName} 방 에 참여하였습니다.`,
+        body: '환영합니다.',
+      });
 
       // const userInfo = await this.userService.findById(acceptUserId);
 

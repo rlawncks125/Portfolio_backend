@@ -3,6 +3,7 @@
 // - 댓글 추가 알림 ( 새로 고침 알림 )
 // - 레스토랑 추가 알림 ( 새로 고침 알림 )
 
+import { Interval, Timeout } from '@nestjs/schedule';
 import {
   ConnectedSocket,
   MessageBody,
@@ -11,7 +12,9 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { emit } from 'process';
+import { timeout } from 'rxjs';
 import { Server, Socket } from 'socket.io';
+import { NotificationService } from 'src/notification/notification.service';
 import {
   CommentService,
   RestaurantService,
@@ -26,16 +29,17 @@ import { wsUserId } from './ws.decorator';
   namespace: 'foodMapChat',
 })
 export class FoodMapChatGateway {
+  @WebSocketServer()
+  server: Server;
+
+  userMeataData: Array<{ client: Socket; user: User }> = [];
+
   constructor(
     private readonly userService: UserService,
     private readonly roomService: RoomService,
     private readonly restaurantService: RestaurantService,
     private readonly commentService: CommentService,
   ) {}
-  @WebSocketServer()
-  server: Server;
-
-  userMeataData: Array<{ client: Socket; user: User }> = [];
 
   handleConnection(client: Socket) {
     console.log('foodchat 연결', client.id);
@@ -204,5 +208,24 @@ export class FoodMapChatGateway {
     console.log('레스토랑 삭제', uuid, restaurantId);
 
     client.broadcast.to(uuid).emit('removeRestaurant', restaurantId);
+  }
+
+  /** transport close 에러 문제
+   * 이유 : 특정 소켓에 액티비티가 없는 경우 socket.io는
+   * 자동으로 소켓을닫음
+   * 해결 : 특정 시간마다 데이터(하트비트 연결됬다는 데이터 같음)를
+   * 연결받아 타임 아웃 상태를 막음
+   */
+  @SubscribeMessage('pong')
+  async heartbeatPingPong() {
+    // console.log('pong');
+  }
+
+  @Interval(8000)
+  sendHeartbeat() {
+    if (this.server) {
+      this.server?.emit('ping', { beat: 1 });
+    }
+    console.log('ping send');
   }
 }
