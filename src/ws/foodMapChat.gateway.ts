@@ -27,6 +27,9 @@ import { wsUserId } from './ws.decorator';
 @WebSocketGateway({
   transports: ['websocket'],
   namespace: 'foodMapChat',
+  pingInterval: 60000,
+  pingTimeout: 60000,
+  upgradeTimeout: 30000,
 })
 export class FoodMapChatGateway {
   @WebSocketServer()
@@ -217,13 +220,14 @@ export class FoodMapChatGateway {
    * 연결받아 타임 아웃 상태를 막음
    */
   @SubscribeMessage('pong')
-  async heartbeatPingPong() {
+  async heartbeatPingPong(@ConnectedSocket() clinet: Socket) {
     // console.log('pong');
   }
 
   @Interval(8000)
   sendHeartbeat() {
     if (this.server) {
+      // this.server?.emit('ping', { beat: 1 });
       this.server?.emit('ping', { beat: 1 });
     }
     // console.log('ping send');
