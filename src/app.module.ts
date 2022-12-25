@@ -25,16 +25,6 @@ import { ScheduleModule } from '@nestjs/schedule';
       username: process.env.DB_ROOT + '',
       password: process.env.DB_PASSWORD + '',
 
-      // ...(process.env.NODE_ENV === 'production'
-      //   ? {
-      //      url: process.env.DB_URL,
-      //       extra: {
-      //         // heroku Addon postgres 사용시
-      //         ssl: { rejectUnauthorized: false },
-      //       },
-      //     }
-      //   : {}),
-
       // postgres DB 호스팅 사용시 에러
       entities: [`dist/**/*.entity{ .ts,.js}`],
 

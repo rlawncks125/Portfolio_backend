@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { AppService } from 'src/app.service';
 import { ShopUser } from 'src/shop-user/entities/shop-user.entity';
-import { Repository } from 'typeorm';
+import { Like, Repository } from 'typeorm';
 
 import { ShopIreceipt } from './eitities/shop-ireceipt.entity';
 import {
@@ -20,6 +20,8 @@ import {
 import { ShopUserService } from 'src/shop-user/shop-user.service';
 import { ShopItem } from './eitities/shop-item.entity';
 import { AddReivewOutPutDto, AddReviewInputDto } from './dtos/add-review.dto';
+import axios from 'axios';
+import { CellStyles, Excel4Node } from 'src/lib/excel4node';
 
 @Injectable()
 export class ShopIreceiptService {
@@ -251,5 +253,26 @@ export class ShopIreceiptService {
         err,
       };
     }
+  }
+
+  // 크론 작업 예정
+  // 엑셀 데이터 생성
+  async writeIreceiptExcel() {
+    const wb = new Excel4Node();
+    const ws = wb.addWorkSheet('아이템 등록 기록');
+    const ws2 = wb.addWorkSheet('영수증 기록');
+
+    const items = await this.ItemRepository.find();
+    const ireceipts = await this.ireceipRepository.find({});
+
+    wb.registe(ws, items, {});
+
+    wb.registe(ws2, ireceipts, {});
+
+    return wb.write(
+      `데이터 저장 ${new Intl.DateTimeFormat('ko-kr', {
+        dateStyle: 'medium',
+      }).format(new Date())}`,
+    );
   }
 }
