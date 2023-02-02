@@ -624,6 +624,7 @@ export class RoomService {
       await this.notificationService.pushNotificationByUserId(acceptUserId, {
         title: `${room.roomName} 방 에 참여하였습니다.`,
         body: '환영합니다.',
+        uuid: room.uuid,
       });
 
       // const userInfo = await this.userService.findById(acceptUserId);

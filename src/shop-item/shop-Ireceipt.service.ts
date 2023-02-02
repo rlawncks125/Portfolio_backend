@@ -10,7 +10,7 @@ import {
   CreateIreceiptOutPutDto,
 } from './dtos/ineceipt/create-ireceipt.dto';
 import { CreateSolidItemInPutDto } from './dtos/ineceipt/create-solditem.dto';
-import { ShopSoldItem } from './eitities/shop-soldItem.entity';
+import { ShopSoldItem, Status } from './eitities/shop-soldItem.entity';
 import { GetIreceiptOutPutDto } from './dtos/ineceipt/get-ireceipt.dto';
 import { GetSoldItemsOutPutDto } from './dtos/ineceipt/get-solditems.dto';
 import {
@@ -22,6 +22,7 @@ import { ShopItem } from './eitities/shop-item.entity';
 import { AddReivewOutPutDto, AddReviewInputDto } from './dtos/add-review.dto';
 import axios from 'axios';
 import { CellStyles, Excel4Node } from 'src/lib/excel4node';
+import { NotificationService } from 'src/notification/notification.service';
 
 @Injectable()
 export class ShopIreceiptService {
@@ -34,6 +35,7 @@ export class ShopIreceiptService {
     private readonly ItemRepository: Repository<ShopItem>,
     private readonly appService: AppService,
     private readonly shopUserService: ShopUserService,
+    private readonly notificationService: NotificationService,
   ) {}
 
   async CreateSoldItemById(
@@ -168,6 +170,76 @@ export class ShopIreceiptService {
           err: '저장하지 못함',
         };
       }
+
+      switch (soldItem.status) {
+        case Status.결제완료:
+          this.notificationService.pushShopNotificationByUserId(
+            soldItem.sellUserInfo.id,
+            {
+              title: `${soldItem.purchasedUser.nickName}님이 상품을 구매하였습니다.`,
+              body: `결제가 들어왔습니다.`,
+            },
+          );
+          break;
+        case Status['배송 정보 접수']:
+          this.notificationService.pushShopNotificationByUserId(
+            +soldItem.purchasedUser.id,
+            {
+              title: `${soldItem.soldItemsInfo.item.title}`,
+              body: '배송을 접수 하였습니다.',
+            },
+          );
+          break;
+        case Status.화물접수:
+          this.notificationService.pushShopNotificationByUserId(
+            +soldItem.purchasedUser.id,
+            {
+              title: `${soldItem.soldItemsInfo.item.title} 화물을 접수 하였습니다,`,
+              body: `${soldItem.transportNumber} 접수 하였습니다.`,
+              transportNumber: soldItem.transportNumber,
+            },
+          );
+          break;
+        case Status['운송 업체 시설 도착']:
+          this.notificationService.pushShopNotificationByUserId(
+            +soldItem.purchasedUser.id,
+            {
+              title: `${soldItem.soldItemsInfo.item.title}`,
+              body: `운송 업체 시설에 도착 하였습니다.`,
+            },
+          );
+          break;
+        case Status.배송중:
+          this.notificationService.pushShopNotificationByUserId(
+            +soldItem.purchasedUser.id,
+            {
+              title: `${soldItem.soldItemsInfo.item.title}`,
+              body: `배송을 시작하였습니다..`,
+            },
+          );
+          break;
+        case Status.배송직전:
+          this.notificationService.pushShopNotificationByUserId(
+            +soldItem.purchasedUser.id,
+            {
+              title: `${soldItem.soldItemsInfo.item.title}`,
+              body: `곧 도착 합니다.`,
+            },
+          );
+          break;
+        case Status.배송완료:
+          this.notificationService.pushShopNotificationByUserId(
+            +soldItem.purchasedUser.userId,
+            {
+              title: `${soldItem.soldItemsInfo.item.title}`,
+              body: `배송 완료 하였습니다.`,
+            },
+          );
+          break;
+        default:
+          break;
+      }
+
       return {
         ok: true,
         soldItem,

@@ -12,6 +12,7 @@ class SellerRealtions extends PartialType(
 ) {}
 
 export class UserInfo extends PickType(ShopUser, [
+  'id',
   'email',
   'nickName',
   'tel',

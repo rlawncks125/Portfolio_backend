@@ -4,6 +4,7 @@ import { IsNull, Like, Not, Repository } from 'typeorm';
 import {
   Notification,
   NotificationPayLoad,
+  ShopNotificationPayLoad,
 } from './entities/Notification.entity';
 import { basic64Auth } from '../JwtMiddleware/Jwt.middleware';
 
@@ -128,6 +129,23 @@ export class NotificationService {
     };
   }
 
+  /** 구독 해제 */
+  async deletesubscription(auth: string): Promise<ClearRegisterOutPutDto> {
+    const ok = await this.notificationRepository.delete({ auth });
+
+    console.log(ok);
+
+    if (ok.affected === 0) {
+      return {
+        ok: false,
+      };
+    }
+
+    return {
+      ok: true,
+    };
+  }
+
   /** 구독 유저 등록 */
   async registerSubscriptionUser({
     auth,
@@ -178,23 +196,6 @@ export class NotificationService {
     };
   }
 
-  /** 구독 해제 */
-  async deletesubscription(auth: string): Promise<ClearRegisterOutPutDto> {
-    const ok = await this.notificationRepository.delete({ auth });
-
-    console.log(ok);
-
-    if (ok.affected === 0) {
-      return {
-        ok: false,
-      };
-    }
-
-    return {
-      ok: true,
-    };
-  }
-
   /** 알림 설정 변경 */
   async patchListerNotification({
     auth,
@@ -221,6 +222,7 @@ export class NotificationService {
     };
   }
 
+  /** 알림 설정 여부 */
   async getIsPush(auth: string) {
     const notification = await this.notificationRepository.findOne({
       where: {
@@ -233,5 +235,130 @@ export class NotificationService {
     }
 
     return notification.isPush;
+  }
+
+  // ===================================================
+  // Entity 추가 값 shopUserId , shopIsPush
+  // shop 프로젝트 파라미터 restaurntUserID => shopUserID로
+  // 접근 값만 변경된 함수들
+  // ===================================================
+
+  /** shop 구독 유저 등록 */
+  async registerShopSubscriptionUser({
+    auth,
+    userId,
+  }: RegistersubscriptionUserInputDto): Promise<RegistersubscriptionUserOutPutDto> {
+    const notification = await this.notificationRepository.findOne({
+      where: { auth },
+    });
+    notification.shopUserId = +userId;
+
+    const ok = await this.notificationRepository.update(
+      notification.id,
+      notification,
+    );
+
+    if (ok.affected === 0) {
+      return {
+        ok: false,
+        err: '업데이트 되지 않았습니다.',
+      };
+    }
+
+    return {
+      ok: true,
+    };
+  }
+
+  /** shop 구독 유저 등록 해제 */
+  async removeRegisterShopSubscriptionUser({
+    auth,
+  }: ClearRegisterUserInputDto): Promise<ClearRegisterUserOutPutDto> {
+    const notification = await this.notificationRepository.findOne({
+      where: { auth },
+    });
+
+    const ok = await this.notificationRepository.update(notification.id, {
+      shopUserId: null,
+    });
+
+    if (ok.affected === 0) {
+      return {
+        ok: false,
+      };
+    }
+
+    return {
+      ok: true,
+    };
+  }
+
+  /** shop 알림 설정 변경 */
+  async patchListerShopNotification({
+    auth,
+  }: PatchListerNotificationInputDto): Promise<PatchListerNotificationOutPutDto> {
+    const notification = await this.notificationRepository.findOne({
+      where: {
+        auth,
+      },
+    });
+    console.log('찾음', notification.id);
+
+    const ok = await this.notificationRepository.update(notification.id, {
+      shopIsPush: !notification.shopIsPush,
+    });
+
+    if (ok.affected === 0) {
+      return {
+        ok: false,
+      };
+    }
+
+    return {
+      ok: true,
+      isPusb: !notification.shopIsPush,
+    };
+  }
+
+  /** shop 웹 푸쉬 알람 보내기*/
+  async pushShopNotificationByUserId(
+    shopUserId: string | number,
+    data: ShopNotificationPayLoad,
+  ) {
+    console.log(shopUserId, data);
+
+    const lists = await this.notificationRepository.find({
+      where: { shopUserId: +shopUserId, isPush: true },
+    });
+    // console.log(lists);
+
+    const temp = [];
+
+    lists.forEach((v) => {
+      temp.push(
+        webpush.sendNotification(
+          JSON.parse(v.subscription),
+          JSON.stringify(data),
+        ),
+      );
+    });
+    // console.log(temp);
+
+    await Promise.all(temp);
+  }
+
+  /** shop 알람 허용 여부 */
+  async getShopIsPush(auth: string) {
+    const notification = await this.notificationRepository.findOne({
+      where: {
+        auth,
+      },
+    });
+
+    if (!notification) {
+      return false;
+    }
+
+    return notification.shopIsPush;
   }
 }

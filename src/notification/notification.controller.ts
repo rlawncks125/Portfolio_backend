@@ -69,6 +69,10 @@ export class NotificationController {
   async getIsPush(@Param() { auth }: { auth: string }) {
     return await this.notificationService.getIsPush(auth);
   }
+  @Get('shopispush/:auth')
+  async getShopIsPush(@Param() { auth }: { auth: string }) {
+    return await this.notificationService.getShopIsPush(auth);
+  }
 
   @ApiResponse({
     type: RegistersubscriptionOutPutDto,
@@ -89,6 +93,16 @@ export class NotificationController {
   ) {
     return await this.notificationService.registerSubscriptionUser(data);
   }
+  @ApiResponse({
+    type: RegistersubscriptionUserOutPutDto,
+    status: 200,
+  })
+  @Post('register-shop-user')
+  async registerSubscriptionShopUser(
+    @Body() data: RegistersubscriptionUserInputDto,
+  ) {
+    return await this.notificationService.registerShopSubscriptionUser(data);
+  }
 
   @ApiResponse({
     type: ClearRegisterUserOutPutDto,
@@ -102,12 +116,36 @@ export class NotificationController {
   }
 
   @ApiResponse({
+    type: ClearRegisterUserOutPutDto,
+    status: 200,
+  })
+  @Post('register-shop-user-remove')
+  async removeRegisterSubscriptionShopUser(
+    @Body() data: ClearRegisterUserInputDto,
+  ) {
+    return await this.notificationService.removeRegisterShopSubscriptionUser(
+      data,
+    );
+  }
+
+  @ApiResponse({
     type: PatchListerNotificationOutPutDto,
     status: 200,
   })
   @Patch()
   async PatchListerNotification(@Body() data: PatchListerNotificationInputDto) {
     return await this.notificationService.patchListerNotification(data);
+  }
+
+  @ApiResponse({
+    type: PatchListerNotificationOutPutDto,
+    status: 200,
+  })
+  @Patch('/shop')
+  async PatchListerShopNotification(
+    @Body() data: PatchListerNotificationInputDto,
+  ) {
+    return await this.notificationService.patchListerShopNotification(data);
   }
 
   @ApiResponse({

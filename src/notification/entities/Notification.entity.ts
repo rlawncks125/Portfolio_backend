@@ -17,6 +17,38 @@ export class NotificationPayLoad {
     example: '알람 내용',
   })
   body: string;
+
+  /** 방 UUID */
+  @ApiProperty({
+    description: '방 UUID',
+    example: '방 UUID',
+  })
+  uuid: string;
+}
+
+/** webpush PlayLoad */
+export class ShopNotificationPayLoad {
+  /** 알람 제목 */
+  @ApiProperty({
+    description: '알람 제목',
+    example: '알람 제목',
+  })
+  title: string;
+
+  /** 알람 내용 */
+  @ApiProperty({
+    description: '알람 내용',
+    example: '알람 내용',
+  })
+  body: string;
+
+  /** 운송사 정보 */
+  @ApiProperty({
+    description: '운송사 정보',
+    example: '운송사 정보',
+    required: false,
+  })
+  transportNumber?: string;
 }
 
 @Entity()
@@ -46,6 +78,16 @@ export class Notification extends CoreEntity {
   userId: number;
 
   @ApiProperty({
+    description: '등록된 shop 유저 아이디 입니다.',
+    example: '등록된 shop 유저 아이디 입니다.',
+  })
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  shopUserId: number;
+
+  @ApiProperty({
     description: '알림 받기 설정',
     example: '알림 받기 설정',
   })
@@ -53,4 +95,12 @@ export class Notification extends CoreEntity {
     default: true,
   })
   isPush: boolean;
+  @ApiProperty({
+    description: 'shop 알림 받기 설정',
+    example: 'shop 알림 받기 설정',
+  })
+  @Column({
+    default: true,
+  })
+  shopIsPush: boolean;
 }

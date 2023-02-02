@@ -72,6 +72,7 @@ export class ShopUserService {
       ok: true,
       token,
       userInfo: {
+        id: user.id,
         email,
         nickName,
         postcode,

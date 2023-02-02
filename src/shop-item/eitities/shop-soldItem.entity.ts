@@ -152,8 +152,6 @@ export class ShopSoldItem extends CoreEntity {
   // 배송 상태
   status: Status;
 
-  // 운송 택배사
-
   @ApiProperty({
     description: '운송자 번호',
     example: '운송자 번호',
