@@ -215,4 +215,11 @@ export class ShopUserController {
   ) {
     return this.shopUserService.removeBasketItem(user, input);
   }
+
+  @ApiOperation({ summary: '유저 삭제' })
+  @Delete()
+  @UseGuards(ShopAuthGuard)
+  useDelete(@authUser() user: ShopUser) {
+    return this.shopUserService.delete(user);
+  }
 }

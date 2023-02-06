@@ -414,6 +414,7 @@ export class ShopUserService {
     }
 
     await this.mailerService.snedFindPasswordMail({
+      useId: user.userId,
       email,
       password: newPassword,
     });

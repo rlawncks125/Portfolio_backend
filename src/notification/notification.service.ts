@@ -302,7 +302,6 @@ export class NotificationService {
         auth,
       },
     });
-    console.log('찾음', notification.id);
 
     const ok = await this.notificationRepository.update(notification.id, {
       shopIsPush: !notification.shopIsPush,
@@ -325,8 +324,6 @@ export class NotificationService {
     shopUserId: string | number,
     data: ShopNotificationPayLoad,
   ) {
-    console.log(shopUserId, data);
-
     const lists = await this.notificationRepository.find({
       where: { shopUserId: +shopUserId, isPush: true },
     });
