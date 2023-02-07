@@ -125,9 +125,14 @@ export class ShopItemService {
           err: '유효하지않은 접근 입니다.',
         };
       }
+      const item = await this.itemRepository.findOne(
+        { id },
+        { relations: ['sellUserInfo'] },
+      );
 
       return {
         ok: true,
+        item,
       };
     } catch (err) {
       return {

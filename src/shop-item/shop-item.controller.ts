@@ -46,6 +46,7 @@ import {
 import { AddReivewOutPutDto, AddReviewInputDto } from './dtos/add-review.dto';
 import { AddQAInputDto, AddQAOutPutDto } from './dtos/add-QA.dto';
 import { AnswerQAInputDto, AnswerQAOutPutDtop } from './dtos/answer-QA.dto';
+import { GetSalseItemsOutPutDto } from './dtos/getSalesItems.dto';
 
 @ApiTags('shopitem')
 @Controller('shop-item')
@@ -164,8 +165,20 @@ export class ShopItemController {
     return this.ireceiptService.getSoldItem(user);
   }
 
+  @ApiOperation({ summary: '판매중인 아이템 목록' })
+  @ApiResponse({
+    type: GetSalseItemsOutPutDto,
+    status: 200,
+  })
+  @UseGuards(ShopAuthGuard)
+  @ShopRoles(['company'])
+  @Get('salesItems')
+  async getSalesItems(@authUser() user: ShopUser) {
+    return this.ireceiptService.getSalesItems(user);
+  }
+
   // 택배 화물 접수
-  @ApiOperation({ summary: '판매아이템 정보 변경' })
+  @ApiOperation({ summary: '배송 정보 변경' })
   @ApiResponse({
     type: PatchSoldItemOutputDto,
     status: 200,
@@ -243,7 +256,6 @@ export class ShopItemController {
   })
   @Get(':id')
   async getItemById(@Param() param) {
-    console.log(`get ${param}`);
     return this.itemService.getItemById(+param.id);
   }
 

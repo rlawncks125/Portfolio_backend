@@ -23,6 +23,7 @@ import { AddReivewOutPutDto, AddReviewInputDto } from './dtos/add-review.dto';
 import axios from 'axios';
 import { CellStyles, Excel4Node } from 'src/lib/excel4node';
 import { NotificationService } from 'src/notification/notification.service';
+import { GetSalseItemsOutPutDto } from './dtos/getSalesItems.dto';
 
 @Injectable()
 export class ShopIreceiptService {
@@ -132,6 +133,18 @@ export class ShopIreceiptService {
         sellUserInfo: user.sellerInfo,
       },
       relations: ['purchasedUser'],
+    });
+
+    return {
+      ok: true,
+      items,
+    };
+  }
+  async getSalesItems(user: ShopUser): Promise<GetSalseItemsOutPutDto> {
+    const items = await this.ItemRepository.find({
+      where: {
+        sellUserInfo: user.sellerInfo,
+      },
     });
 
     return {
