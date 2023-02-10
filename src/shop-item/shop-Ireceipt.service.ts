@@ -242,7 +242,7 @@ export class ShopIreceiptService {
           break;
         case Status.배송완료:
           this.notificationService.pushShopNotificationByUserId(
-            +soldItem.purchasedUser.userId,
+            +soldItem.purchasedUser.id,
             {
               title: `${soldItem.soldItemsInfo.item.title}`,
               body: `배송 완료 하였습니다.`,
