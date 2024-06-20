@@ -29,6 +29,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         context: .
+        file: Dockerfile.deploy
         push: true
         tags: rlawncks125/protfolio-backend:latest
 
