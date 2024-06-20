@@ -26,7 +26,7 @@ export class AppService {
     const s5 = process.env.DB_DATABASE;
     const s6 = process.env.DB_TYPE as any;
 
-    return `김주찬 개인 포트폴리오 서버 입니다.`;
+    return `김주찬 개인 포트폴리오 서버 입니다.222`;
   }
 
   async uploadClouldnary(
