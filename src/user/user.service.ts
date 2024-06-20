@@ -127,7 +127,7 @@ export class UserService {
 
       if (password) {
         user.password = password;
-        user.hashPassword();
+        await user.hashPassword();
       }
 
       // if (!password) {
