@@ -9,6 +9,22 @@ export class MailerService {
   constructor() {
     const nodemailer = require('nodemailer');
 
+    // Stalwart 로 띄운 메일서버 연결
+    // TLS 설정 x 일시
+    // this.#transporter = nodemailer.createTransport({
+    //   host: 'mail.ngng.site',
+    //   port: 587,
+    //   secure: false,
+    //   auth: {
+    //     user: process.env.MAIL_EMAIL,
+    //     pass: process.env.MAIL_APP_PASS,
+    //   },
+    //   tls: {
+    //     rejectUnauthorized: false,
+    //   },
+    // });
+
+    // gmail 연결
     this.#transporter = nodemailer.createTransport({
       service: 'gmail.com',
       host: 'smtp.gmail.com',
@@ -19,12 +35,18 @@ export class MailerService {
         pass: process.env.MAIL_APP_PASS,
       },
     });
+
+    this.#transporter.verify((err, success) => {
+      if (err) console.log('실패', err);
+      if (success) console.log('성공', success);
+    });
   }
 
   async sendMail({ toMail, certify, title }: SendMailInputDto) {
     return await this.#transporter.sendMail({
       to: toMail,
       subject: title,
+      // from: 'ngng-주찬 <juchan2@ngng.site>',
       html: `
       <div style="margin: auto; text-align: center">
       <h1>${toMail} 확인 테스트입니다</h1>

@@ -1,4 +1,4 @@
-FROM node:17-alpine as builder
+FROM node:18-alpine as builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
@@ -9,7 +9,7 @@ RUN npm run build
 # Step 2
 ## base image for Step 2: Node 14-alpine(light weight)
 # node예전버전 사용시 graphql 안됌 
-FROM node:17-alpine
+FROM node:18-alpine
 WORKDIR /app
 ## Step 1의 builder에서 build된 프로젝트를 가져온다
 ## package 종속석 설치
