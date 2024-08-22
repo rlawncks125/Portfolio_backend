@@ -48,6 +48,20 @@ export class QA {
   answer?: string;
 }
 
+export enum Category {
+  'Brand' = 'Brand', // 브랜드
+  'Beauty' = 'Beauty', // 뷰티
+  'Clothing' = 'Clothing', //의류
+  'Food' = 'Food', // 식품
+  'infant' = 'infant', // 유아
+  'Furniture' = 'Furniture', // 가구
+  'Life' = 'Life', // 생활
+  'Sports' = 'Sports', // 스포츠
+  'specialPrice' = 'specialPrice', // 특가
+  'Coupon' = 'Coupon', // 쿠폰
+  'Event' = 'Event', // 이벤트
+}
+
 @Entity()
 export class ShopItem extends CoreEntity {
   // 판매자 유저 정보
@@ -118,6 +132,14 @@ export class ShopItem extends CoreEntity {
   })
   @Column({ type: 'json', nullable: true, default: null })
   QA?: QA[];
+
+  @Column({
+    type: 'enum',
+    enum: Category,
+    nullable: true,
+    default: Category.Brand,
+  })
+  category?: Category;
 }
 
 //

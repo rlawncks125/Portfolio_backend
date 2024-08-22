@@ -1,6 +1,6 @@
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { CoreOutPut } from 'src/common/dtos/output.dto';
-import { ShopItem } from '../eitities/shop-item.entity';
+import { Category, ShopItem } from '../eitities/shop-item.entity';
 
 enum Order {
   'ASC' = 'ASC',
@@ -23,6 +23,13 @@ export class SearchItemsQueryInputDto extends PartialType(
     enum: [Order.ASC, Order.DESC],
   })
   createTimeOrder?: Order;
+
+  @ApiProperty({
+    description: '카테고리',
+    example: 'Brand',
+    required: false,
+  })
+  category?: Category;
 }
 
 export class SearchItemsOutPutDto extends CoreOutPut {

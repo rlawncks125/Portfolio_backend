@@ -222,12 +222,13 @@ export class ShopItemService {
     title,
     take,
     createTimeOrder,
+    category,
   }: SearchItemsQueryInputDto): Promise<SearchItemsOutPutDto> {
     try {
-      console.log('서치아이템', title, +take, createTimeOrder);
       const items = await this.itemRepository.find({
         where: {
           title: ILike(`%${title || ''}%`),
+          ...(category && { category }),
         },
         take: +take || 1,
         order: {
